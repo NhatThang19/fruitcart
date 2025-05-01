@@ -8,43 +8,64 @@
 
 <body>
     <div layout:fragment="content">
-        <form class="signup-form" method="post">
+        <form class="signup-form" th:action="@{/register}" method="post" th:object="${userReq}">
             <div class="imgcontainer">
-                <a th:href="@{/}"><img th:src="@{/admin/assets/img/logo/full-logo.png}" alt="logo" class="logo"></a>
+                <a th:href="@{/}">
+                    <img th:src="@{/admin/assets/img/logo/full-logo.png}" alt="logo" class="logo">
+                </a>
             </div>
+
             <div class="input-control">
                 <div class="row p-l-5 p-r-5">
+                    <!-- Tên người dùng -->
                     <div class="col-md-6 p-l-10 p-r-10">
-                        <input type="text" placeholder="Nhập tên người dùng" name="uname" required="" autocomplete="off">
+                        <input type="text" placeholder="Nhập tên người dùng" th:field="*{username}" autocomplete="off">
+                        <span class="text-danger" th:errors="*{username}"></span>
                     </div>
+
+                    <!-- Email -->
                     <div class="col-md-6 p-l-10 p-r-10">
-                        <input type="email" placeholder="Nhập email" name="email" required="" autocomplete="off">
+                        <input type="email" placeholder="Nhập email" th:field="*{email}" autocomplete="off">
+                        <span class="text-danger" th:errors="*{email}"></span>
                     </div>
+
+                    <!-- Mật khẩu -->
                     <div class="col-md-6 p-l-10 p-r-10">
-                        <input type="password" placeholder="Nhập mật khẩu" name="psw" class="input-checkmark" required="">
+                        <input type="password" placeholder="Nhập mật khẩu" th:field="*{password}"
+                            class="input-checkmark">
+                        <span class="text-danger" th:errors="*{password}"></span>
                     </div>
+
+                    <!-- Xác nhận mật khẩu -->
                     <div class="col-md-6 p-l-10 p-r-10">
                         <span class="password-field-show">
-                            <input class="password-field input-checkmark" type="password" placeholder="Nhập lại mật khẩu" name="psw" required="">
-                            <span data-toggle=".password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                            <input class="password-field input-checkmark" type="password"
+                                placeholder="Nhập lại mật khẩu" th:field="*{rePassword}">
                         </span>
+                        <span class="text-danger" th:errors="*{rePassword}"></span>
                     </div>
                 </div>
+
+                <!-- Checkbox đồng ý điều khoản -->
                 <label class="label-container">Tôi đồng ý với <a href="#"> chính sách riêng tư</a>
-                    <input type="checkbox">
+                    <input type="checkbox" required>
                     <span class="checkmark"></span>
                 </label>
+
+                <!-- Nút đăng ký -->
                 <div class="login-btns">
                     <button type="submit">Đăng ký</button>
                 </div>
-                <div class="division-lines">
-                    <p>Hoặc</p>
-                </div>
+
+                <!-- Đăng nhập bằng Google hoặc chuyển sang trang login -->
                 <div class="login-with-btns">
                     <button type="button" class="google">
                         <i class="ri-google-fill"></i>
                     </button>
-                    <span class="already-acc">Bạn đã có tài khoản? <a th:href="@{/}" class="login-btn">Đăng nhập</a></span>
+                    <span class="already-acc">
+                        Bạn đã có tài khoản?
+                        <a th:href="@{/login}" class="login-btn">Đăng nhập</a>
+                    </span>
                 </div>
             </div>
         </form>

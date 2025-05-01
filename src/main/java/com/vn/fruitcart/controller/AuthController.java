@@ -1,8 +1,8 @@
 package com.vn.fruitcart.controller;
 
 import com.vn.fruitcart.entity.dto.request.UserRegisterReq;
-import com.vn.fruitcart.entity.dto.response.ResponseMessage;
 import com.vn.fruitcart.service.AuthService;
+import com.vn.fruitcart.service.UserService;
 
 import jakarta.validation.Valid;
 
@@ -12,18 +12,19 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthController {
   private final AuthService authService;
+  private final UserService userService;
 
-  private AuthController(AuthService authService) {
+  public AuthController(AuthService authService, UserService userService) {
     this.authService = authService;
+    this.userService = userService;
   }
 
   @GetMapping("/login")
-  public String getLoginPage(Model model) {
+  public String getLoginPage() {
     return "admin/pages/auth/login";
   }
 
@@ -34,24 +35,24 @@ public class AuthController {
   }
 
   @PostMapping("/register")
-  public String register(@ModelAttribute @Valid UserRegisterReq userReq,
+  public String register(
+      @Valid @ModelAttribute("userReq") UserRegisterReq userReq,
       BindingResult bindingResult,
-      RedirectAttributes redirectAttribute,
       Model model) {
 
+    if (!userReq.getPassword().equals(userReq.getRePassword())) {
+      bindingResult.rejectValue("rePassword", "", "Mật khẩu xác nhận không khớp");
+    }
+
+    if (this.userService.isEmailExists(userReq.getEmail())) {
+      bindingResult.rejectValue("email", "", "Email đã tồn tại");
+    }
+
     if (bindingResult.hasErrors()) {
-      return "/register";
+      return "admin/pages/auth/register";
     }
 
-    ResponseMessage response = this.authService.register(userReq);
-    if (!response.isSuccess()) {
-      model.addAttribute("error", response.getMessage());
-      return "register";
-    }
-
-    model.addAttribute("success", response.getMessage());
-
-    return "redirect:/login";
+    this.authService.register(userReq);
+    return "redirect:/login?success";
   }
-
 }

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.UserRegisterReq;
-import com.vn.fruitcart.entity.dto.response.ResponseMessage;
 
 @Service
 public class AuthService {
@@ -17,14 +16,14 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public ResponseMessage register(UserRegisterReq userRegisterReq) {
+    public User register(UserRegisterReq userRegisterReq) {
         User newUser = new User();
         newUser.setEmail(userRegisterReq.getEmail());
-        newUser.setPassword(passwordEncoder.encode(userRegisterReq.getPassword()));
+        newUser.setPassword(userRegisterReq.getPassword());
         newUser.setActive(true);
     
         userService.createUser(newUser);
     
-        return new ResponseMessage(true, "Đăng ký tài khoản thành công.");
+        return this.userService.createUser(newUser);
     }
 }
