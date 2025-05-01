@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="vi" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title layout:title-pattern="$CONTENT_TITLE">Default Title</title>
+
+    <link rel="shortcut icon" th:href="@{/admin/assets/img/favicon/favicon.ico}">
+
+    <!-- Icon CSS -->
+    <link th:href="@{/admin/assets/css/vendor/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/remixicon.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/owl.carousel.min.css}" rel="stylesheet">
+
+    <!-- Vendor CSS -->
+    <link th:href="@{/admin/assets/css/vendor/datatables.bootstrap5.min.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/responsive.datatables.min.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/daterangepicker.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/simplebar.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/apexcharts.css}" rel="stylesheet">
+    <link th:href="@{/admin/assets/css/vendor/jquery-jvectormap-1.2.2.css}" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link id="main-css" th:href="@{/admin/assets/css/style.css}" rel="stylesheet">
+
+</head>
+
+<body>
+    <main class="wrapper sb-default">
+        <section class="auth-section anim">
+            <div class="cr-login-page">
+                <div class="container-fluid no-gutters">
+                    <div class="row">
+                        <div class="offset-lg-6 col-lg-6">
+                            <div class="content-detail">
+                                <div class="main-info">
+                                    <div class="hero-container">
+                                        <div layout:fragment="content">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Vendor Custom -->
+    <script th:src="@{/admin/assets/js/vendor/jquery-3.6.4.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/simplebar.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/apexcharts.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/jquery-jvectormap-1.2.2.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/jquery-jvectormap-world-mill-en.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/owl.carousel.min.js}"></script>
+    <!-- Data Tables -->
+    <script th:src="@{/admin/assets/js/vendor/jquery.datatables.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/datatables.bootstrap5.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/datatables.responsive.min.js}"></script>
+    <!-- Calendar -->
+    <script th:src="@{/admin/assets/js/vendor/jquery.simple-calendar.js}"></script>
+    <!-- Date Range Picker -->
+    <script th:src="@{/admin/assets/js/vendor/moment.min.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/daterangepicker.js}"></script>
+    <script th:src="@{/admin/assets/js/vendor/date-range.js}"></script>
+
+    <!-- Main Custom -->
+    <script th:src="@{/admin/assets/js/main.js}"></script>
+</body>
+
+</html>

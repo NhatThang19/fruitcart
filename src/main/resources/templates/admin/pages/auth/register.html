@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/auth-layout}">
+
+<head>
+    <title>Đăng ký - FruitCart</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <form class="signup-form" method="post">
+            <div class="imgcontainer">
+                <a th:href="@{/}"><img th:src="@{/admin/assets/img/logo/full-logo.png}" alt="logo" class="logo"></a>
+            </div>
+            <div class="input-control">
+                <div class="row p-l-5 p-r-5">
+                    <div class="col-md-6 p-l-10 p-r-10">
+                        <input type="text" placeholder="Nhập tên người dùng" name="uname" required="" autocomplete="off">
+                    </div>
+                    <div class="col-md-6 p-l-10 p-r-10">
+                        <input type="email" placeholder="Nhập email" name="email" required="" autocomplete="off">
+                    </div>
+                    <div class="col-md-6 p-l-10 p-r-10">
+                        <input type="password" placeholder="Nhập mật khẩu" name="psw" class="input-checkmark" required="">
+                    </div>
+                    <div class="col-md-6 p-l-10 p-r-10">
+                        <span class="password-field-show">
+                            <input class="password-field input-checkmark" type="password" placeholder="Nhập lại mật khẩu" name="psw" required="">
+                            <span data-toggle=".password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                        </span>
+                    </div>
+                </div>
+                <label class="label-container">Tôi đồng ý với <a href="#"> chính sách riêng tư</a>
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                </label>
+                <div class="login-btns">
+                    <button type="submit">Đăng ký</button>
+                </div>
+                <div class="division-lines">
+                    <p>Hoặc</p>
+                </div>
+                <div class="login-with-btns">
+                    <button type="button" class="google">
+                        <i class="ri-google-fill"></i>
+                    </button>
+                    <span class="already-acc">Bạn đã có tài khoản? <a th:href="@{/}" class="login-btn">Đăng nhập</a></span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+</html>
