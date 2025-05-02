@@ -12,8 +12,7 @@
                         <a href="javascript:void(0)" class="open-search"><i class="ri-search-line"></i></a>
                         <form class="cr-search">
                             <input class="search-input" type="text" placeholder="Tìm kiếm...">
-                            <a href="javascript:void(0)" class="search-btn"><i class="ri-search-line"></i>
-                            </a>
+                            <a href="javascript:void(0)" class="search-btn"><i class="ri-search-line"></i></a>
                         </form>
                     </div>
                 </div>
@@ -27,18 +26,12 @@
                         <div class="cr-hover-drop-panel right">
                             <h6 class="title">Apps</h6>
                             <ul>
-                                <li><a href="javascript:void(0)"><img class="app" src="assets/img/apps/1.png"
-                                            alt="flag">English</a></li>
-                                <li><a href="javascript:void(0)"><img class="app" src="assets/img/apps/2.png"
-                                            alt="flag">Hindi</a></li>
-                                <li><a href="javascript:void(0)"><img class="app" src="assets/img/apps/3.png"
-                                            alt="flag"> Deutsch</a></li>
-                                <li><a href="javascript:void(0)"><img class="app" src="assets/img/apps/4.png"
-                                            alt="flag">Italian</a></li>
-                                <li><a href="javascript:void(0)"><img class="app" src="assets/img/apps/5.png"
-                                            alt="flag">Japanese</a></li>
-                                <li><a href="javascript:void(0)"><img class="app" src="assets/img/apps/6.png"
-                                            alt="flag">Japanese</a></li>
+                                <li><a href="javascript:void(0)"><img class="app" th:src="@{/admin/assets/img/apps/1.png}" alt="flag">English</a></li>
+                                <li><a href="javascript:void(0)"><img class="app" th:src="@{/admin/assets/img/apps/2.png}" alt="flag">Hindi</a></li>
+                                <li><a href="javascript:void(0)"><img class="app" th:src="@{/admin/assets/img/apps/3.png}" alt="flag"> Deutsche</a></li>
+                                <li><a href="javascript:void(0)"><img class="app" th:src="@{/admin/assets/img/apps/4.png}" alt="flag">Italian</a></li>
+                                <li><a href="javascript:void(0)"><img class="app" th:src="@{/admin/assets/img/apps/5.png}" alt="flag">Japanese</a></li>
+                                <li><a href="javascript:void(0)"><img class="app" th:src="@{/admin/assets/img/apps/6.png}" alt="flag">Japanese</a></li>
                             </ul>
                         </div>
                     </div>
@@ -56,12 +49,12 @@
                 <div class="cr-right-tool cr-user-drop">
                     <div class="cr-hover-drop">
                         <div class="cr-hover-tool">
-                            <img class="user" src="assets/img/user/1.jpg" alt="user">
+                            <img class="user" th:src="@{${session.userInfo != null ? session.userInfo.avatar : '/admin/assets/img/user/1.jpg'}}" alt="user">
                         </div>
                         <div class="cr-hover-drop-panel right">
                             <div class="details">
-                                <h6>Wiley Waites</h6>
-                                <p>wiley@example.com</p>
+                                <h6 th:text="${session.userInfo != null ? session.userInfo.username : 'Guest'}">Username</h6>
+                                <p th:text="${session.userInfo != null ? session.userInfo.email : 'guest@example.com'}">Email</p>
                             </div>
                             <ul class="border-top">
                                 <li><a href="team-profile.html">Profile</a></li>
@@ -71,7 +64,13 @@
                                 <li><a href="team-update.html">Settings</a></li>
                             </ul>
                             <ul class="border-top">
-                                <li><a href="signin.html"><i class="ri-logout-circle-r-line"></i>Logout</a></li>
+                                <li>
+                                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                                        <button type="submit" style="background: none; border: none; padding: 0; color: inherit; cursor: pointer;">
+                                            <i class="ri-logout-circle-r-line"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </div>

@@ -21,7 +21,7 @@ public class AuthService {
         newUser.setEmail(userRegisterReq.getEmail());
         newUser.setPassword(userRegisterReq.getPassword());
         newUser.setActive(true);
-        newUser.setRole(this.roleService.getRoleByName("ADMIN"));
+        newUser.setRole(this.roleService.getRoleByName("USER"));
 
         return userService.createUser(newUser);
     }
