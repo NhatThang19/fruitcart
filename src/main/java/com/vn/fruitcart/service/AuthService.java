@@ -1,29 +1,28 @@
 package com.vn.fruitcart.service;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.entity.dto.request.UserRegisterReq;
+import com.vn.fruitcart.entity.dto.request.RegisterReq;
 
 @Service
 public class AuthService {
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
+    private final RoleService roleService;
 
-    public AuthService(UserService userService, PasswordEncoder passwordEncoder) {
+    public AuthService(UserService userService, RoleService roleService) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
-    public User register(UserRegisterReq userRegisterReq) {
+    public User register(RegisterReq userRegisterReq) {
         User newUser = new User();
+        newUser.setUsername(userRegisterReq.getUsername());
         newUser.setEmail(userRegisterReq.getEmail());
         newUser.setPassword(userRegisterReq.getPassword());
         newUser.setActive(true);
-    
-        userService.createUser(newUser);
-    
-        return this.userService.createUser(newUser);
+        newUser.setRole(this.roleService.getRoleByName("ADMIN"));
+
+        return userService.createUser(newUser);
     }
 }

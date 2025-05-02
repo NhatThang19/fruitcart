@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="vi" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title layout:title-pattern="$CONTENT_TITLE">Default Title</title>
+
+    <link rel="shortcut icon" th:href="@{/client/assets/img/favicon/favicon.ico}">
+
+    <!-- Icon CSS -->
+    <link th:href="@{/client/assets/css/vendor/materialdesignicons.min.css}" rel="stylesheet">
+    <link th:href="@{/client/assets/css/vendor/remixicon.css}" rel="stylesheet">
+
+    <!-- Vendor CSS -->
+    <link rel="stylesheet" th:href="@{/client/assets/css/vendor/animate.css}">
+    <link rel="stylesheet" th:href="@{/client/assets/css/vendor/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/client/assets/css/vendor/aos.min.css}">
+    <link rel="stylesheet" th:href="@{/client/assets/css/vendor/range-slider.css}">
+    <link rel="stylesheet" th:href="@{/client/assets/css/vendor/swiper-bundle.min.css}">
+    <link rel="stylesheet" th:href="@{/client/assets/css/vendor/jquery.slick.css}">
+    <link rel="stylesheet" th:href="@{/client/assets/css/vendor/slick-theme.css}">
+
+    <!-- Main CSS -->
+    <link id="main-css" th:href="@{/client/assets/css/style.css}" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="cr-overlay">
+        <span class="loader"></span>
+    </div>
+
+    <!-- Header -->
+    <header th:replace="~{client/fragments/header :: header}"></header>
+
+    <!-- Mobile menu -->
+    <div th:replace="~{client/fragments/mobile-menu :: div}"></div>
+
+    <div layout:fragment="content"></div>
+
+    <!-- Footer -->
+    <footer th:replace="~{client/fragments/footer :: footer}"></footer>
+
+    <!-- Tab to top -->
+    <a th:replace="~{client/fragments/to-top :: a}"></a>
+
+    <!-- Modal -->
+    <div th:replace="~{client/fragments/modal :: div}"></div>
+
+    <!-- Cart -->
+    <div th:replace="~{client/fragments/cart :: div}"></div>
+
+
+    <!-- Vendor Custom -->
+    <script th:src="@{/client/assets/js/vendor/jquery-3.6.4.min.js}"></script>
+    <script th:src="@{/client/assets/js/vendor/jquery.zoom.min.js}"></script>
+    <script th:src="@{/client/assets/js/vendor/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/client/assets/js/vendor/mixitup.min.js}"></script>
+    <script th:src="@{/client/assets/js/vendor/range-slider.js}"></script>
+    <script th:src="@{/client/assets/js/vendor/aos.min.js}"></script>
+    <script th:src="@{/client/assets/js/vendor/swiper-bundle.min.js}"></script>
+    <script th:src="@{/client/assets/js/vendor/slick.min.js}"></script>
+
+    <!-- Main Custom -->
+    <script th:src="@{/client/assets/js/main.js}"></script>
+</body>
+
+</html>

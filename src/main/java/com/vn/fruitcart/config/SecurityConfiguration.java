@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,21 +49,19 @@ public class SecurityConfiguration {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(whiteList).permitAll()
+            .requestMatchers("/admin").hasRole("ADMIN")
             .anyRequest().authenticated())
         .formLogin(form -> form
             .loginPage("/login")
             .successHandler(customSuccessHandler(userService))
             .failureHandler((request, response, exception) -> {
-              String errorMessage;
               if (exception.getMessage().contains("User is disabled")) {
-                errorMessage = "Tài khoản của bạn đã bị khóa.";
+                response.sendRedirect("/login?banned");
               } else if (exception.getMessage().contains("Bad credentials")) {
-                errorMessage = "Tên đăng nhập hoặc mật khẩu không đúng!";
-              } else {
-                errorMessage = "Đăng nhập thất bại. Vui lòng thử lại.";
+                response.sendRedirect("/login?error");
+              } else if (exception.getMessage().contains("Session expired")) {
+                response.sendRedirect("/login?expired");
               }
-              request.getSession().setAttribute("errorMessage", errorMessage);
-              response.sendRedirect("/login");
             })
             .permitAll())
         .rememberMe(remember -> remember
@@ -75,17 +72,14 @@ public class SecurityConfiguration {
         .logout(logout -> logout
             .logoutUrl("/logout")
             .logoutSuccessHandler((request, response, authentication) -> {
-              request.getSession().setAttribute("logoutMessage", "Đăng xuất thành công!");
-              response.sendRedirect("/login");
+              response.sendRedirect("/login?logout");
             })
             .invalidateHttpSession(true)
             .deleteCookies("JSESSIONID", "remember-me")
             .permitAll())
         .sessionManagement((sessionManagement) -> sessionManagement
             .invalidSessionUrl("/logout?expired")
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             .maximumSessions(1)
-            .expiredUrl("/login?expired=true")
             .maxSessionsPreventsLogin(false))
         .exceptionHandling(exception -> exception
             .authenticationEntryPoint((request, response, authException) -> {
@@ -93,7 +87,6 @@ public class SecurityConfiguration {
               response.sendRedirect("/login");
             })
             .accessDeniedHandler((request, response, accessDeniedException) -> {
-              request.getSession().setAttribute("errorMessage", "Bạn không có quyền truy cập.");
               response.sendRedirect("/access-denied");
             }));
 
