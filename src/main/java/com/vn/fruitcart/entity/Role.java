@@ -24,6 +24,10 @@ public class Role {
 
   private String name;
 
+  public Role(String name) {
+    this.name = name;
+  }
+
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   @JsonIgnore
   private List<User> users;
