@@ -44,11 +44,15 @@
                                     <span th:text="${#strings.capitalizeWords(session.userInfo.username)}"></span>
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <li sec:authorize="hasRole('ADMIN')">
+                                        <a class="dropdown-item" th:href="@{/admin}">Trang quản trị</a>
+                                    </li>
                                     <li><a class="dropdown-item" th:href="@{/profile}">Thông tin cá nhân</a></li>
                                     <li>
-                                        <form th:action="@{/logout}" method="post" class="dropdown-item">
-                                            <button type="submit" class="btn btn-link p-0 text-start w-100">Đăng
-                                                xuất</button>
+                                        <form id="logoutForm" th:action="@{/logout}" method="post">
+                                            <a href="#" onclick="document.getElementById('logoutForm').submit()"
+                                                class="dropdown-item">Đăng
+                                                xuất</a>
                                         </form>
                                     </li>
                                 </ul>
@@ -100,11 +104,15 @@
                                     <i class="ri-user-3-line" th:unless="${session.userInfo.avatar}"></i>
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <li sec:authorize="hasRole('ADMIN')">
+                                        <a class="dropdown-item" th:href="@{/admin}">Trang quản trị</a>
+                                    </li>
                                     <li><a class="dropdown-item" th:href="@{/profile}">Thông tin cá nhân</a></li>
                                     <li>
-                                        <form th:action="@{/logout}" method="post" class="dropdown-item">
-                                            <button type="submit" class="btn btn-link p-0 text-start w-100">Đăng
-                                                xuất</button>
+                                        <form id="logoutForm" th:action="@{/logout}" method="post">
+                                            <a href="#" onclick="document.getElementById('logoutForm').submit()"
+                                                class="dropdown-item">Đăng
+                                                xuất</a>
                                         </form>
                                     </li>
                                 </ul>

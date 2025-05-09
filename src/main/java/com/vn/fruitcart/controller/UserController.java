@@ -133,7 +133,6 @@ public class UserController {
       existingUser.setActive(updateUserReq.isActive());
       existingUser.setAvatar(updateUserReq.getAvatar());
 
-      // Xử lý role
       if (updateUserReq.getRole() != null) {
         Role newRole = this.roleService.getRoleByName(updateUserReq.getRole());
         if (oldRole != null) {
