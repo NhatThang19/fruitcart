@@ -87,9 +87,18 @@
         <script th:src="@{/admin/assets/js/main.js}"></script>
         <script th:src="@{/shared/assets/js/swal-utils.js}"></script>
 
-        <th:block layout:fragment="extras-scripts">
+        <th:block layout:fragment="extras-scripts"></th:block>
 
-        </th:block>
+        <script th:inline="javascript">
+            /* Kiểm tra thông báo từ model */
+            const message = /*[[${message}]]*/ null;
+            const messageType = /*[[${messageType}]]*/ 'success';
+
+            if (message) {
+                showToast(message, messageType);
+                console.log(message);
+            }
+        </script>
     </main>
 </body>
 

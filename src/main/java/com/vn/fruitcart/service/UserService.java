@@ -40,4 +40,8 @@ public class UserService {
   public User save(User existingUser) {
     return this.userRepository.save(existingUser);
   }
+
+  public void deleteUserById(Long id) {
+    this.userRepository.deleteById(id);
+  }
 }

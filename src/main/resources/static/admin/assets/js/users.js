@@ -60,8 +60,8 @@ $(document).ready(function () {
                             </button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/admin/users/detail/${data}">Xem</a>
-                                <a class="dropdown-item" href="#">Sửa</a>
-                                <a class="dropdown-item" href="#">Xoá</a>
+                                <a class="dropdown-item" href="/admin/users/edit/${data}">Sửa</a>
+                                <a class="dropdown-item" onclick="showConfirm(event, 'Xác nhận xoá?', 'Bạn chắc chắn muốn xoá người dùng này?', null, '/admin/users/delete?id=${data}')">Xoá</a>
                             </div>
                         </div>
                     `;

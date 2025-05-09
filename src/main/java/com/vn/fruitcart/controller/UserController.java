@@ -101,11 +101,12 @@ public class UserController {
       @RequestParam(value = "avatarFile", required = false) MultipartFile avatarFile,
       RedirectAttributes redirectAttributes,
       Model model,
-      Authentication authentication) { // Nhận thông tin người dùng hiện tại
+      Authentication authentication) {
 
     User existingUser = userService.getUserById(updateUserReq.getId());
     if (existingUser == null) {
-      redirectAttributes.addFlashAttribute("error", "Không tìm thấy người dùng");
+      redirectAttributes.addFlashAttribute("message", "Sửa người dùng thất bại!");
+      redirectAttributes.addFlashAttribute("messageType", "error");
       return "redirect:/admin/users";
     }
 
@@ -115,11 +116,9 @@ public class UserController {
     }
 
     try {
-      // Lưu role cũ để so sánh
       String oldRole = existingUser.getRole() != null ? existingUser.getRole().getName() : null;
       boolean roleChanged = false;
 
-      // Xử lý upload avatar
       if (avatarFile != null && !avatarFile.isEmpty()) {
         String avatarFileName = imgService.storeFile(avatarFile, "avatars");
         updateUserReq.setAvatar("/storage/avatars/" + avatarFileName);
@@ -127,7 +126,6 @@ public class UserController {
         updateUserReq.setAvatar(existingUser.getAvatar());
       }
 
-      // Cập nhật thông tin
       existingUser.setUsername(updateUserReq.getUsername());
       existingUser.setPhone(updateUserReq.getPhone());
       existingUser.setAddress(updateUserReq.getAddress());
@@ -139,21 +137,20 @@ public class UserController {
       if (updateUserReq.getRole() != null) {
         Role newRole = this.roleService.getRoleByName(updateUserReq.getRole());
         if (oldRole != null) {
-            roleChanged = !oldRole.equals(updateUserReq.getRole());
+          roleChanged = !oldRole.equals(updateUserReq.getRole());
         } else {
-            roleChanged = true;
+          roleChanged = true;
         }
         existingUser.setRole(newRole);
       }
 
-      // Nếu role thay đổi, đăng xuất người dùng đó
       if (roleChanged) {
         sessionService.expireUserSessions(existingUser.getId());
       }
 
       userService.save(existingUser);
-      
-      redirectAttributes.addFlashAttribute("success", "Cập nhật người dùng thành công!");
+      redirectAttributes.addFlashAttribute("message", "Sửa người dùng thành công!");
+      redirectAttributes.addFlashAttribute("messageType", "success");
       return "redirect:/admin/users/detail/" + existingUser.getId();
 
     } catch (Exception e) {
@@ -161,6 +158,26 @@ public class UserController {
       model.addAttribute("error", "Lỗi khi cập nhật: " + e.getMessage());
       return "admin/pages/users/edit";
     }
+  }
+
+  @GetMapping("/delete")
+  public String deleteUser(@RequestParam Long id, RedirectAttributes redirectAttributes) {
+    try {
+      User user = userService.getUserById(id);
+      if (user != null) {
+        sessionService.expireUserSessions(id);
+        this.userService.deleteUserById(id);
+        redirectAttributes.addFlashAttribute("message", "Xoá người dùng thành công!");
+        redirectAttributes.addFlashAttribute("messageType", "success");
+      } else {
+        redirectAttributes.addFlashAttribute("message", "Không tìm thấy người dùng!");
+        redirectAttributes.addFlashAttribute("messageType", "error");
+      }
+    } catch (Exception e) {
+      redirectAttributes.addFlashAttribute("message", "Xoá người dùng thất bại!");
+      redirectAttributes.addFlashAttribute("messageType", "error");
+    }
+    return "redirect:/admin/users";
   }
 
   private void setupEditPageModel(Model model) {
