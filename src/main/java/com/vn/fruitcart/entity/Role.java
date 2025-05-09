@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "roles")
 @Getter
@@ -22,6 +24,7 @@ public class Role {
 
   private String name;
 
-  @OneToMany(mappedBy = "role")
+  @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+  @JsonIgnore
   private List<User> users;
 }

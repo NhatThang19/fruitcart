@@ -32,4 +32,12 @@ public class UserService {
     this.userRepository.save(user);
     return this.userRepository.save(user);
   }
+
+  public User getUserById(Long id) {
+    return this.userRepository.findById(id).orElse(null);
+  }
+
+  public User save(User existingUser) {
+    return this.userRepository.save(existingUser);
+  }
 }

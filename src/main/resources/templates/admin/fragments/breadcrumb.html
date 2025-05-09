@@ -1,0 +1,12 @@
+<div class="cr-page-title">
+    <div class="cr-breadcrumb">
+        <h5 th:text="${pageMetadata.title}"></h5>
+        <ul>
+            <th:block>
+                <li th:each="item : ${pageMetadata.breadcrumbs}">
+                    <a th:href="${item.url}" th:text="${item.name}">Home</a>
+                </li>
+            </th:block>
+        </ul>
+    </div>
+</div>

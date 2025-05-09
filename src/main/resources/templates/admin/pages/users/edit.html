@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title>Người dùng - FruitCart</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="row">
+            <form id="editUser" class="cr-profile-add" th:object="${user}" enctype="multipart/form-data" method="post"
+                th:action="@{/admin/users/edit}">
+                <input type="hidden" th:field="*{id}" />
+                <div class="row">
+                    <!-- Cột bên trái - Avatar và thông tin cơ bản -->
+                    <div class="col-xxl-3 col-xl-4 col-md-12">
+                        <div class="vendor-sticky-bar">
+                            <div class="col-xl-12">
+                                <div class="cr-card">
+                                    <div class="cr-card-content">
+                                        <div class="cr-vendor-block-img">
+                                            <div class="cr-vendor-block-detail">
+                                                <!-- Phần Avatar -->
+                                                <div class="profile-img">
+                                                    <div class="avatar-preview">
+                                                        <div class="v-img" id="imagePreview" th:style=" 
+                                                             'background-image: url(' + @{${user.avatar}} + ')'
+                                                             ">
+                                                        </div>
+                                                    </div>
+                                                    <div class="avatar-edit">
+                                                        <input type="file" id="imageUpload" name="avatarFile"
+                                                            accept=".png, .jpg, .jpeg">
+                                                        <label for="imageUpload"></label>
+                                                    </div>
+                                                </div>
+                                                <button type="submit"
+                                                    onclick="showConfirm(event, 'Lưu thay đổi?', 'Bạn chắc chắn muốn sửa người dùng?', 'editUser')"
+                                                    class="cr-btn default-btn color-warning">Lưu</button>
+                                            </div>
+                                            <div class="cr-vendor-info">
+                                                <ul>
+                                                    <li>
+                                                        <label>Tên người dùng:</label>
+                                                        <div class="form-group p-b-15">
+                                                            <input type="text" class="form-control"
+                                                                th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''"
+                                                                th:field="*{username}" placeholder="Nhập tên">
+                                                            <div class="invalid-feedback"
+                                                                th:if="${#fields.hasErrors('username')}"
+                                                                th:errors="*{username}"></div>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <label>Vai trò:</label>
+                                                        <div class="form-group p-b-15">
+                                                            <select class="form-control"
+                                                                th:classappend="${#fields.hasErrors('role')} ? 'is-invalid' : ''"
+                                                                th:field="*{role}">
+                                                                <option value="">-- Chọn vai trò --</option>
+                                                                <option value="USER"
+                                                                    th:selected="${user.role == 'USER'}">USER
+                                                                </option>
+                                                                <option value="ADMIN"
+                                                                    th:selected="${user.role == 'ADMIN'}">ADMIN
+                                                                </option>
+                                                            </select>
+                                                            <div class="invalid-feedback"
+                                                                th:if="${#fields.hasErrors('role')}"
+                                                                th:errors="*{role}"></div>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <label>Trạng thái:</label>
+                                                        <div class="form-group p-b-15">
+                                                            <select class="form-control" th:field="*{active}">
+                                                                <option value="true" th:selected="${user.active}">Hoạt
+                                                                    động</option>
+                                                                <option value="false" th:selected="${!user.active}">Bị
+                                                                    cấm</option>
+                                                            </select>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cột bên phải - Thông tin chi tiết -->
+                    <div class="col-xxl-9 col-xl-8 col-md-12">
+                        <div class="cr-card vendor-overview vendor-profile">
+                            <div class="cr-card-content cr-card-vendor vendor-details mb-m-30">
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12">
+                                        <div class="cr-vendor-detail">
+                                            <h6>Thông tin cá nhân</h6>
+                                            <ul>
+                                                <!-- Giới tính -->
+                                                <li>
+                                                    <strong>Giới tính:</strong>
+                                                    <div class="form-group">
+                                                        <select class="form-control" th:field="*{gender}">
+                                                            <option value="">-- Chọn giới tính --</option>
+                                                            <option value="MALE" th:selected="${user.gender == 'MALE'}">
+                                                                Nam</option>
+                                                            <option value="FEMALE"
+                                                                th:selected="${user.gender == 'FEMALE'}">Nữ</option>
+                                                        </select>
+                                                    </div>
+                                                </li>
+
+                                                <!-- Số điện thoại -->
+                                                <li>
+                                                    <strong>Số điện thoại:</strong>
+                                                    <div class="form-group">
+                                                        <input type="tel" class="form-control"
+                                                            th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                                                            th:field="*{phone}" placeholder="Nhập số điện thoại">
+                                                        <div class="invalid-feedback"
+                                                            th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
+                                                        </div>
+                                                    </div>
+                                                </li>
+
+                                                <!-- Địa chỉ -->
+                                                <li>
+                                                    <strong>Địa chỉ:</strong>
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" th:field="*{address}"
+                                                            placeholder="Nhập địa chỉ"></textarea>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

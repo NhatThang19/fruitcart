@@ -48,16 +48,15 @@
 
         <!-- Main content -->
         <div class="cr-main-content">
-            <div class="cr-page-title">
-                <div class="cr-breadcrumb">
-                    <h5>eCommerce</h5>
-                    <ul>
-                        <li><a th:href="@{/}">Carrot</a></li>
-                        <li>eCommerce</li>
-                    </ul>
-                </div>
+            <div class="container-fluid">
+                <th:block th:if="${isDashboard}">
+                    <div th:replace="~{admin/fragments/breadcrumb :: div}"></div>
+                </th:block>
+                <th:block th:unless="${isDashboard}">
+                    <div th:replace="~{admin/fragments/breadcrumb-2 :: div}"></div>
+                </th:block>
+                <div layout:fragment="content"></div>
             </div>
-            <div layout:fragment="content"></div>
         </div>
 
         <!-- Footer -->
@@ -81,10 +80,16 @@
         <script th:src="@{/admin/assets/js/vendor/moment.min.js}"></script>
         <script th:src="@{/admin/assets/js/vendor/daterangepicker.js}"></script>
         <script th:src="@{/admin/assets/js/vendor/date-range.js}"></script>
+        <!-- SweetAlert2 -->
+        <script th:src="@{/admin/assets/js/vendor/sweetalert2.min.js}"></script>
 
         <!-- Main Custom -->
         <script th:src="@{/admin/assets/js/main.js}"></script>
-        <script th:src="@{/admin/assets/js/data/ecommerce-chart-data.js}"></script>
+        <script th:src="@{/shared/assets/js/swal-utils.js}"></script>
+
+        <th:block layout:fragment="extras-scripts">
+
+        </th:block>
     </main>
 </body>
 

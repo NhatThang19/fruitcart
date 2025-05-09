@@ -3987,7 +3987,7 @@ div.table-responsive > div.dataTables_wrapper > div.row {
 
 div.dataTables_wrapper div.dataTables_length,
 div.dataTables_wrapper div.dataTables_filter {
-  width: 50%;
+  width: 100%;
   margin-bottom: 15px;
   padding: 0;
   -webkit-box-flex: 0;
@@ -4001,7 +4001,7 @@ div.dataTables_wrapper div.dataTables_filter label {
 
 div.dataTables_wrapper div.dataTables_length,
 div.dataTables_wrapper div.dataTables_filter {
-  width: 50%;
+  width: 100%;
   margin-bottom: 15px;
   padding: 0;
   -webkit-box-flex: 0;
