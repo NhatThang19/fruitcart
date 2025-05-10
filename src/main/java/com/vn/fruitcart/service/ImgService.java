@@ -3,7 +3,6 @@ package com.vn.fruitcart.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -11,7 +10,7 @@ import java.util.UUID;
 
 @Service
 public class ImgService {
-    @Value("${upload.file.base.path}") // Giờ là: D:/DaiHoc/DATN/fruitcart/upload/images/
+    @Value("${upload.file.base.path}")
     private String uploadBasePath;
 
     public String storeFile(MultipartFile file, String subFolder) {
@@ -39,13 +38,8 @@ public class ImgService {
     }
 
     private Path getNormalizedPath(String subFolder) {
-        // 1. Loại bỏ "file://" nếu có
         String normalizedPath = uploadBasePath.replaceFirst("^file:/+", "");
-
-        // 2. Thay thế tất cả dấu \ thành /
         normalizedPath = normalizedPath.replace('\\', '/');
-
-        // 3. Kết hợp với subFolder và chuẩn hóa lại
         return Paths.get(normalizedPath, subFolder.replace('\\', '/')).normalize();
     }
 }
