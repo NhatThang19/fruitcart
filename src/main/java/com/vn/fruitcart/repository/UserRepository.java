@@ -12,4 +12,6 @@ public interface UserRepository
   User getUserByEmail(String email);
 
   boolean existsByEmail(String email);
+
+  User findByUsername(String username);
 }

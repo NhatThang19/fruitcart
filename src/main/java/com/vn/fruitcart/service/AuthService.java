@@ -20,7 +20,7 @@ public class AuthService {
         newUser.setUsername(userRegisterReq.getUsername());
         newUser.setEmail(userRegisterReq.getEmail());
         newUser.setPassword(userRegisterReq.getPassword());
-        newUser.setAvatar("/storage/images/avatar.jpg");
+        newUser.setAvatar("/storage/avatar.jpg");
         newUser.setActive(true);
         newUser.setRole(this.roleService.getRoleByName("USER"));
 

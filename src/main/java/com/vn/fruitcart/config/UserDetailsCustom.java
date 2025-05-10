@@ -3,6 +3,8 @@ package com.vn.fruitcart.config;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.service.UserService;
 import java.util.Collections;
+
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,12 +19,15 @@ public class UserDetailsCustom implements UserDetailsService {
     this.userService = userService;
   }
 
-
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User user = this.userService.getUserByEmail(username);
     if (user == null) {
       throw new UsernameNotFoundException("Tài khoản hoặc mật khẩu không hợp lệ");
+    }
+    
+    if (!user.isActive()) {
+      throw new DisabledException("User is disabled");
     }
 
     return new org.springframework.security.core.userdetails.User(

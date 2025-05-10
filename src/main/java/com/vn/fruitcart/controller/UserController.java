@@ -116,8 +116,11 @@ public class UserController {
     }
 
     try {
+      // Lưu trạng thái active trước khi cập nhật
+      boolean wasActive = existingUser.isActive();
       String oldRole = existingUser.getRole() != null ? existingUser.getRole().getName() : null;
       boolean roleChanged = false;
+      boolean statusChanged = (wasActive != updateUserReq.isActive());
 
       if (avatarFile != null && !avatarFile.isEmpty()) {
         String avatarFileName = imgService.storeFile(avatarFile, "avatars");
@@ -143,11 +146,11 @@ public class UserController {
         existingUser.setRole(newRole);
       }
 
-      if (roleChanged) {
+      userService.save(existingUser);
+
+      if (roleChanged || (statusChanged && !updateUserReq.isActive())) {
         sessionService.expireUserSessions(existingUser.getId());
       }
-
-      userService.save(existingUser);
       redirectAttributes.addFlashAttribute("message", "Sửa người dùng thành công!");
       redirectAttributes.addFlashAttribute("messageType", "success");
       return "redirect:/admin/users/detail/" + existingUser.getId();
