@@ -33,7 +33,6 @@ public class SubCategory extends BaseEntity {
     @NotBlank(message = "Tên danh mục con không được để trống")
     private String name;
 
-    @NotBlank(message = "Slug không được để trống")
     @Pattern(regexp = "^[a-z0-9-]+$", message = "Slug chỉ chứa chữ thường, số và dấu gạch ngang")
     private String slug;
 

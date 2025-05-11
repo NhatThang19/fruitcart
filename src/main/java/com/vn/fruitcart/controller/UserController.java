@@ -116,7 +116,6 @@ public class UserController {
     }
 
     try {
-      // Lưu trạng thái active trước khi cập nhật
       boolean wasActive = existingUser.isActive();
       String oldRole = existingUser.getRole() != null ? existingUser.getRole().getName() : null;
       boolean roleChanged = false;

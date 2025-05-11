@@ -3,7 +3,7 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title>Quản lý danh mục - FruitCart</title>
+    <title>Sửa danh mục - FruitCart</title>
 </head>
 
 <body>
@@ -15,14 +15,14 @@
                         <div class="cr-cat-list cr-card card-default mb-24px">
                             <div class="cr-card-content">
                                 <div class="cr-cat-form">
-                                    <h3>Thêm danh mục mới</h3>
-                                    <form id="createCategory" method="post" th:object="${category}"
-                                        th:action="@{/admin/categories/create}">
+                                    <h3>Sửa danh mục</h3>
+                                    <form id="editCategory" method="post" th:object="${category}"
+                                        th:action="@{/admin/categories/edit(id=${category.id})}">
+                                        <input type="hidden" th:field="*{id}">
                                         <div class="form-group">
                                             <label>Tên</label>
                                             <div class="col-12">
-                                                <input id="text" name="text" th:field="*{name}" class="form-control"
-                                                    type="text"
+                                                <input th:field="*{name}" class="form-control" type="text"
                                                     th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
                                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
                                                     th:errors="*{name}"></div>
@@ -33,17 +33,19 @@
                                             <div class="col-12">
                                                 <select class="form-control" th:field="*{active}"
                                                     th:classappend="${#fields.hasErrors('active')} ? 'is-invalid' : ''">
-                                                    <option th:value="true" th:selected="*{active}">Hoạt động</option>
-                                                    <option th:value="false" th:selected="*{active}">Không hoạt động
-                                                    </option>
+                                                    <option th:value="true">Hoạt động</option>
+                                                    <option th:value="false">Không hoạt động</option>
                                                 </select>
                                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('active')}"
                                                     th:errors="*{active}"></div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-12 d-flex">
-                                                <button type="submit" class="cr-btn-primary">Thêm</button>
+                                            <div class="col-12 d-flex gap-3">
+                                                <button type="submit" class="cr-btn default-btn color-warning">Cập
+                                                    nhật</button>
+                                                <a th:href="@{/admin/categories}"
+                                                    class="cr-btn default-btn color-primary">Huỷ</a>
                                             </div>
                                         </div>
                                     </form>

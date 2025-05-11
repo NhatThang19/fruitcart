@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.repository.CategoryRepository;
 
-import jakarta.validation.Valid;
-
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
@@ -28,5 +26,13 @@ public class CategoryService {
 
     public void save(Category category) {
         categoryRepository.save(category);
+    }
+
+    public void deleteById(Long id) {
+        categoryRepository.deleteById(id);
+    }
+
+    public Category getCategoryById(Long id) {
+        return categoryRepository.findById(id).orElse(null);
     }
 }
