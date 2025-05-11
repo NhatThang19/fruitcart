@@ -2,6 +2,7 @@ package com.vn.fruitcart.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vn.fruitcart.entity.base.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -41,5 +42,6 @@ public class Category extends BaseEntity {
     private boolean active = true;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<SubCategory> subCategories;
 }

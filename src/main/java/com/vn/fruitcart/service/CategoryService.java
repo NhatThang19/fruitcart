@@ -1,5 +1,7 @@
 package com.vn.fruitcart.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.Category;
@@ -34,5 +36,9 @@ public class CategoryService {
 
     public Category getCategoryById(Long id) {
         return categoryRepository.findById(id).orElse(null);
+    }
+
+    public List<Category> findAllParentCategories() {
+        return categoryRepository.findAll();
     }
 }

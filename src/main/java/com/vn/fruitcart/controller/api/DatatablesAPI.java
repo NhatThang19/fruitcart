@@ -4,8 +4,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vn.fruitcart.entity.Category;
+import com.vn.fruitcart.entity.SubCategory;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.repository.CategoryRepository;
+import com.vn.fruitcart.repository.SubCategoryRepository;
 import com.vn.fruitcart.repository.UserRepository;
 
 import jakarta.validation.Valid;
@@ -23,6 +25,9 @@ public class DatatablesAPI {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private SubCategoryRepository subCategoryRepository;
+
     @GetMapping("/api/users")
     public DataTablesOutput<User> getUsers(@Valid DataTablesInput input) {
         return userRepository.findAll(input);
@@ -33,4 +38,8 @@ public class DatatablesAPI {
         return categoryRepository.findAll(input);
     }
 
+    @GetMapping("/api/subcategories")
+    public DataTablesOutput<SubCategory> getSubCategories(@Valid DataTablesInput input) {
+        return subCategoryRepository.findAll(input);
+    }
 }

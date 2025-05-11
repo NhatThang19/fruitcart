@@ -3,7 +3,7 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title>Quản lý danh mục - FruitCart</title>
+    <title>Quản lý danh mục con - FruitCart</title>
 </head>
 
 <body>
@@ -15,13 +15,24 @@
                         <div class="cr-cat-list cr-card card-default mb-24px">
                             <div class="cr-card-content">
                                 <div class="cr-cat-form">
-                                    <h3>Thêm danh mục mới</h3>
-                                    <form id="createCategory" method="post" th:object="${category}"
-                                        th:action="@{/admin/categories/create}">
+                                    <h3>Thêm danh mục con mới</h3>
+                                    <form id="createSubCategory" method="post" th:object="${subcategory}"
+                                        th:action="@{/admin/subcategories/create}">
+                                        <div class="form-group">
+                                            <label>Danh mục cha</label>
+                                            <div class="col-12">
+                                                <select class="form-control" th:field="*{category}" required>
+                                                    <option value="">-- Chọn danh mục cha --</option>
+                                                    <option th:each="parentCat : ${parentCategories}"
+                                                        th:value="${parentCat.id}" th:text="${parentCat.name}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <label>Tên</label>
                                             <div class="col-12">
-                                                <input id="text" name="text" th:field="*{name}" class="form-control"
+                                                <input id="name" name="name" th:field="*{name}" class="form-control"
                                                     type="text"
                                                     th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
                                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
@@ -33,9 +44,8 @@
                                             <div class="col-12">
                                                 <select class="form-control" th:field="*{active}"
                                                     th:classappend="${#fields.hasErrors('active')} ? 'is-invalid' : ''">
-                                                    <option th:value="true" th:selected="*{active}">Hoạt động</option>
-                                                    <option th:value="false" th:selected="*{active}">Không hoạt động
-                                                    </option>
+                                                    <option th:value="true">Hoạt động</option>
+                                                    <option th:value="false">Không hoạt động</option>
                                                 </select>
                                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('active')}"
                                                     th:errors="*{active}"></div>
@@ -62,6 +72,7 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
+                                            <th>Danh mục cha</th>
                                             <th>Tên</th>
                                             <th>Slug</th>
                                             <th>Trạng thái</th>
@@ -81,7 +92,7 @@
     <th:block layout:fragment="extras-scripts">
         <script th:src="@{/admin/assets/js/jquery.spring-friendly.js}"></script>
         <script th:src="@{/admin/assets/js/dataTables.vi-vn.js}"></script>
-        <script th:src="@{/admin/assets/js/datatables/category.js}"></script>
+        <script th:src="@{/admin/assets/js/datatables/subcategory.js}"></script>
     </th:block>
 </body>
 

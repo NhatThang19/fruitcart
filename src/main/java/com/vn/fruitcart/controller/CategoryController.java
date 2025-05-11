@@ -8,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import com.vn.fruitcart.entity.Category;
-import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.service.CategoryService;
 import com.vn.fruitcart.util.SlugUtil;
@@ -39,6 +38,10 @@ public class CategoryController {
         model.addAttribute("pageMetadata", pageMetadata);
 
         model.addAttribute("category", new Category());
+
+        List<Category> parentCategories = categoryService.findAllParentCategories();
+        model.addAttribute("parentCategories", parentCategories);
+
         return "admin/pages/categories/view";
     }
 
@@ -109,7 +112,7 @@ public class CategoryController {
         PageMetadata pageMetadata = new PageMetadata("Sửa danh mục", segments);
         model.addAttribute("pageMetadata", pageMetadata);
         model.addAttribute("category", category);
-        
+
         return "admin/pages/categories/edit";
     }
 
@@ -139,18 +142,17 @@ public class CategoryController {
             return "redirect:/admin/categories";
         }
 
-        // Update only if name has changed
         if (!existingCategory.getName().equals(category.getName())) {
             String slug = SlugUtil.toSlug(category.getName());
             category.setSlug(slug);
-            
+
             slug = categoryService.generateUniqueSlug(slug);
             category.setSlug(slug);
         } else {
             category.setSlug(existingCategory.getSlug());
         }
 
-        category.setId(id); // Ensure we're updating the existing category
+        category.setId(id);
         categoryService.save(category);
 
         redirectAttributes.addFlashAttribute("message", "Cập nhật danh mục thành công!");

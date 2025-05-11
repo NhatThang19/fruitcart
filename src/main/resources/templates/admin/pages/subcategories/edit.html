@@ -3,7 +3,7 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title>Quản lý danh mục - FruitCart</title>
+    <title>Sửa danh mục con - FruitCart</title>
 </head>
 
 <body>
@@ -15,14 +15,28 @@
                         <div class="cr-cat-list cr-card card-default mb-24px">
                             <div class="cr-card-content">
                                 <div class="cr-cat-form">
-                                    <h3>Thêm danh mục mới</h3>
-                                    <form id="createCategory" method="post" th:object="${category}"
-                                        th:action="@{/admin/categories/create}">
+                                    <h3>Sửa danh mục con</h3>
+                                    <form id="editSubCategory" method="post" th:object="${subcategory}"
+                                        th:action="@{/admin/subcategories/edit(id=${subcategory.id})}">
+                                        <div class="form-group">
+                                            <label>Danh mục cha</label>
+                                            <div class="col-12">
+                                                <select class="form-control" th:field="*{category}" required
+                                                    th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''">
+                                                    <option value="">-- Chọn danh mục cha --</option>
+                                                    <option th:each="parentCat : ${parentCategories}"
+                                                        th:value="${parentCat.id}" th:text="${parentCat.name}"
+                                                        th:selected="${subcategory.category != null and subcategory.category.id == parentCat.id}">
+                                                    </option>
+                                                </select>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}"
+                                                    th:errors="*{category}"></div>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <label>Tên</label>
                                             <div class="col-12">
-                                                <input id="text" name="text" th:field="*{name}" class="form-control"
-                                                    type="text"
+                                                <input th:field="*{name}" class="form-control" type="text"
                                                     th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
                                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
                                                     th:errors="*{name}"></div>
@@ -34,7 +48,7 @@
                                                 <select class="form-control" th:field="*{active}"
                                                     th:classappend="${#fields.hasErrors('active')} ? 'is-invalid' : ''">
                                                     <option th:value="true" th:selected="*{active}">Hoạt động</option>
-                                                    <option th:value="false" th:selected="*{active}">Không hoạt động
+                                                    <option th:value="false" th:selected="*{!active}">Không hoạt động
                                                     </option>
                                                 </select>
                                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('active')}"
@@ -42,8 +56,11 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-12 d-flex">
-                                                <button type="submit" class="cr-btn-primary">Thêm</button>
+                                            <div class="col-12 d-flex gap-3">
+                                                <button type="submit" class="cr-btn default-btn color-warning">Cập
+                                                    nhật</button>
+                                                <a th:href="@{/admin/categories}"
+                                                    class="cr-btn default-btn color-primary">Huỷ</a>
                                             </div>
                                         </div>
                                     </form>
@@ -62,6 +79,7 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
+                                            <th>Danh mục cha</th>
                                             <th>Tên</th>
                                             <th>Slug</th>
                                             <th>Trạng thái</th>
@@ -81,7 +99,7 @@
     <th:block layout:fragment="extras-scripts">
         <script th:src="@{/admin/assets/js/jquery.spring-friendly.js}"></script>
         <script th:src="@{/admin/assets/js/dataTables.vi-vn.js}"></script>
-        <script th:src="@{/admin/assets/js/datatables/category.js}"></script>
+        <script th:src="@{/admin/assets/js/datatables/subcategory.js}"></script>
     </th:block>
 </body>
 
