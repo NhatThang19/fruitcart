@@ -37,8 +37,6 @@ public class SubCategory extends BaseEntity {
     @Pattern(regexp = "^[a-z0-9-]+$", message = "Slug chỉ chứa chữ thường, số và dấu gạch ngang")
     private String slug;
 
-    private String imgUrl;
-
     private boolean active = true;
 
     @ManyToOne(fetch = FetchType.LAZY)
