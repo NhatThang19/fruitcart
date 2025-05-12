@@ -27,6 +27,34 @@ $(document).ready(function () {
         },
       },
       {
+        data: "subCategoryCount",
+        render: function (data, type, row) {
+          return `<span class="cr-sub-cat-count" data-bs-toggle="tooltip" data-bs-original-title="Total Sub Categories">${data}</span>`;
+        },
+        orderable: false,
+        searchable: false,
+        width: "8%",
+      },
+      {
+        data: "subCategoryNames",
+        render: function (data, type, row) {
+          if (!data) return '<span class="text-muted">Không có</span>';
+
+          const subCategories = data.split(", ");
+
+          const spans = subCategories
+            .map(
+              (name) =>
+                `<span class="cr-sub-cat-tag">${name.trim()}</span>`
+            )
+            .join("");
+
+          return `<div class="d-flex flex-wrap">${spans}</div>`;
+        },
+        orderable: false,
+        searchable: false,
+      },
+      {
         data: "active",
         render: function (data, type, row) {
           return data === true
@@ -56,6 +84,9 @@ $(document).ready(function () {
             </div>
           `;
         },
+        orderable: false,
+        searchable: false,
+        width: "8%",
       },
     ],
     order: [[0, "desc"]],
