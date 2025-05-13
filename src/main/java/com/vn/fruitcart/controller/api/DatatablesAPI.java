@@ -39,14 +39,6 @@ public class DatatablesAPI {
 
     @GetMapping("/api/categories")
     public DataTablesOutput<CategoryResDTO> getCategories(@Valid DataTablesInput input) {
-        input.getColumns().forEach(column -> {
-            if (column.getData().equals("subCategoryCount") ||
-                    column.getData().equals("subCategoryNames")) {
-                column.setSearchable(false);
-                column.setOrderable(false);
-            }
-        });
-
         DataTablesOutput<Category> categories = categoryRepository.findAll(input);
 
         DataTablesOutput<CategoryResDTO> output = new DataTablesOutput<>();

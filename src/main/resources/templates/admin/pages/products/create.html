@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title>Tạo sản phẩm - FruitCart</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="cr-card card-default">
+                    <div class="cr-card-content">
+                        <div class="row cr-product-uploads">
+                            <div class="col-lg-4 mb-991">
+                                <div class="cr-vendor-img-upload">
+                                    <div class="cr-vendor-main-img">
+                                        <div class="avatar-upload">
+                                            <div class="avatar-edit">
+                                                <input type="file" id="product_main" class="cr-image-upload"
+                                                    accept=".png, .jpg, .jpeg">
+                                                <label><i class="ri-pencil-line"></i></label>
+                                            </div>
+                                            <div class="avatar-preview cr-preview">
+                                                <div class="imagePreview cr-div-preview">
+                                                    <img class="cr-image-preview"
+                                                        th:src="@{/admin/assets/img/product/preview.jpg}" alt="edit">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="thumb-upload-set colo-md-12">
+                                            <div class="thumb-upload-template" style="display: none;">
+                                                <div class="thumb-upload d-flex flex-column">
+                                                    <div>
+                                                        <div class="thumb-edit">
+                                                            <input type="file" class="cr-image-upload thumb-input"
+                                                                accept=".png, .jpg, .jpeg">
+                                                            <label><i class="ri-pencil-line"></i></label>
+                                                        </div>
+                                                        <div class="thumb-preview cr-preview">
+                                                            <div class="image-thumb-preview">
+                                                                <img class="image-thumb-preview cr-image-preview"
+                                                                    th:src="@{/admin/assets/img/product/preview.jpg}"
+                                                                    alt="Ảnh con">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-danger remove-thumb-btn mt-1"
+                                                        title="Xóa ảnh này">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" id="addThumbnailBtn" class="btn btn-outline-primary mt-3">
+                                            <i class="ri-add-line"></i> Thêm ảnh con
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="cr-vendor-upload-detail">
+                                    <form class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="inputEmail4" class="form-label">Tên sản phẩm</label>
+                                            <input type="text" class="form-control slug-title" id="inputEmail4">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Chọn danh mục</label>
+                                            <select class="form-control form-select">
+                                                <th:block th:each="category : ${categories}">
+                                                    <optgroup th:if="${not #lists.isEmpty(category.subCategories)}"
+                                                        th:label="${category.name}">
+                                                        <th:block th:each="subCategories : ${category.subCategories}">
+                                                            <option th:if="${subCategories.active}"
+                                                                th:value="${subCategories.id}"
+                                                                th:text="${subCategories.name}"></option>
+                                                        </th:block>
+                                                    </optgroup>
+                                                </th:block>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Giá cơ bản <span>( Việt Nam đồng
+                                                    )</span></label>
+                                            <input type="number" class="form-control" id="price1">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Trạng thái</label>
+                                            <select class="form-control">
+                                                <option value="true">Hoạt động</option>
+                                                <option value="false">Không hoạt động</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label">Mô tả</label>
+                                            <textarea class="form-control" rows="4"></textarea>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <button type="submit" class="btn cr-btn-primary">Tạo</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block layout:fragment="extras-scripts">
+        <script>
+            $(document).ready(function () {
+                function updateThumbnailInputNamesAndIds() {
+                    $('.thumb-upload-set .thumb-upload').each(function (index) {
+                        let $input = $(this).find('.thumb-input');
+                        let newId = 'thumbUpload' + (index + 1);
+
+                        $input.attr('id', newId);
+                        $input.attr('name', 'thumbnailFiles[' + index + ']');
+                        $(this).find('label').attr('for', newId);
+                    });
+                }
+
+                $("#addThumbnailBtn").click(function () {
+                    let $newThumbUpload = $(".thumb-upload-template .thumb-upload").clone();
+                    $newThumbUpload.find(".thumb-input").val('');
+                    $(".thumb-upload-set").append($newThumbUpload);
+                    updateThumbnailInputNamesAndIds();
+                });
+
+                $(".thumb-upload-set").on("click", ".remove-thumb-btn", function () {
+                    $(this).closest(".thumb-upload").remove();
+                    updateThumbnailInputNamesAndIds();
+                });
+
+                updateThumbnailInputNamesAndIds();
+            });
+        </script>
+    </th:block>
+</body>
+
+</html>

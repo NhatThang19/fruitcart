@@ -25,6 +25,8 @@ $(document).ready(function () {
         render: function (data, type, row) {
           return `<code>${data}</code>`;
         },
+        orderable: false,
+        searchable: false,
       },
       {
         data: "subCategoryCount",
@@ -43,10 +45,7 @@ $(document).ready(function () {
           const subCategories = data.split(", ");
 
           const spans = subCategories
-            .map(
-              (name) =>
-                `<span class="cr-sub-cat-tag">${name.trim()}</span>`
-            )
+            .map((name) => `<span class="cr-sub-cat-tag">${name.trim()}</span>`)
             .join("");
 
           return `<div class="d-flex flex-wrap">${spans}</div>`;
@@ -61,6 +60,8 @@ $(document).ready(function () {
             ? '<span class="badge bg-success">Hoạt động</span>'
             : '<span class="badge bg-danger">Không hoạt động</span>';
         },
+        orderable: false,
+        searchable: false,
       },
       {
         data: "lastModifiedDate",

@@ -1,5 +1,7 @@
 package com.vn.fruitcart.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
 import org.springframework.data.jpa.datatables.repository.DataTablesRepository;
@@ -14,5 +16,8 @@ public interface CategoryRepository extends DataTablesRepository<Category, Long>
 
     @EntityGraph(attributePaths = { "subCategories" })
     DataTablesOutput<Category> findAll(DataTablesInput input);
+
+    @EntityGraph(attributePaths = { "subCategories" })
+    List<Category> findByActiveTrueOrderByNameAsc();
 
 }

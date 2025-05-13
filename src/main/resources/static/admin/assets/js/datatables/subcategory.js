@@ -7,7 +7,7 @@ $(document).ready(function () {
       type: "GET",
       data: function (d) {
         if (d.search.value) {
-          d.columns[1].search.value = d.search.value;
+          d.columns[2].search.value = d.search.value;
           d.search.value = "";
         }
       },
@@ -21,6 +21,7 @@ $(document).ready(function () {
                     <span class="cr-sub-cat-tag">${data}</span>
                 </span>`;
         },
+        orderable: false,
       },
       {
         data: "name",
@@ -33,6 +34,8 @@ $(document).ready(function () {
         render: function (data, type, row) {
           return `<code>${data}</code>`;
         },
+        orderable: false,
+        searchable: false,
       },
       {
         data: "active",
@@ -41,6 +44,8 @@ $(document).ready(function () {
             ? '<span class="badge bg-success">Hoạt động</span>'
             : '<span class="badge bg-danger">Không hoạt động</span>';
         },
+        orderable: false,
+        searchable: false,
       },
       {
         data: "lastModifiedDate",
@@ -64,6 +69,8 @@ $(document).ready(function () {
             </div>
           `;
         },
+        orderable: false,
+        searchable: false,
       },
     ],
     order: [[0, "desc"]],
