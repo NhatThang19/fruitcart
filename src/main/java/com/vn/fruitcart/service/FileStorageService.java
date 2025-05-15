@@ -9,10 +9,9 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
-public class ImgService {
+public class FileStorageService {
     @Value("${upload.file.base.path}")
     private String uploadBasePath;
 

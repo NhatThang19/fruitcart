@@ -4,7 +4,7 @@ import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.UpdateUserReq;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
-import com.vn.fruitcart.service.ImgService;
+import com.vn.fruitcart.service.FileStorageService;
 import com.vn.fruitcart.service.RoleService;
 import com.vn.fruitcart.service.SessionService;
 import com.vn.fruitcart.service.UserService;
@@ -34,13 +34,13 @@ public class UserController {
 
   private final SessionService sessionService;
   private final UserService userService;
-  private final ImgService imgService;
+  private final FileStorageService fileStorageService ;
   private final RoleService roleService;
 
-  public UserController(UserService userService, ImgService imgService, RoleService roleService,
+  public UserController(UserService userService, FileStorageService fileStorageService, RoleService roleService,
       SessionService sessionService) {
     this.userService = userService;
-    this.imgService = imgService;
+    this.fileStorageService = fileStorageService;
     this.roleService = roleService;
     this.sessionService = sessionService;
   }
@@ -122,7 +122,7 @@ public class UserController {
       boolean statusChanged = (wasActive != updateUserReq.isActive());
 
       if (avatarFile != null && !avatarFile.isEmpty()) {
-        String avatarFileName = imgService.storeFile(avatarFile, "avatars");
+        String avatarFileName = fileStorageService.storeFile(avatarFile, "avatars");
         updateUserReq.setAvatar("/storage/avatars/" + avatarFileName);
       } else {
         updateUserReq.setAvatar(existingUser.getAvatar());
