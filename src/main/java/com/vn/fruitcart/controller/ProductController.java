@@ -9,12 +9,16 @@ import org.springframework.validation.BindingResult;
 
 import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.Product;
+import com.vn.fruitcart.entity.ProductVariant;
+import com.vn.fruitcart.entity.SubCategory;
 import com.vn.fruitcart.entity.dto.ProductCreateReqDTO;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.service.CategoryService;
 import com.vn.fruitcart.service.ProductImageService;
 import com.vn.fruitcart.service.ProductService;
 import com.vn.fruitcart.service.SubCategoryService;
+import com.vn.fruitcart.util.StringUtil;
+import com.vn.fruitcart.util.mapper.ProductMapper;
 
 import jakarta.validation.Valid;
 
@@ -60,14 +64,13 @@ public class ProductController {
 
     @PostMapping("/admin/products/create")
     public String saveProduct(
-            @Valid @ModelAttribute() ProductCreateReqDTO pReqDTO,
+            @Valid @ModelAttribute("pReqDTO") ProductCreateReqDTO pReqDTO,
             BindingResult result,
             @RequestParam("mainImage") MultipartFile mainImage,
             @RequestParam(value = "thumbnailFiles", required = false) MultipartFile[] thumbnailFiles,
             Model model) {
 
         if (result.hasErrors()) {
-
             List<PageMetadata.BreadcrumbSegment> segments = new ArrayList<>();
             segments.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
             segments.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", "/admin/products"));
@@ -81,15 +84,23 @@ public class ProductController {
 
             return "admin/pages/products/create";
         }
+
         try {
-            // pReqDTO.setSlug(categoryService.generateUniqueSlug(pReqDTO.getSlug()));
+            Product newProduct = ProductMapper.toProductEntity(pReqDTO);
 
-            // Product savedProduct = productService.save(pReqDTO);
+            newProduct.setSlug(StringUtil.toSlug(pReqDTO.getName()));
+            SubCategory subCategory = subcategoryService.getSubCategoryById(pReqDTO.getSubcategoryId());
+            newProduct.setSubcategory(subCategory);
 
-            // if (mainImage != null && !mainImage.isEmpty()) {
-            // productImageService.saveProductImages(savedProduct, mainImage,
-            // thumbnailFiles);
-            // }
+            Product savedProduct = productService.save(newProduct);
+
+            if (mainImage != null && !mainImage.isEmpty()) {
+                productImageService.saveProductImages(savedProduct, mainImage,
+                        thumbnailFiles);
+            }
+
+            List<ProductVariant> variants = ProductMapper.toProductVariantEntities(pReqDTO.getVariants(), savedProduct);
+            savedProduct.setVariants(variants);
 
             return "redirect:/admin/products?success";
         } catch (Exception e) {

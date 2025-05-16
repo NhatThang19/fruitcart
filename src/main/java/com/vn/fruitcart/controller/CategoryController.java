@@ -10,7 +10,7 @@ import org.springframework.validation.BindingResult;
 import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.service.CategoryService;
-import com.vn.fruitcart.util.SlugUtil;
+import com.vn.fruitcart.util.StringUtil;
 
 import jakarta.validation.Valid;
 
@@ -63,7 +63,7 @@ public class CategoryController {
             return "admin/pages/categories/view";
         }
 
-        String slug = SlugUtil.toSlug(category.getName());
+        String slug = StringUtil.toSlug(category.getName());
         category.setSlug(slug);
 
         slug = categoryService.generateUniqueSlug(slug);
@@ -143,7 +143,7 @@ public class CategoryController {
         }
 
         if (!existingCategory.getName().equals(category.getName())) {
-            String slug = SlugUtil.toSlug(category.getName());
+            String slug = StringUtil.toSlug(category.getName());
             category.setSlug(slug);
 
             slug = categoryService.generateUniqueSlug(slug);

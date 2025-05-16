@@ -6,7 +6,6 @@ import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.repository.ProductRepository;
 import com.vn.fruitcart.repository.SubCategoryRepository;
 
-
 @Service
 public class ProductService {
 

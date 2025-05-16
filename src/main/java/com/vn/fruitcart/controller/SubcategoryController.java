@@ -17,7 +17,7 @@ import com.vn.fruitcart.entity.SubCategory;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.service.CategoryService;
 import com.vn.fruitcart.service.SubCategoryService;
-import com.vn.fruitcart.util.SlugUtil;
+import com.vn.fruitcart.util.StringUtil;
 
 import jakarta.validation.Valid;
 
@@ -69,7 +69,7 @@ public class SubcategoryController {
             return "admin/pages/subcategories/view";
         }
 
-        String slug = SlugUtil.toSlug(subcategory.getName());
+        String slug = StringUtil.toSlug(subcategory.getName());
         subcategory.setSlug(slug);
         
         subCategoryService.save(subcategory);
@@ -134,7 +134,7 @@ public class SubcategoryController {
         }
 
         if (!existingSubcategory.getName().equals(subcategory.getName())) {
-            String slug = SlugUtil.toSlug(subcategory.getName());
+            String slug = StringUtil.toSlug(subcategory.getName());
             subcategory.setSlug(slug);
         } else {
             subcategory.setSlug(existingSubcategory.getSlug());

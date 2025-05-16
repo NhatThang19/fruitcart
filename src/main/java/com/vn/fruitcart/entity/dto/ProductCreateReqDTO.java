@@ -32,8 +32,6 @@ public class ProductCreateReqDTO {
     @Digits(integer = 10, fraction = 2, message = "Giá sản phẩm phải có tối đa 10 chữ số phần nguyên và 2 chữ số phần thập phân")
     private BigDecimal basePrice;
 
-    private String slug;
-
     private boolean active = true;
     private boolean bulk = false;
 
