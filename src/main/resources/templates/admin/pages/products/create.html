@@ -10,7 +10,7 @@
     <div layout:fragment="content">
         <div class="row">
             <form th:action="@{/admin/products/create}" method="post" enctype="multipart/form-data"
-                th:object="${product}">
+                th:object="${pReqDTO}">
                 <div class="col-md-12">
                     <div class="cr-card card-default">
                         <div class="cr-card-content">
@@ -125,6 +125,10 @@
                                                 <textarea class="form-control" rows="4"
                                                     th:field="*{description}"></textarea>
                                             </div>
+                                            <div id="variantsContainer">
+                                                <!-- Các variant sẽ được thêm ở đây -->
+                                            </div>
+                                            <button type="button" id="addVariantBtn">+ Add Variant</button>
                                             <div class="col-md-12">
                                                 <button type="submit" class="btn cr-btn-primary">Tạo</button>
                                             </div>
@@ -159,7 +163,33 @@
                 $(".thumb-upload-set").on("click", ".remove-thumb-btn", function () {
                     $(this).closest(".thumb-upload").remove();
                 });
+
+                let variantIndex = 0;
+
+                $('#addVariantBtn').on('click', function () {
+                    const newVariantHtml = `
+            <div class="variant-group" id="variant-${variantIndex}">
+                <h4>Variant ${variantIndex + 1}</h4>
+                <div>
+                    <label>Price:</label>
+                    <input type="number" step="0.01" name="variants[${variantIndex}].price" required />
+                </div>
+                <div>
+                    <label>Attribute:</label>
+                    <input type="text" name="variants[${variantIndex}].attribute" required />
+                </div>
+                <button type="button" onclick="removeVariant(${variantIndex})">Xóa</button>
+                <hr />
+            </div>
+        `;
+                    $('#variantsContainer').append(newVariantHtml);
+                    variantIndex++;
+                });
+
             });
+            function removeVariant(index) {
+                $('#variant-' + index).remove();
+            }
         </script>
     </th:block>
 </body>

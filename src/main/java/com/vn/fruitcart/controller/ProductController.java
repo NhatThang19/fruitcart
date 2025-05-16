@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 
 import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.Product;
+import com.vn.fruitcart.entity.dto.ProductCreateReqDTO;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.service.CategoryService;
 import com.vn.fruitcart.service.ProductImageService;
@@ -52,23 +53,19 @@ public class ProductController {
         List<Category> categories = categoryService.findAllActiveCategories();
         model.addAttribute("categories", categories);
 
-        model.addAttribute("product", new Product());
+        model.addAttribute("pReqDTO", new ProductCreateReqDTO());
 
         return "admin/pages/products/create";
     }
 
     @PostMapping("/admin/products/create")
     public String saveProduct(
-            @Valid @ModelAttribute("product") Product product,
+            @Valid @ModelAttribute() ProductCreateReqDTO pReqDTO,
             BindingResult result,
             @RequestParam("mainImage") MultipartFile mainImage,
             @RequestParam(value = "thumbnailFiles", required = false) MultipartFile[] thumbnailFiles,
             Model model) {
 
-        if (mainImage == null || mainImage.isEmpty()) {
-            result.rejectValue("mainImage", "", "Ảnh chính không được để trống.");
-        }
-        
         if (result.hasErrors()) {
 
             List<PageMetadata.BreadcrumbSegment> segments = new ArrayList<>();
@@ -85,13 +82,14 @@ public class ProductController {
             return "admin/pages/products/create";
         }
         try {
-            product.setSlug(categoryService.generateUniqueSlug(product.getSlug()));
+            // pReqDTO.setSlug(categoryService.generateUniqueSlug(pReqDTO.getSlug()));
 
-            Product savedProduct = productService.save(product);
+            // Product savedProduct = productService.save(pReqDTO);
 
-            if (mainImage != null && !mainImage.isEmpty()) {
-                productImageService.saveProductImages(savedProduct, mainImage, thumbnailFiles);
-            }
+            // if (mainImage != null && !mainImage.isEmpty()) {
+            // productImageService.saveProductImages(savedProduct, mainImage,
+            // thumbnailFiles);
+            // }
 
             return "redirect:/admin/products?success";
         } catch (Exception e) {
