@@ -70,11 +70,15 @@
                                             <div class="col-md-6">
                                                 <label for="inputEmail4" class="form-label">Tên sản phẩm</label>
                                                 <input type="text" class="form-control slug-title" id="inputEmail4"
-                                                    th:field="*{name}">
+                                                    th:field="*{name}"
+                                                    th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''">
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}"
+                                                    th:errors="*{name}"></div>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Chọn danh mục</label>
-                                                <select class="form-control form-select" th:field="*{subcategory}">
+                                                <select class="form-control form-select" th:field="*{subcategory}"
+                                                    th:classappend="${#fields.hasErrors('subcategory')} ? 'is-invalid' : ''">
                                                     <option value="">-- Chọn danh mục --</option>
                                                     <th:block th:each="category : ${categories}">
                                                         <optgroup
@@ -89,18 +93,31 @@
                                                         </optgroup>
                                                     </th:block>
                                                 </select>
+                                                <div class="invalid-feedback"
+                                                    th:if="${#fields.hasErrors('subcategory')}"
+                                                    th:errors="*{subcategory}"></div>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Giá cơ bản <span>( Việt Nam đồng
                                                         )</span></label>
                                                 <input type="number" class="form-control" id="price1"
+                                                    th:classappend="${#fields.hasErrors('basePrice')} ? 'is-invalid' : ''"
                                                     th:field="*{basePrice}">
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('basePrice')}"
+                                                    th:errors="*{basePrice}"></div>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Trạng thái</label>
                                                 <select class="form-control" th:field="*{active}">
                                                     <option value="true">Hoạt động</option>
                                                     <option value="false">Không hoạt động</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Hàng thùng</label>
+                                                <select class="form-control" th:field="*{bulk}">
+                                                    <option value="false">Không</option>
+                                                    <option value="true">Có</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-12">

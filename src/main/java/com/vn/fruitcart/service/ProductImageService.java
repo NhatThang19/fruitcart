@@ -22,7 +22,7 @@ public class ProductImageService {
 
     public List<ProductImage> saveProductImages(Product product,
             MultipartFile mainImage,
-            MultipartFile[] additionalImages) {
+            MultipartFile[] thumbnailFiles) {
         List<ProductImage> savedImages = new ArrayList<>();
 
         // Xử lý ảnh chính
@@ -37,10 +37,10 @@ public class ProductImageService {
         }
 
         // Xử lý các ảnh phụ
-        if (additionalImages != null) {
-            for (MultipartFile image : additionalImages) {
+        if (thumbnailFiles != null) {
+            for (MultipartFile image : thumbnailFiles) {
                 if (image != null && !image.isEmpty()) {
-                    String imageUrl = fileStorageService.storeFile(image, "products/additional");
+                    String imageUrl = fileStorageService.storeFile(image, "products");
                     ProductImage additionalImage = ProductImage.builder()
                             .product(product)
                             .imageUrl(imageUrl)

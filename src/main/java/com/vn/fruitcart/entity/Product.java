@@ -59,6 +59,9 @@ public class Product extends BaseEntity {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT true")
     private boolean active = true;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean bulk = false;
+
     @NotNull(message = "Danh mục phụ không được để trống")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subcategory_id", nullable = false)
@@ -66,4 +69,7 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductVariant> variants = new ArrayList<>();
 }

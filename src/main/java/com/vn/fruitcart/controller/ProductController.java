@@ -65,7 +65,12 @@ public class ProductController {
             @RequestParam(value = "thumbnailFiles", required = false) MultipartFile[] thumbnailFiles,
             Model model) {
 
+        if (mainImage == null || mainImage.isEmpty()) {
+            result.rejectValue("mainImage", "", "Ảnh chính không được để trống.");
+        }
+        
         if (result.hasErrors()) {
+
             List<PageMetadata.BreadcrumbSegment> segments = new ArrayList<>();
             segments.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
             segments.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", "/admin/products"));
@@ -80,9 +85,10 @@ public class ProductController {
             return "admin/pages/products/create";
         }
         try {
+            product.setSlug(categoryService.generateUniqueSlug(product.getSlug()));
+
             Product savedProduct = productService.save(product);
 
-            // Lưu ảnh sản phẩm
             if (mainImage != null && !mainImage.isEmpty()) {
                 productImageService.saveProductImages(savedProduct, mainImage, thumbnailFiles);
             }
