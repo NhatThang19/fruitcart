@@ -7,5 +7,5 @@ import com.vn.fruitcart.entity.Product;
 
 @Repository
 public interface ProductRepository extends DataTablesRepository<Product, Long> {
-
+    
 }

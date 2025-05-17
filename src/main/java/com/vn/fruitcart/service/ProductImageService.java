@@ -27,7 +27,7 @@ public class ProductImageService {
 
         // Xử lý ảnh chính
         if (mainImage != null && !mainImage.isEmpty()) {
-            String imageUrl = fileStorageService.storeFile(mainImage, "products");
+            String imageUrl = "/storage/products/" + fileStorageService.storeFile(mainImage, "products");
             ProductImage mainProductImage = ProductImage.builder()
                     .product(product)
                     .imageUrl(imageUrl)
@@ -40,7 +40,7 @@ public class ProductImageService {
         if (thumbnailFiles != null) {
             for (MultipartFile image : thumbnailFiles) {
                 if (image != null && !image.isEmpty()) {
-                    String imageUrl = fileStorageService.storeFile(image, "products");
+                    String imageUrl = "/storage/products/" + fileStorageService.storeFile(image, "products");
                     ProductImage additionalImage = ProductImage.builder()
                             .product(product)
                             .imageUrl(imageUrl)

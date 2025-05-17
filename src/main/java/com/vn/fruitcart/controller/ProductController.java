@@ -110,4 +110,16 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/admin/products")
+    public String getAdminProductPage(Model model) {
+        List<PageMetadata.BreadcrumbSegment> segments = new ArrayList<>();
+        segments.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        segments.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", "/admin/products"));
+
+        PageMetadata pageMetadata = new PageMetadata("Sản phẩm", segments);
+        model.addAttribute("pageMetadata", pageMetadata);
+
+        return "admin/pages/products/view";
+    }
+
 }
