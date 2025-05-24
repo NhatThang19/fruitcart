@@ -1,34 +1,34 @@
 package com.vn.fruitcart.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-@Entity
-@Table(name = "roles")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "roles")
 public class Role {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  private Long id;
 
+  @Column(name = "name", nullable = false, unique = true, length = 50)
   private String name;
+
+  @Column(name = "description", length = 255)
+  private String description;
+
+  @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<User> users = new ArrayList<>();
 
   public Role(String name) {
     this.name = name;
   }
-
-  @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
-  @JsonIgnore
-  private List<User> users;
 }

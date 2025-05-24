@@ -1,77 +1,82 @@
 package com.vn.fruitcart.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.repository.RoleRepository;
-import com.vn.fruitcart.repository.UserRepository;
+import com.vn.fruitcart.service.RoleService;
+import com.vn.fruitcart.service.UserService;
 
-@Service
+import jakarta.transaction.Transactional;
+
+@Component
 public class DatabaseInitializer implements CommandLineRunner {
 
-    private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    @Autowired
+    private RoleService roleService;
 
-    public DatabaseInitializer(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    private UserService userService;
 
-    @Value("${admin.email}")
-    private String adminEmail;
-
-    @Value("${admin.password}")
-    private String adminPassword;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
-        System.out.println(">>> START INIT DATABASE");
+        System.out.println("--- Bắt đầu kiểm tra và khởi tạo dữ liệu mặc định ---");
 
-        long countUsers = this.userRepository.count();
-        boolean hasAdminRole = this.roleRepository.existsByName("ADMIN");
-        boolean hasUserRole = this.roleRepository.existsByName("USER");
+        Role adminRole = createOrGetRole("ROLE_ADMIN");
+        Role userRole = createOrGetRole("ROLE_USER");
 
-        System.out.println(">>> INIT DATABASE ~ CHECKING ROLES...");
+        createOrGetUser("Đây là",
+                "admin",
+                "admin@example.com",
+                "123456",
+                adminRole);
 
-        if (!hasAdminRole) {
-            Role adminRole = new Role("ADMIN");
-            this.roleRepository.save(adminRole);
-            System.out.println(">>> CREATED ADMIN ROLE");
-        }
+        createOrGetUser(
+                "Đây là",
+                "user",
+                "user@example.com",
+                "123456",
+                userRole);
 
-        if (!hasUserRole) {
-            Role userRole = new Role("USER");
-            this.roleRepository.save(userRole);
-            System.out.println(">>> CREATED USER ROLE");
-        }
+        System.out.println("--- Hoàn tất khởi tạo dữ liệu mặc định ---");
+    }
 
-        if (hasAdminRole && hasUserRole) {
-            System.out.println(">>> SKIP INIT DATABASE ~ ALREADY HAVE ALL REQUIRED ROLES");
-        }
-
-        if (countUsers == 0) {
-            User adminUser = new User();
-            adminUser.setUsername("admin");
-            adminUser.setEmail(adminEmail);
-            adminUser.setPassword(this.passwordEncoder.encode(adminPassword));
-            adminUser.setRole(this.roleRepository.findRoleByName("ADMIN"));
-            adminUser.setActive(true);
-            adminUser.setAvatar("/storage/avatar.jpg");
-
-            this.userRepository.save(adminUser);
-        }
-
-        if (countUsers > 0) {
-            System.out.println(">>> SKIP INIT DATABASE ~ ALREADY HAVE DATA...");
+    private Role createOrGetRole(String roleName) {
+        Optional<Role> existingRole = roleService.getRoleByName(roleName);
+        if (existingRole.isPresent()) {
+            System.out.println("Role '" + roleName + "' đã tồn tại.");
+            return existingRole.get();
         } else {
-            System.out.println(">>> END INIT DATABASE");
+            Role newRole = new Role(roleName);
+            roleService.save(newRole);
+            System.out.println("Tạo mới Role: '" + roleName + "'");
+            return newRole;
         }
     }
 
+    private User createOrGetUser(String firstName, String lastName, String email, String rawPassword, Role role) {
+        if (!userService.existsByEmail(email)) {
+            User newUser = new User();
+            newUser.setFirstName(firstName);
+            newUser.setLastName(lastName);
+            newUser.setEmail(email);
+            newUser.setPassword(passwordEncoder.encode(rawPassword));
+            newUser.setRole(role);
+            userService.save(newUser);
+            System.out.println("Tạo mới User: '" + email + "' với Role: '" + role.getName() + "'");
+            return newUser;
+        } else {
+            System.out.println("User '" + email + "' đã tồn tại.");
+            return null;
+        }
+    }
 }

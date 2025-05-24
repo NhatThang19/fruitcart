@@ -5,6 +5,7 @@ import com.vn.fruitcart.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,8 @@ public class UserService {
   }
 
   public User getUserByEmail(String email) {
-    return this.userRepository.getUserByEmail(email);
+    return userRepository.findByEmail(email)
+        .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
   }
 
   public boolean isEmailExists(String email) {
@@ -45,7 +47,11 @@ public class UserService {
     this.userRepository.deleteById(id);
   }
 
-  public User findByUsername(String username) {
-    return this.userRepository.findByUsername(username);
+  public boolean existsByEmail(String email) {
+    return userRepository.existsByEmail(email);
+  }
+
+  public boolean existsByPhone(String phone) {
+    return userRepository.existsByPhone(phone);
   }
 }

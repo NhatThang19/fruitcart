@@ -16,10 +16,18 @@ public class RoleService {
     }
 
     public Optional<Role> getRoleById(Long id) {
-        return this.roleRepository.findById(id);
+        return roleRepository.findById(id);
     }
 
-    public Role getRoleByName(String name) {
-        return this.roleRepository.findRoleByName(name);
+    public Optional<Role> getRoleByName(String name) {
+        return roleRepository.findByName(name);
+    }
+
+    public void save(Role role) {
+        roleRepository.save(role);
+    }
+
+    public boolean existsByName(String name) {
+        return roleRepository.existsByName(name);
     }
 }

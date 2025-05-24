@@ -1,23 +1,12 @@
 package com.vn.fruitcart.repository;
 
-import java.util.List;
-
-import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
-import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
-import org.springframework.data.jpa.datatables.repository.DataTablesRepository;
-import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.vn.fruitcart.entity.Category;
 
 @Repository
-public interface CategoryRepository extends DataTablesRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<Category, Long>{
     boolean existsBySlug(String slug);
-
-    @EntityGraph(attributePaths = { "subCategories" })
-    DataTablesOutput<Category> findAll(DataTablesInput input);
-
-    @EntityGraph(attributePaths = { "subCategories" })
-    List<Category> findByActiveTrueOrderByNameAsc();
 
 }

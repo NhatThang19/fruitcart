@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{client/layouts/client1-layout}">
+
+<head>
+    <title>Đăng ký tài khoản</title>
+    <style>
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: .25rem;
+            font-size: .875em;
+            color: #dc3545;
+        }
+
+        .invalid-feedback:empty {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section class="section-breadcrumb">
+            <div class="cr-breadcrumb-image">
+            </div>
+        </section>
+        <section class="section-register padding-tb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="cr-register aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                            data-aos-delay="400">
+                            <h3 class="cr-fw-normal cr-fc mb-4 text-center">Đăng ký tài khoản</h3>
+
+                            <div th:if="${successMessage}" class="alert alert-success" role="alert"
+                                th:text="${successMessage}"></div>
+                            <div th:if="${errorMessage}" class="alert alert-danger" role="alert"
+                                th:text="${errorMessage}"></div>
+
+                            <form class="cr-content-form" th:action="@{/register}" th:object="${registerReq}"
+                                method="post" novalidate>
+                                <div class="row">
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="lastName">Họ*</label> <input type="text" id="lastName"
+                                                placeholder="Nhập Họ của bạn" class="cr-form-control"
+                                                th:field="*{lastName}"
+                                                th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
+                                                th:errors="*{lastName}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="firstName">Tên (và tên đệm)*</label> <input type="text"
+                                                id="firstName" placeholder="Nhập Tên của bạn" class="cr-form-control"
+                                                th:field="*{firstName}"
+                                                th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
+                                                th:errors="*{firstName}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="email">Email*</label>
+                                            <input type="email" id="email" placeholder="Nhập email của bạn"
+                                                class="cr-form-control" th:field="*{email}"
+                                                th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+                                                th:errors="*{email}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="phone">Số điện thoại*</label>
+                                            <input type="text" id="phone" placeholder="Nhập số điện thoại"
+                                                class="cr-form-control" th:field="*{phone}"
+                                                th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}"
+                                                th:errors="*{phone}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="address">Địa chỉ*</label>
+                                            <input type="text" id="address" placeholder="Nhập địa chỉ của bạn"
+                                                class="cr-form-control" th:field="*{address}"
+                                                th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}"
+                                                th:errors="*{address}"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-6 d-none">
+                                        <div class="form-group">
+                                            <label>City*</label>
+                                            <select class="cr-form-control" aria-label="Default select example">
+                                                <option selected>City</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="password">Mật khẩu*</label>
+                                            <input type="password" id="password" placeholder="Nhập mật khẩu"
+                                                class="cr-form-control" th:field="*{password}"
+                                                th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}"
+                                                th:errors="*{password}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Xác nhận mật khẩu*</label>
+                                            <input type="password" id="confirmPassword"
+                                                placeholder="Xác nhận lại mật khẩu" class="cr-form-control"
+                                                th:field="*{confirmPassword}"
+                                                th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback"
+                                                th:if="${#fields.hasErrors('confirmPassword')}"
+                                                th:errors="*{confirmPassword}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="cr-register-buttons col-12 text-center mt-4">
+                                        <button type="submit" class="cr-button">Đăng ký</button>
+                                        <p class="mt-3">Đã có tài khoản?
+                                            <a th:href="@{/login}" class="link">Đăng nhập</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

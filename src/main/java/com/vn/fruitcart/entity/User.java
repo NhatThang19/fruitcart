@@ -2,72 +2,75 @@ package com.vn.fruitcart.entity;
 
 import com.vn.fruitcart.entity.base.BaseEntity;
 import com.vn.fruitcart.util.constant.GenderEnum;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
-@Entity
-@Table(name = "users")
+import java.time.LocalDate;
+
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "email"),
+    @UniqueConstraint(columnNames = "phone")
+})
 public class User extends BaseEntity {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false)
-  @NotBlank(message = "Username cannot be blank")
-  @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-  private String username;
+  @Column(name = "first_name", nullable = false, length = 50)
+  private String firstName;
 
-  @Column(nullable = false)
-  @NotBlank(message = "Email cannot be blank")
-  @Email(message = "Email should be valid")
+  @Column(name = "last_name", nullable = false, length = 50)
+  private String lastName;
+
+  @Column(name = "email", nullable = false, unique = true, length = 100)
   private String email;
 
-  @Column(nullable = false)
-  @NotBlank(message = "Password cannot be blank")
-  @Size(min = 6, message = "Password must be at least 6 characters")
+  @Column(name = "password", nullable = false)
   private String password;
 
-  @Pattern(regexp = "(^$|[0-9]{10,15})", message = "Phone number must be 10-15 digits")
+  @Column(name = "phone", unique = true, length = 15)
   private String phone;
 
+  @Column(name = "address", length = 255)
   private String address;
 
-  private String avatar;
-
   @Enumerated(EnumType.STRING)
+  @Column(name = "gender")
   private GenderEnum gender;
 
-  @Column(columnDefinition = "boolean default true")
-  @Builder.Default
-  @NotNull(message = "Enabled cannot be null")
-  private boolean active = true;
+  @Column(name = "birth_date")
+  private LocalDate birthDate;
 
-  @ManyToOne
-  @JoinColumn(name = "role_id")
+  @Column(name = "avatar_url", length = 255)
+  private String avatarUrl;
+
+  @Column(name = "is_blocked", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+  private Boolean isBlocked = false;
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "role_id", nullable = false)
   private Role role;
-}
 
+  public String getFullName() {
+    String ho = this.firstName != null ? this.firstName.trim() : "";
+    String ten = this.lastName != null ? this.lastName.trim() : "";
+
+    if (ho.isEmpty() && ten.isEmpty()) {
+      return "";
+    }
+    if (ho.isEmpty()) {
+      return ten;
+    }
+    if (ten.isEmpty()) {
+      return ho;
+    }
+
+    return ho + " " + ten;
+  }
+}

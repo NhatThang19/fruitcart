@@ -2,16 +2,18 @@ package com.vn.fruitcart.repository;
 
 import com.vn.fruitcart.entity.User;
 
-import org.springframework.data.jpa.datatables.repository.DataTablesRepository;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository
-    extends DataTablesRepository<User, Long> {
+    extends JpaRepository<User, Long>{
 
-  User getUserByEmail(String email);
+  Optional<User> findByEmail(String email);
 
   boolean existsByEmail(String email);
 
-  User findByUsername(String username);
+  boolean existsByPhone(String phone);
 }

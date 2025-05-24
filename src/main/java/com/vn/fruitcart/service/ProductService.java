@@ -4,17 +4,14 @@ import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.repository.ProductRepository;
-import com.vn.fruitcart.repository.SubCategoryRepository;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final SubCategoryRepository subcategoryRepository;
 
-    public ProductService(ProductRepository productRepository, SubCategoryRepository subcategoryRepository) {
+    public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.subcategoryRepository = subcategoryRepository;
     }
 
     public Product save(Product product) {

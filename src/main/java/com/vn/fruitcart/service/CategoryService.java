@@ -41,8 +41,4 @@ public class CategoryService {
     public List<Category> findAllParentCategories() {
         return categoryRepository.findAll();
     }
-
-    public List<Category> findAllActiveCategories() {
-        return categoryRepository.findByActiveTrueOrderByNameAsc();
-    }
 }

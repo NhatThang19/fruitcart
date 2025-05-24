@@ -8,8 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserSessionInfo implements Serializable {
-  private long id;
+  private Long userId;
   private String email;
-  private String username;
+  private String fullName;
   private String avatar;
+  private String role;
 }

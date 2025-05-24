@@ -111,11 +111,6 @@
       <groupId>org.springframework.session</groupId>
       <artifactId>spring-session-jdbc</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.github.darrachequesne</groupId>
-      <artifactId>spring-data-jpa-datatables</artifactId>
-      <version>7.0.1</version>
-    </dependency>
   </dependencies>
 
   <build>
