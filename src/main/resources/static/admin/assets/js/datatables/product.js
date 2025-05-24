@@ -66,7 +66,7 @@ $(document).ready(function () {
                 <span class="sr-only"><i class="ri-settings-3-line"></i></span>
               </button>              <div class="dropdown-menu">
                 <a class="dropdown-item" href="/admin/products/detail?id=${data}">Xem</a>
-                <a class="dropdown-item" href="/admin/products/edit?id=${data}">Sửa</a>
+                <a class="dropdown-item" href="/admin/products/edit/${data}">Sửa</a>
                 <a class="dropdown-item" onclick="showConfirm(event, 'Xác nhận xoá?', 'Bạn chắc chắn muốn xoá danh mục này?', null, '/admin/categories/delete?id=${data}')">Xoá</a>
               </div>
             </div>

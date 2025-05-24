@@ -2,6 +2,7 @@ package com.vn.fruitcart.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,7 @@ import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.SubCategory;
 import com.vn.fruitcart.entity.dto.ProductCreateReqDTO;
+import com.vn.fruitcart.entity.dto.ProductCreateReqDTO.ProductVariantDTO;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.service.CategoryService;
 import com.vn.fruitcart.service.ProductImageService;
@@ -24,6 +26,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,6 +123,13 @@ public class ProductController {
         model.addAttribute("pageMetadata", pageMetadata);
 
         return "admin/pages/products/view";
+    }
+
+    @GetMapping("/admin/products/edit")
+    public String showEditForm() {
+        Product p = productService.findById(1L);
+        String z = p.getName();      
+        return "admin/product/edit";
     }
 
 }
