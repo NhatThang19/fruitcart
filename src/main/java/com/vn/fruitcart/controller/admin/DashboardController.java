@@ -1,4 +1,4 @@
-package com.vn.fruitcart.controller;
+package com.vn.fruitcart.controller.admin;
 
 import java.util.ArrayList;
 import java.util.List;

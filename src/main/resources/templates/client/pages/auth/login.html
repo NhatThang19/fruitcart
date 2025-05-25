@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{client/layouts/client1-layout}">
+    layout:decorate="~{client/layouts/client-layout}">
 
 <head>
     <title>Đăng nhập</title>
@@ -8,11 +8,6 @@
 
 <body>
     <div layout:fragment="content">
-        <section class="section-breadcrumb">
-            <div class="cr-breadcrumb-image">
-            </div>
-        </section>
-
         <section class="section-login padding-tb-100">
             <div class="container">
                 <div class="row justify-content-center">
@@ -34,6 +29,10 @@
                                 lại.
                             </div>
 
+                            <div th:if="${param.register != null}" class="alert alert-success" role="alert">
+                                Đăng ký tài khoản thành công.
+                            </div>
+
                             <div th:if="${globalSuccessMessage != null}" class="alert alert-success" role="alert"
                                 th:text="${globalSuccessMessage}"></div>
                             <div th:if="${globalErrorMessage != null}" class="alert alert-danger" role="alert"
@@ -43,8 +42,8 @@
                             <form class="cr-content-form" th:action="@{/login}" method="post">
                                 <div class="form-group mb-3">
                                     <label for="email">Địa chỉ Email*</label>
-                                    <input type="email" id="email" name="email"
-                                        placeholder="Nhập địa chỉ email của bạn" class="cr-form-control" required>
+                                    <input type="email" id="email" name="email" placeholder="Nhập địa chỉ email của bạn"
+                                        class="cr-form-control" required>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="password">Mật khẩu*</label>

@@ -2,6 +2,7 @@ package com.vn.fruitcart.controller.client;
 
 import com.vn.fruitcart.entity.dto.request.RegisterReq;
 import com.vn.fruitcart.service.AuthService;
+import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.UserService;
 
 import jakarta.validation.Valid;
@@ -21,19 +22,31 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
   private final AuthService authService;
   private final UserService userService;
+  private final BreadcrumbService breadcrumbService;
 
-  public AuthController(AuthService authService, UserService userService) {
+  public AuthController(AuthService authService, UserService userService, BreadcrumbService breadcrumbService) {
     this.authService = authService;
     this.userService = userService;
+    this.breadcrumbService = breadcrumbService;
   }
 
   @GetMapping("/login")
-  public String showLoginForm() {
+  public String showLoginForm(Model model) {
+    model.addAttribute("pageMetadata", breadcrumbService.buildLoginPageMetadata());
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)
+        && authentication.isAuthenticated()) {
+      return "redirect:/";
+    }
+
     return "client/pages/auth/login";
   }
 
   @GetMapping("/register")
   public String showRegisterForm(Model model) {
+    model.addAttribute("pageMetadata", breadcrumbService.buildRegisterPageMetadata());
+
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)
         && authentication.isAuthenticated()) {
@@ -69,13 +82,13 @@ public class AuthController {
     }
 
     if (bindingResult.hasErrors()) {
+      model.addAttribute("pageMetadata", breadcrumbService.buildRegisterPageMetadata());
       return "client/pages/auth/register";
     }
 
     try {
       authService.register(registerReq);
-      redirectAttributes.addFlashAttribute("successMessage", "Đăng ký thành công! Vui lòng đăng nhập.");
-      return "redirect:/login";
+      return "redirect:/login?register=success";
     } catch (Exception e) {
       redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
       redirectAttributes.addFlashAttribute("registerReq", registerReq);

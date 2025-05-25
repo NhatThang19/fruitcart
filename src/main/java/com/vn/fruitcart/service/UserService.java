@@ -5,6 +5,8 @@ import com.vn.fruitcart.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
+import java.util.Optional;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,8 +37,8 @@ public class UserService {
     return this.userRepository.save(user);
   }
 
-  public User getUserById(Long id) {
-    return this.userRepository.findById(id).orElse(null);
+  public Optional<User> getUserById(Long id) {
+    return userRepository.findById(id);
   }
 
   public User save(User existingUser) {
