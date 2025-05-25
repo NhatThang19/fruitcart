@@ -47,6 +47,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         userSessionInfo.setUserId(user.getId());
         userSessionInfo.setEmail(user.getEmail());
         userSessionInfo.setFullName(user.getFullName());
+        userSessionInfo.setAvatar(user.getAvatarUrl());
         if (user.getRole() != null) {
           userSessionInfo.setRole(user.getRole().getName());
         }
@@ -73,7 +74,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     if (isAdmin) {
-      targetUrl = "/admin/dashboard";
+      targetUrl = "/admin";
     } else {
       String previousPage = (String) session.getAttribute("previousPage");
       if (previousPage != null && !previousPage.isEmpty() && !previousPage.contains("/login")

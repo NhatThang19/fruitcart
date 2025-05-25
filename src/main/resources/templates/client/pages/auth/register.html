@@ -47,22 +47,22 @@
                                 <div class="row">
                                     <div class="col-12 col-sm-6">
                                         <div class="form-group">
-                                            <label for="lastName">Họ*</label> <input type="text" id="lastName"
+                                            <label for="firstName">Họ*</label> <input type="text" id="firstName"
                                                 placeholder="Nhập Họ của bạn" class="cr-form-control"
-                                                th:field="*{lastName}"
-                                                th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''">
-                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
-                                                th:errors="*{lastName}"></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="firstName">Tên (và tên đệm)*</label> <input type="text"
-                                                id="firstName" placeholder="Nhập Tên của bạn" class="cr-form-control"
                                                 th:field="*{firstName}"
                                                 th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''">
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
                                                 th:errors="*{firstName}"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <div class="form-group">
+                                            <label for="lastName">Tên (và tên đệm)*</label> <input type="text"
+                                                id="lastName" placeholder="Nhập Tên của bạn" class="cr-form-control"
+                                                th:field="*{lastName}"
+                                                th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''">
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
+                                                th:errors="*{lastName}"></div>
                                         </div>
                                     </div>
                                     <div class="col-12 col-sm-6">
