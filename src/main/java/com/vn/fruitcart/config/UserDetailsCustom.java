@@ -25,6 +25,10 @@ public class UserDetailsCustom implements UserDetailsService {
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException, LockedException {
     User user = userService.getUserByEmail(email);
 
+    if (user == null) {
+      throw new UsernameNotFoundException("Email không tồn tại trong hệ thống");
+    }
+
     if (user.getIsBlocked() != null && user.getIsBlocked()) {
       throw new LockedException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
     }
