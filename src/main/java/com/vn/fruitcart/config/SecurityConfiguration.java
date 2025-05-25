@@ -3,6 +3,8 @@ package com.vn.fruitcart.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.session.SessionRegistry;
@@ -31,6 +33,15 @@ public class SecurityConfiguration {
   @Bean
   public SessionRegistry sessionRegistry() {
     return new SessionRegistryImpl();
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(HttpSecurity http, UserDetailsCustom userDetailsService,
+      PasswordEncoder passwordEncoder) throws Exception {
+    AuthenticationManagerBuilder authenticationManagerBuilder = http
+        .getSharedObject(AuthenticationManagerBuilder.class);
+    authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+    return authenticationManagerBuilder.build();
   }
 
   @Bean
@@ -64,8 +75,9 @@ public class SecurityConfiguration {
             .deleteCookies("JSESSIONID", "remember-me")
             .permitAll())
         .rememberMe(rememberMe -> rememberMe
-            .key("myUniqueKey")
-            .tokenValiditySeconds(86400)
+            .key("uniqueAndSecret")
+            .tokenValiditySeconds(30 * 24 * 60 * 60)
+            .rememberMeParameter("remember-me")
             .userDetailsService(userDetailsService()))
         .sessionManagement(sessionManagement -> sessionManagement
             .sessionFixation().migrateSession()
