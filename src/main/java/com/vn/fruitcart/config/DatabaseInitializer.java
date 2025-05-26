@@ -71,6 +71,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             newUser.setEmail(email);
             newUser.setPassword(passwordEncoder.encode(rawPassword));
             newUser.setRole(role);
+            newUser.setAvatarUrl("/storage/default/avatar.jpg");
             userService.save(newUser);
             System.out.println("Tạo mới User: '" + email + "' với Role: '" + role.getName() + "'");
             return newUser;

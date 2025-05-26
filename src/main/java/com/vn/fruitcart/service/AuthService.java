@@ -31,7 +31,7 @@ public class AuthService {
                 .address(rReq.getAddress())
                 .password(passwordEncoder.encode(rReq.getPassword()))
                 .isBlocked(false)
-                .avatarUrl(null)
+                .avatarUrl("/storage/default/avatar.jpg")
                 .build();
 
         Role userRole = roleService.getRoleByName("ROLE_USER")

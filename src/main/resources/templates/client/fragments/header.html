@@ -28,11 +28,11 @@
                             </li>
 
                             <li class="nav-item dropdown" th:if="${session.loggedInUser}">
-                                <a class="nav-link dropdown-toggle cr-right-bar-item" href="javascript:void(0)">
+                                <a class="nav-link dropdown-toggle cr-right-bar-item" href="javascript:void(0)" style="padding: 0px 8px;">
                                     <th:block th:if="${session.loggedInUser.avatar}">
                                         <img th:src="@{${session.loggedInUser.avatar}}" alt="Avatar"
                                             class="rounded-circle"
-                                            style="width: 32px; height: 32px; object-fit: cover; margin-right: 5px;">
+                                            style="width: 30px; height: 30px; object-fit: cover; margin-right: 5px;">
                                     </th:block>
                                     <i class="ri-user-3-line" th:unless="${session.loggedInUser.avatar}"></i>
                                     <span th:text="${#strings.capitalizeWords(session.loggedInUser.fullName)}"></span>
@@ -41,7 +41,7 @@
                                     <li sec:authorize="hasRole('ADMIN')">
                                         <a class="dropdown-item" th:href="@{/admin}">Trang quản trị</a>
                                     </li>
-                                    <li><a class="dropdown-item" th:href="@{/profile}">Thông tin cá nhân</a></li>
+                                    <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ cá nhân</a></li>
                                     <li>
                                         <form id="logoutForm" th:action="@{/logout}" method="post">
                                             <a href="#" onclick="document.getElementById('logoutForm').submit()"

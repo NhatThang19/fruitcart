@@ -9,19 +9,23 @@ import jakarta.servlet.http.HttpSession;
 
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
+import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.UserService;
 
 @Controller
 public class ProfileController {
     private final UserService userService;
+    private final BreadcrumbService breadcrumbService;
 
-    public ProfileController(UserService userService) {
+    public ProfileController(UserService userService, BreadcrumbService breadcrumbService) {
         this.userService = userService;
+        this.breadcrumbService = breadcrumbService;
     }
 
     @GetMapping
     @RequestMapping("/profile")
     public String viewProfile(Model model, HttpSession session) {
+        model.addAttribute("pageMetadata", breadcrumbService.buildUserProfilePageMetadata());
         UserSessionInfo userSessionInfo = (UserSessionInfo) session.getAttribute("loggedInUser");
         if (userSessionInfo == null) {
             return "redirect:/login";

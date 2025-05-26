@@ -63,6 +63,7 @@
     <!-- Vendor Custom -->
     <script th:src="@{/shared/assets/js/vendor/jquery-3.6.4.min.js}"></script>
     <script th:src="@{/shared/assets/js/vendor/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/shared/assets/js/vendor/sweetalert2.min.js}"></script>
     <script th:src="@{/client/assets/js/vendor/jquery.zoom.min.js}"></script>
     <script th:src="@{/client/assets/js/vendor/mixitup.min.js}"></script>
     <script th:src="@{/client/assets/js/vendor/range-slider.js}"></script>
@@ -72,6 +73,19 @@
 
     <!-- Main Custom -->
     <script th:src="@{/client/assets/js/main.js}"></script>
+    <script th:src="@{/shared/assets/js/swal-utils.js}"></script>
+
+    <th:block layout:fragment="extras-scripts"></th:block>
+
+    <script th:inline="javascript">
+        const message = /*[[${message}]]*/ null;
+        const messageType = /*[[${messageType}]]*/ 'success';
+
+        if (message) {
+            showToast(message, messageType);
+            console.log(message);
+        }
+    </script>
 </body>
 
 </html>
