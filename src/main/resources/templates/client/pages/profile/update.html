@@ -3,7 +3,7 @@
     layout:decorate="~{client/layouts/client-layout}">
 
 <head>
-    <title>Hồ sơ cá nhân</title>
+    <title th:text="${pageMetadata.title}"></title>
     <style>
         .profile-card,
         .order-history-card {
@@ -346,7 +346,7 @@
                                 )">
                                             <i class="ri-save-line me-1"></i>Lưu thay đổi
                                         </button>
-                                        <a th:href="@{/profile/detail}" class="btn btn-outline-secondary">
+                                        <a th:href="@{/profile}" class="btn btn-outline-secondary">
                                             <i class="ri-arrow-go-back-line me-1"></i>Quay lại
                                         </a>
                                     </div>

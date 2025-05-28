@@ -1,12 +1,14 @@
 package com.vn.fruitcart.service;
 
 import com.vn.fruitcart.entity.User;
+import com.vn.fruitcart.entity.dto.request.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.UserProfileUpdateReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
 import com.vn.fruitcart.repository.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,19 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final FileStorageService fileStorageService;
   private final HttpSession session;
-
-  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-      FileStorageService fileStorageService, HttpSession session) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-    this.fileStorageService = fileStorageService;
-    this.session = session;
-  }
 
   public User findUserByEmail(String email) {
     return userRepository.findByEmail(email)
@@ -72,6 +67,24 @@ public class UserService {
     this.updateLoggedSession(updatedUserEntity);
 
     return updatedUserEntity;
+  }
+
+  @Transactional
+  public void changePassword(UserPasswordChangeReq request, User currentUser) {
+    if (!passwordEncoder.matches(request.getCurrentPassword(), currentUser.getPassword())) {
+      throw new IllegalArgumentException("Mật khẩu hiện tại không chính xác.");
+    }
+
+    if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+      throw new IllegalArgumentException("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+    }
+
+    if (passwordEncoder.matches(request.getNewPassword(), currentUser.getPassword())) {
+      throw new IllegalArgumentException("Mật khẩu mới không được trùng với mật khẩu cũ.");
+    }
+
+    currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+    userRepository.save(currentUser);
   }
 
   public void updateLoggedSession(User user) {

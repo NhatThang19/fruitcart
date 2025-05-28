@@ -3,7 +3,7 @@
     layout:decorate="~{client/layouts/client-layout}">
 
 <head>
-    <title>Hồ sơ cá nhân</title>
+    <title th:text="${pageMetadata.title}"></title>
     <style>
         .profile-card,
         .order-history-card {
@@ -291,18 +291,6 @@
                                     <dt class="col-sm-4 col-md-3"><i class="ri-calendar-event-line"></i> Ngày sinh:</dt>
                                     <dd class="col-sm-8 col-md-9"
                                         th:text="${userProfile.birthDate != null ? #temporals.format(userProfile.birthDate, 'dd/MM/yyyy') : 'Chưa cập nhật'}">
-                                    </dd>
-
-                                    <dt class="col-sm-4 col-md-3"><i class="ri-shield-user-line"></i> Vai trò:</dt>
-                                    <dd class="col-sm-8 col-md-9"
-                                        th:text="${userProfile.role != null ? #strings.capitalizeWords(#strings.toLowerCase(userProfile.role.name.replace('ROLE_', ''))) : 'N/A'}">
-                                    </dd>
-
-                                    <dt class="col-sm-4 col-md-3"><i class="ri-lock-line"></i> Trạng thái:</dt>
-                                    <dd class="col-sm-8 col-md-9">
-                                        <span th:if="${userProfile.isBlocked}" class="badge bg-danger">Bị khóa</span>
-                                        <span th:unless="${userProfile.isBlocked}" class="badge bg-success">Hoạt
-                                            động</span>
                                     </dd>
 
                                     <dt class="col-sm-4 col-md-3"><i class="ri-calendar-todo-line"></i> Ngày tạo:</dt>

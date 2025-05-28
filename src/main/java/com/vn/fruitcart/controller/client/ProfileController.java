@@ -8,11 +8,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 import com.vn.fruitcart.config.UserDetailsCustom;
 import com.vn.fruitcart.entity.User;
+import com.vn.fruitcart.entity.dto.request.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.UserProfileUpdateReq;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.UserService;
@@ -20,18 +21,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/profile")
+@RequiredArgsConstructor
 public class ProfileController {
 
     private final UserDetailsCustom userDetailsCustom;
     private final UserService userService;
     private final BreadcrumbService breadcrumbService;
-
-    public ProfileController(UserService userService, BreadcrumbService breadcrumbService,
-            UserDetailsCustom userDetailsCustom) {
-        this.userService = userService;
-        this.breadcrumbService = breadcrumbService;
-        this.userDetailsCustom = userDetailsCustom;
-    }
 
     @GetMapping
     public String viewProfile(Model model) {
@@ -47,7 +42,7 @@ public class ProfileController {
     }
 
     @GetMapping("/update")
-    public String getUpdateProfileForm(Model model, HttpSession session) {
+    public String getUpdateProfileForm(Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.buildUpdateUserProfilePageMetadata());
 
         User currentUser = userDetailsCustom.getCurrentUserEntity(userService);
@@ -87,7 +82,7 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("messageType", "success");
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("breadcrumbs", breadcrumbService.buildUpdateUserProfilePageMetadata());
+            model.addAttribute("pageMetadata", breadcrumbService.buildUpdateUserProfilePageMetadata());
             model.addAttribute("userProfileUpdateReq", userProfileUpdateReq);
             redirectAttributes.addFlashAttribute("message", "Xoá người dùng thất bại!");
             redirectAttributes.addFlashAttribute("messageType", "error");
@@ -95,6 +90,47 @@ public class ProfileController {
         }
 
         return "redirect:/profile";
+    }
+
+    @GetMapping("/change-password")
+    public String getChangePasswordPage(Model model) {
+        model.addAttribute("pageMetadata", breadcrumbService.buildChangeUserPassPageMetadata());
+        model.addAttribute("passwordChangeReq", new UserPasswordChangeReq());
+
+        return "client/pages/profile/change-password";
+    }
+
+    @PostMapping("/change-password")
+    public String handleChangePassword(
+            @Valid @ModelAttribute("passwordChangeReq") UserPasswordChangeReq passwordChangeReq,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        User currentUser = userDetailsCustom.getCurrentUserEntity(userService);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+
+        if (!passwordChangeReq.getConfirmNewPassword().isEmpty() && !passwordChangeReq.getConfirmNewPassword().isEmpty()
+                &&
+                !passwordChangeReq.getNewPassword().equals(passwordChangeReq.getConfirmNewPassword())) {
+            bindingResult.rejectValue("confirmNewPassword", "",
+                    "Mật khẩu xác nhận không khớp.");
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("pageMetadata", breadcrumbService.buildChangeUserPassPageMetadata());
+            return "client/pages/profile/change-password";
+        }
+
+        try {
+            userService.changePassword(passwordChangeReq, currentUser);
+            return "redirect:/profile";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error_message", e.getMessage());
+            return "redirect:/profile/change-password";
+        }
     }
 
 }
