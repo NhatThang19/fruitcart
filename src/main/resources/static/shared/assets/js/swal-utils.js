@@ -21,16 +21,22 @@ function showConfirm(
   Swal.fire({
     title: title || "Bạn chắc chắn?",
     text: text || "Thao tác này không thể hoàn tác!",
-    icon: "warning",
+    icon: "warning", // Sẽ đổi thành 'question' hoặc 'info' cho trường hợp lưu
     showCancelButton: true,
-    confirmButtonColor: "#3085d6",
+    confirmButtonColor: "#3085d6", // Màu cho nút xác nhận chung
     cancelButtonColor: "#d33",
-    confirmButtonText: "Xác nhận",
+    confirmButtonText: "Xác nhận", // Text nút xác nhận chung
     cancelButtonText: "Huỷ",
   }).then((result) => {
     if (result.isConfirmed) {
       if (formId) {
-        document.getElementById(formId).submit();
+        const formToSubmit = document.getElementById(formId);
+        if (formToSubmit) {
+          formToSubmit.submit();
+        } else {
+          console.error('Form with id "' + formId + '" not found.');
+          Swal.fire("Lỗi!", "Không tìm thấy form để gửi đi.", "error");
+        }
       } else if (redirectUrl) {
         window.location.href = redirectUrl;
       }

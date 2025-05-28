@@ -2,7 +2,7 @@ package com.vn.fruitcart.entity.dto.request;
 
 import java.time.LocalDate;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.vn.fruitcart.util.constant.GenderEnum;
 
@@ -38,8 +38,12 @@ public class UserProfileUpdateReq {
 
     private String address;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Past(message = "Ngày sinh phải là một ngày trong quá khứ")
-    private LocalDate dayOfBirth;
+    private LocalDate birthDate;
 
+    private MultipartFile avatarFile;
+
+    private String currentAvatar;
+
+    private String email;
 }

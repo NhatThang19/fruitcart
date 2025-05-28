@@ -4,6 +4,8 @@ import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication; // Thêm import này
+import org.springframework.security.core.context.SecurityContextHolder; // Thêm import này
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +25,7 @@ public class UserDetailsCustom implements UserDetailsService {
   @Override
   @Transactional(readOnly = true)
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException, LockedException {
-    User user = userService.getUserByEmail(email);
+    User user = userService.findUserByEmail(email);
 
     if (user == null) {
       throw new UsernameNotFoundException("Email không tồn tại trong hệ thống");
@@ -39,4 +41,25 @@ public class UserDetailsCustom implements UserDetailsService {
         Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName())));
   }
 
+  public UserDetails getCurrentUserDetails() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication != null && authentication.isAuthenticated()
+        && authentication.getPrincipal() instanceof UserDetails) {
+      return (UserDetails) authentication.getPrincipal();
+    }
+    return null;
+  }
+
+  public String getCurrentUsername() {
+    UserDetails userDetails = getCurrentUserDetails();
+    return userDetails != null ? userDetails.getUsername() : null;
+  }
+
+  public User getCurrentUserEntity(UserService userService) {
+    String username = getCurrentUsername();
+    if (username != null) {
+      return userService.findUserByEmail(username);
+    }
+    return null;
+  }
 }

@@ -224,125 +224,134 @@
     <div layout:fragment="content">
         <section class="profile-section py-5">
             <div class="container">
-                <div th:if="${userProfile == null}" class="alert alert-warning text-center" role="alert">
+                <div th:if="${userProfileUpdateReq == null}" class="alert alert-warning text-center" role="alert">
                     <i class="ri-error-warning-line me-2"></i>Không thể tải thông tin người dùng. Vui lòng đăng nhập
                     hoặc thử lại.
                 </div>
 
-                <div class="row profile-row" th:if="${userProfile != null}">
+                <div class="row profile-row justify-content-center" th:if="${userProfileUpdateReq != null}">
                     <div class="col-lg-7 mb-4 mb-lg-0 profile-column-sticky">
                         <div class="card profile-card" id="profileCard">
-                            <div class="profile-header">
-                                <div class="profile-avatar-wrapper">
-                                    <img th:src="${userProfile.avatarUrl != null && !#strings.isEmpty(userProfile.avatarUrl) ? userProfile.avatarUrl : 'https://placehold.co/150x150/6c757d/white?text=N/A'}"
-                                        alt="Ảnh đại diện" class="profile-avatar" id="avatarPreview">
-                                    <label for="avatarUpload" class="edit-avatar-btn" title="Đổi ảnh đại diện">
-                                        <i class="ri-camera-fill"></i>
-                                    </label>
+                            <form id="updateProfileForm" th:action="@{/profile/update}"
+                                th:object="${userProfileUpdateReq}" method="post" enctype="multipart/form-data">
+                                <input type="hidden" th:field="*{currentAvatar}" />
+
+                                <div class="profile-header">
+                                    <div class="profile-avatar-wrapper">
+                                        <img th:src="@{*{currentAvatar}}" alt="Ảnh đại diện" class="profile-avatar"
+                                            id="avatarPreview">
+                                        <label for="avatarUploadInput" class="edit-avatar-btn" title="Đổi ảnh đại diện">
+                                            <i class="ri-camera-fill"></i>
+                                        </label>
+                                    </div>
+                                    <h4 th:text="*{firstName} + ' ' + *{lastName}">Tên người dùng</h4>
+                                    <p th:text="${userProfileUpdateReq.email}">email@example.com</p>
                                 </div>
-                                <h4 th:text="${userProfile.fullName}">Tên người dùng</h4>
-                                <p th:text="${userProfile.email}" style="color: #555;">email@example.com</p>
-                            </div>
 
-                            <div class="card-body profile-body">
-                                <h5 class="card-title mb-4">Chi tiết tài khoản</h5>
-                                <form th:action="@{/profile/update}" th:object="${userProfile}" method="post"
-                                    enctype="multipart/form-data">
-                                    <input type="file" id="avatarUpload" name="avatarFile" accept="image/*"
+                                <div class="card-body profile-body">
+                                    <h5 class="card-title mb-4">Chi tiết tài khoản</h5>
+
+                                    <input type="file" id="avatarUploadInput" th:field="*{avatarFile}" accept="image/*"
                                         style="display: none;">
-                                    <input type="hidden" th:field="*{avatarUrl}" />
+                                    <div th:if="${#fields.hasErrors('avatarFile')}"
+                                        class="alert alert-danger text-center p-2 mb-3" th:errors="*{avatarFile}"></div>
 
-                                    <dl class="row form-group-custom">
-                                        <dt class="col-md-4"><i class="ri-user-line"></i>Họ:</dt>
-                                        <dd class="col-md-8">
-                                            <input type="text" class="form-control" id="firstName"
-                                                th:field="*{firstName}" />
-                                            <small class="form-text text-danger"
-                                                th:if="${#fields.hasErrors('firstName')}"
-                                                th:errors="*{firstName}"></small>
-                                        </dd>
 
-                                        <dt class="col-md-4"><i class="ri-user-line"></i>Tên:</dt>
-                                        <dd class="col-md-8">
-                                            <input type="text" class="form-control" id="lastName"
-                                                th:field="*{lastName}" />
-                                            <small class="form-text text-danger"
-                                                th:if="${#fields.hasErrors('lastName')}"
-                                                th:errors="*{lastName}"></small>
-                                        </dd>
+                                    <div class="form-group-custom profile-details">
+                                        <div class="mb-3 row">
+                                            <div class="col-md-4"><i class="ri-user-line field-icon"></i>Họ:</div>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control" id="firstName"
+                                                    th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
+                                                    th:field="*{firstName}" />
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
+                                                    th:errors="*{firstName}"></div>
+                                            </div>
+                                        </div>
 
-                                        <dt class="col-md-4"><i class="ri-mail-line"></i>Email:</dt>
-                                        <dd class="col-md-8">
-                                            <input type="email" class="form-control" id="email" th:field="*{email}"
-                                                readonly />
-                                            <small class="form-text text-muted">Email không thể thay đổi.</small>
-                                        </dd>
+                                        <div class="mb-3 row">
+                                            <div class="col-md-4"><i class="ri-user-line field-icon"></i>Tên:</div>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control" id="lastName"
+                                                    th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
+                                                    th:field="*{lastName}" />
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
+                                                    th:errors="*{lastName}"></div>
+                                            </div>
+                                        </div>
 
-                                        <dt class="col-md-4"><i class="ri-phone-line"></i>Số điện thoại:</dt>
-                                        <dd class="col-md-8">
-                                            <input type="tel" class="form-control" id="phone" th:field="*{phone}" />
-                                            <small class="form-text text-danger" th:if="${#fields.hasErrors('phone')}"
-                                                th:errors="*{phone}"></small>
-                                        </dd>
+                                        <div class="mb-3 row">
+                                            <div class="col-md-4"><i class="ri-phone-line field-icon"></i>Số điện thoại:
+                                            </div>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control" id="phone"
+                                                    th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
+                                                    th:field="*{phone}" />
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}"
+                                                    th:errors="*{phone}"></div>
+                                            </div>
+                                        </div>
 
-                                        <dt class="col-md-4"><i class="ri-map-pin-line"></i>Địa chỉ:</dt>
-                                        <dd class="col-md-8">
-                                            <textarea type="text" cols="3" class="form-control" id="address"
-                                                th:field="*{address}"></textarea>
-                                        </dd>
+                                        <div class="mb-3 row">
+                                            <div class="col-md-4"><i class="ri-map-pin-line field-icon"></i>Địa chỉ:
+                                            </div>
+                                            <div class="col-md-8">
+                                                <textarea class="form-control" id="address" th:field="*{address}"
+                                                    th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''"
+                                                    rows="3"></textarea>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}"
+                                                    th:errors="*{address}"></div>
+                                            </div>
+                                        </div>
 
-                                        <dt class="col-md-4"><i class="ri-user-settings-line"></i>Giới tính:</dt>
-                                        <dd class="col-md-8">
-                                            <select class="form-select" id="gender" th:field="*{gender}">
-                                                <option value="">-- Chọn giới tính --</option>
-                                                <option
-                                                    th:each="g : ${T(com.vn.fruitcart.util.constant.GenderEnum).values()}"
-                                                    th:value="${g}" th:text="${g.getDisplayName()}"
-                                                    th:selected="${g == userProfile.gender}">
-                                                </option>
-                                            </select>
-                                        </dd>
+                                        <div class="mb-3 row">
+                                            <div class="col-md-4">
+                                                <i class="ri-user-settings-line field-icon"></i>Giới tính:
+                                            </div>
+                                            <div class="col-md-8">
+                                                <select class="form-select" id="gender" th:field="*{gender}"
+                                                    th:classappend="${#fields.hasErrors('gender')} ? 'is-invalid' : ''">
+                                                    <option value="">-- Chọn giới tính --</option>
+                                                    <option
+                                                        th:each="g : ${T(com.vn.fruitcart.util.constant.GenderEnum).values()}"
+                                                        th:value="${g}" th:text="${g.getDisplayName()}">
+                                                    </option>
+                                                </select>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('gender')}"
+                                                    th:errors="*{gender}"></div>
+                                            </div>
+                                        </div>
 
-                                        <dt class="col-md-4"><i class="ri-calendar-event-line"></i>Ngày sinh:</dt>
-                                        <dd class="col-md-8">
-                                            <input type="date" class="form-control" id="birthDate"
-                                                th:field="*{birthDate}" />
-                                        </dd>
+                                        <div class="mb-3 row">
+                                            <div class="col-md-4">
+                                                <i class="ri-calendar-event-line field-icon"></i>Ngày sinh:
+                                            </div>
+                                            <div class="col-md-8">
+                                                <input type="date" class="form-control" id="birthDate"
+                                                    th:field="*{birthDate}"
+                                                    th:classappend="${#fields.hasErrors('birthDate')} ? 'is-invalid' : ''" />
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('birthDate')}"
+                                                    th:errors="*{birthDate}"></div>
+                                            </div>
+                                        </div>
 
-                                        <dt class="col-md-4"><i class="ri-shield-user-line"></i>Vai trò:</dt>
-                                        <dd class="col-md-8">
-                                            <p class="form-control-plaintext"
-                                                th:text="${userProfile.role != null ? #strings.capitalizeWords(#strings.toLowerCase(userProfile.role.name.replace('ROLE_', ''))) : 'N/A'}">
-                                            </p>
-                                        </dd>
-
-                                        <dt class="col-md-4"><i class="ri-lock-line"></i>Trạng thái:</dt>
-                                        <dd class="col-md-8">
-                                            <span th:unless="${userProfile.isBlocked}" class="badge bg-success">Hoạt
-                                                động</span>
-                                        </dd>
-
-                                        <dt class="col-md-4"><i class="ri-calendar-todo-line"></i>Ngày tạo:</dt>
-                                        <dd class="col-md-8">
-                                            <p class="form-control-plaintext"
-                                                th:text="${userProfile.createdDate != null ? #temporals.format(userProfile.createdDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
-                                            </p>
-                                        </dd>
-
-                                        <dt class="col-md-4"><i class="ri-calendar-check-line"></i>Cập nhật:</dt>
-                                        <dd class="col-md-8">
-                                            <p class="form-control-plaintext"
-                                                th:text="${userProfile.lastModifiedDate != null ? #temporals.format(userProfile.lastModifiedDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
-                                            </p>
-                                        </dd>
-                                    </dl>
+                                    </div>
 
                                     <div class="profile-actions">
-                                        <button type="submit" class="btn btn-primary"><i
-                                                class="ri-save-line me-1"></i>Lưu thay đổi</button>
+                                        <button type="submit" class="btn btn-primary" onclick="showConfirm(event,
+                                 'Xác nhận lưu thay đổi',
+                                 'Bạn có chắc chắn muốn cập nhật thông tin hồ sơ của mình không?',
+                                 'updateProfileForm',  
+                                 null
+                                )">
+                                            <i class="ri-save-line me-1"></i>Lưu thay đổi
+                                        </button>
+                                        <a th:href="@{/profile/detail}" class="btn btn-outline-secondary">
+                                            <i class="ri-arrow-go-back-line me-1"></i>Quay lại
+                                        </a>
                                     </div>
-                                </form>
-                            </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -365,7 +374,7 @@
             }
 
             document.addEventListener('DOMContentLoaded', function () {
-                const avatarUploadInput = document.getElementById('avatarUpload');
+                const avatarUploadInput = document.getElementById('avatarUploadInput');
                 if (avatarUploadInput) {
                     avatarUploadInput.addEventListener('change', previewAvatar);
                 }
