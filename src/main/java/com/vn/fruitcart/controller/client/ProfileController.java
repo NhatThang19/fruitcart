@@ -78,13 +78,13 @@ public class ProfileController {
 
         try {
             userService.updateUserProfile(currentUser.getId(), userProfileUpdateReq);
-            redirectAttributes.addFlashAttribute("message", "Sửa trang cái nhân thành công.");
+            redirectAttributes.addFlashAttribute("message", "Sửa trang cá nhân thành công.");
             redirectAttributes.addFlashAttribute("messageType", "success");
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("pageMetadata", breadcrumbService.buildUpdateUserProfilePageMetadata());
             model.addAttribute("userProfileUpdateReq", userProfileUpdateReq);
-            redirectAttributes.addFlashAttribute("message", "Xoá người dùng thất bại!");
+            redirectAttributes.addFlashAttribute("message", "Sửa trang cá nhân người dùng thất bại.");
             redirectAttributes.addFlashAttribute("messageType", "error");
             return "client/pages/profile/update";
         }
@@ -126,11 +126,15 @@ public class ProfileController {
 
         try {
             userService.changePassword(passwordChangeReq, currentUser);
-            return "redirect:/profile";
+            redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thành công.");
+            redirectAttributes.addFlashAttribute("messageType", "success");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error_message", e.getMessage());
-            return "redirect:/profile/change-password";
+            redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thất bại.");
+            redirectAttributes.addFlashAttribute("messageType", "error");
+            return "client/pages/profile/change-password";
         }
+        return "redirect:/profile";
     }
 
 }

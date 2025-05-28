@@ -63,10 +63,10 @@ public class SecurityConfiguration {
             .anyRequest().authenticated())
         .formLogin(formLogin -> formLogin
             .loginPage("/login")
+            .failureUrl("/login?error=true")
             .usernameParameter("email")
             .passwordParameter("password")
             .successHandler(customSuccessHandler)
-            .failureUrl("/login?error=true")
             .permitAll())
         .logout(logout -> logout
             .logoutUrl("/logout")
@@ -74,11 +74,11 @@ public class SecurityConfiguration {
             .invalidateHttpSession(true)
             .deleteCookies("JSESSIONID", "remember-me")
             .permitAll())
-        .rememberMe(rememberMe -> rememberMe
-            .key("uniqueAndSecret")
-            .tokenValiditySeconds(30 * 24 * 60 * 60)
-            .rememberMeParameter("remember-me")
-            .userDetailsService(userDetailsService()))
+        // .rememberMe(rememberMe -> rememberMe
+        //     .key("uniqueAndSecret")
+        //     .tokenValiditySeconds(30 * 24 * 60 * 60)
+        //     .rememberMeParameter("remember-me")
+        //     .userDetailsService(userDetailsService()))
         .sessionManagement(sessionManagement -> sessionManagement
             .sessionFixation().migrateSession()
             .maximumSessions(1)
