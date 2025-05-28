@@ -1,6 +1,6 @@
 package com.vn.fruitcart.controller.client;
 
-import com.vn.fruitcart.entity.dto.request.RegisterReq;
+import com.vn.fruitcart.entity.dto.request.UserRegisterReq;
 import com.vn.fruitcart.service.AuthService;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.UserService;
@@ -54,13 +54,13 @@ public class AuthController {
     }
 
     if (!model.containsAttribute("registerReq")) {
-      model.addAttribute("registerReq", new RegisterReq());
+      model.addAttribute("registerReq", new UserRegisterReq());
     }
     return "client/pages/auth/register";
   }
 
   @PostMapping("/register")
-  public String processRegistration(@Valid @ModelAttribute("registerReq") RegisterReq registerReq,
+  public String processRegistration(@Valid @ModelAttribute("registerReq") UserRegisterReq registerReq,
       BindingResult bindingResult,
       RedirectAttributes redirectAttributes,
       Model model) {

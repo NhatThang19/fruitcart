@@ -30,4 +30,12 @@ public class BreadcrumbService {
         return new PageMetadata("Hồ sơ cá nhân", breadcrumbList);
     }
 
+    public PageMetadata buildUpdateUserProfilePageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Trang chủ", "/"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Hồ sơ cá nhân", "/profile"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Cập nhật", null));
+        return new PageMetadata("Cập nhật hồ sơ cá nhân", breadcrumbList);
+    }
+
 }

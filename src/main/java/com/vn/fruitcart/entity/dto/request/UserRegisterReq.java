@@ -1,10 +1,13 @@
 package com.vn.fruitcart.entity.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.Data;
 
-@Data
-public class RegisterReq {
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class UserRegisterReq {
 
     @NotBlank(message = "Họ không được để trống")
     @Size(min = 2, max = 50, message = "Họ phải có từ 2 đến 50 ký tự")

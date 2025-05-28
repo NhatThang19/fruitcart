@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.entity.dto.request.RegisterReq;
+import com.vn.fruitcart.entity.dto.request.UserRegisterReq;
 
 import jakarta.transaction.Transactional;
 
@@ -22,7 +22,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(RegisterReq rReq) throws Exception {
+    public void register(UserRegisterReq rReq) throws Exception {
         User newUser = User.builder()
                 .lastName(rReq.getLastName())
                 .firstName(rReq.getFirstName())
