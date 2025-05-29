@@ -5,11 +5,15 @@ import com.vn.fruitcart.entity.dto.request.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.UserProfileUpdateReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
 import com.vn.fruitcart.repository.UserRepository;
+import com.vn.fruitcart.service.specification.UserSpecification;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,6 +100,18 @@ public class UserService {
     userSessionInfo.setRole(user.getRole().getName());
 
     session.setAttribute("loggedInUser", userSessionInfo);
+  }
+
+  public Page<User> findAllUsers(Specification<User> spec, Pageable pageable) {
+    return userRepository.findAll(spec, pageable);
+  }
+
+  public Page<User> findUsersByCriteria(String emailSearch, Integer roleIdSearchValue, Boolean isBlockedStatus,
+      Pageable pageable) {
+    Long roleIdLong = (roleIdSearchValue != null) ? roleIdSearchValue.longValue() : null;
+    Specification<User> spec = UserSpecification.filterBy(emailSearch, roleIdLong, isBlockedStatus);
+
+    return userRepository.findAll(spec, pageable);
   }
 
   public User findUserById(Long id) {

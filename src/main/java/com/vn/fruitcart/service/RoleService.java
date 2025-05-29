@@ -1,5 +1,6 @@
 package com.vn.fruitcart.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -29,5 +30,9 @@ public class RoleService {
 
     public boolean existsByName(String name) {
         return roleRepository.existsByName(name);
+    }
+
+    public List<Role> findAll() {
+        return roleRepository.findAll();
     }
 }
