@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title} ?: 'Chi tiết người dùng'"></title>
+    <style>
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .avatar-detail {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #eee;
+        }
+
+        .avatar-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #ccc;
+            border: 3px solid #eee;
+        }
+
+        .order-history-card .card-body {
+            min-height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-5 col-md-12 mb-4 mb-lg-0">
+                                <h4 class="mb-4 text-center card-title">Thông tin người dùng</h4>
+
+                                <div class="text-center mb-4">
+                                    <th:block th:if="${user.avatarUrl != null && !user.avatarUrl.isEmpty()}">
+                                        <img th:src="@{${user.avatarUrl}}" alt="Avatar"
+                                            class="avatar-detail img-thumbnail" />
+                                    </th:block>
+                                    <th:block th:unless="${user.avatarUrl != null && !user.avatarUrl.isEmpty()}">
+                                        <div class="avatar-placeholder">
+                                            <i class="ri-user-line"></i>
+                                        </div>
+                                    </th:block>
+                                </div>
+
+                                <dl class="row">
+                                    <dt class="col-sm-5 col-md-4 detail-label">ID Người dùng:</dt>
+                                    <dd class="col-sm-7 col-md-8" th:text="${user.id}">N/A</dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Họ và Tên:</dt>
+                                    <dd class="col-sm-7 col-md-8" th:text="${user.fullName ?: 'N/A'}"></dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Email:</dt>
+                                    <dd class="col-sm-7 col-md-8" th:text="${user.email ?: 'N/A'}"></dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Số điện thoại:</dt>
+                                    <dd class="col-sm-7 col-md-8" th:text="${user.phone ?: 'N/A'}"></dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Địa chỉ:</dt>
+                                    <dd class="col-sm-7 col-md-8" th:text="${user.address ?: 'N/A'}"></dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Giới tính:</dt>
+                                    <dd class="col-sm-7 col-md-8"
+                                        th:text="${user.gender != null ? (user.gender.name() == 'MALE' ? 'Nam' : (user.gender.name() == 'FEMALE' ? 'Nữ' : 'Khác')) : 'N/A'}">
+                                    </dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Ngày sinh:</dt>
+                                    <dd class="col-sm-7 col-md-8"
+                                        th:text="${user.birthDate != null ? #temporals.format(user.birthDate, 'dd/MM/yyyy') : 'N/A'}">
+                                    </dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Vai trò:</dt>
+                                    <dd class="col-sm-7 col-md-8">
+                                        <span th:if="${user.role != null}"
+                                            th:text="${user.role.name.replace('ROLE_', '')}" class="badge"
+                                            th:classappend="${user.role.name == 'ROLE_ADMIN'} ? 'bg-primary' : (${user.role.name == 'ROLE_USER'} ? 'bg-info' : 'bg-secondary')">
+                                        </span>
+                                        <span th:if="${user.role == null}" class="badge bg-light text-dark">N/A</span>
+                                    </dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Trạng thái:</dt>
+                                    <dd class="col-sm-7 col-md-8">
+                                        <span th:if="${user.isBlocked}" class="badge bg-danger">Bị khóa</span>
+                                        <span th:unless="${user.isBlocked}" class="badge bg-success">Hoạt động</span>
+                                    </dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Người tạo:</dt>
+                                    <dd class="col-sm-7 col-md-8" th:text="${user.createdBy}">
+                                    </dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Ngày tạo:</dt>
+                                    <dd class="col-sm-7 col-md-8"
+                                        th:text="${user.createdDate != null ? #temporals.format(user.createdDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}">
+                                    </dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Người cập nhật cuối:</dt>
+                                    <dd class="col-sm-7 col-md-8" th:text="${user.lastModifiedBy}">
+                                    </dd>
+
+                                    <dt class="col-sm-5 col-md-4 detail-label">Cập nhật lần cuối:</dt>
+                                    <dd class="col-sm-7 col-md-8"
+                                        th:text="${user.lastModifiedDate != null ? #temporals.format(user.lastModifiedDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}">
+                                    </dd>
+                                </dl>
+                            </div>
+
+                            <div class="col-lg-7 col-md-12">
+                                <div class="card order-history-card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">Lịch sử đơn hàng</h5>
+                                    </div>
+                                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                                        <i class="ri-shopping-cart-line text-muted" style="font-size: 4rem;"></i>
+                                        <p class="text-muted mt-3">
+                                            <em>Chức năng hiển thị lịch sử đơn hàng của người dùng sẽ được phát triển
+                                                sau.</em>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="mt-2">
+                            <a th:href="@{/admin/users}" class="btn btn-secondary">
+                                <i class="ri-arrow-left-line me-1"></i> Quay lại danh sách
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -6,6 +6,34 @@
  * @param {string} formId - ID của form cần submit (nếu có)
  * @param {string} redirectUrl - URL chuyển hướng (nếu không dùng form)
  */
+function confirmAndDelete(title, text, formId) {
+  Swal.fire({
+    title: title || "Bạn chắc chắn?",
+    text: text || "Thao tác này không thể hoàn tác!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Xác nhận",
+    cancelButtonText: "Huỷ",
+  }).then((result) => {
+    // Phần quan trọng nằm ở đây:
+    if (result.isConfirmed) {
+      // CHỈ KHI người dùng bấm nút "Xác nhận"
+      if (formId) {
+        const formToSubmit = document.getElementById(formId);
+        if (formToSubmit) {
+          formToSubmit.submit(); // thì form mới được gửi đi
+        } else {
+          console.error('Form with id "' + formId + '" not found.');
+          Swal.fire("Lỗi!", "Không tìm thấy form để gửi đi.", "error");
+        }
+      }
+    }
+    // Nếu người dùng bấm "Huỷ" hoặc đóng hộp thoại, thì mã trong khối "if (result.isConfirmed)" sẽ KHÔNG chạy.
+  });
+}
+
 function showConfirm(
   event = null,
   title,

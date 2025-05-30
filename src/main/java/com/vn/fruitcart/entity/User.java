@@ -14,8 +14,7 @@ import java.time.LocalDate;
 @Builder
 @Entity
 @Table(name = "users", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "email"),
-    @UniqueConstraint(columnNames = "phone")
+    @UniqueConstraint(columnNames = "email")
 })
 public class User extends BaseEntity {
   @Id

@@ -1,6 +1,8 @@
 package com.vn.fruitcart.service;
 
+import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
+import com.vn.fruitcart.entity.dto.request.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.UserProfileUpdateReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
@@ -11,9 +13,13 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,9 +29,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
+  private final RoleService roleService;
   private final PasswordEncoder passwordEncoder;
   private final FileStorageService fileStorageService;
   private final HttpSession session;
+  private final SessionRegistry sessionRegistry;
 
   public User findUserByEmail(String email) {
     return userRepository.findByEmail(email)
@@ -119,10 +127,38 @@ public class UserService {
         .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với Id: " + id));
   }
 
+  public Optional<User> findUserByIdOptional(Long id) {
+    return userRepository.findById(id);
+  }
+
+  @Transactional
+  public User updateUserRoleAndStatusByAdmin(AdminUserUpdateReq req) throws RuntimeException {
+    User user = userRepository.findById(req.getUserId())
+        .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với ID: " + req.getUserId()));
+
+    Role oldRole = user.getRole();
+    Role newRole = roleService.findRoleById(req.getRoleId())
+        .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò với ID: " + req.getRoleId()));
+
+    user.setRole(newRole);
+    user.setIsBlocked(req.getIsBlocked());
+    User updatedUser = userRepository.save(user);
+
+    boolean roleActuallyChanged = !oldRole.getId().equals(newRole.getId());
+
+    boolean userIsNowBlockedByRequest = req.getIsBlocked();
+
+    if (roleActuallyChanged || userIsNowBlockedByRequest) {
+      expireUserSessions(updatedUser.getId());
+    }
+    return updatedUser;
+  }
+
   public User save(User existingUser) {
     return this.userRepository.save(existingUser);
   }
 
+  @Transactional
   public void deleteUserById(Long id) {
     this.userRepository.deleteById(id);
   }
@@ -133,5 +169,20 @@ public class UserService {
 
   public boolean existsByPhone(String phone) {
     return userRepository.existsByPhone(phone);
+  }
+
+  public void expireUserSessions(Long userId) {
+    String userEmail = this.findUserById(userId).getEmail();
+
+    sessionRegistry.getAllPrincipals().forEach(principal -> {
+      if (principal instanceof UserDetails) {
+        UserDetails userDetails = (UserDetails) principal;
+        if (userDetails.getUsername().equals(userEmail)) {
+          sessionRegistry.getAllSessions(principal, false).forEach(session -> {
+            session.expireNow();
+          });
+        }
+      }
+    });
   }
 }

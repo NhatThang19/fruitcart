@@ -16,7 +16,7 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public Optional<Role> getRoleById(Long id) {
+    public Optional<Role> findRoleById(Long id) {
         return roleRepository.findById(id);
     }
 

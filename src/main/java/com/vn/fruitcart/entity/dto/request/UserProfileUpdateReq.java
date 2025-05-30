@@ -30,7 +30,6 @@ public class UserProfileUpdateReq {
     @Size(max = 50, message = "Tên không được vượt quá 50 ký tự")
     private String lastName;
 
-    @NotBlank(message = "Số điện thoại không được để trống")
     @Pattern(regexp = "^(\\+84|0)\\d{9,10}$", message = "Số điện thoại không hợp lệ")
     private String phone;
 

@@ -134,7 +134,7 @@
                                             <a
                                                 th:href="@{/admin/users(page=${usersPage.number}, size=${usersPage.size}, sort=(${currentSortField == 'lastModifiedDate'} ? ('lastModifiedDate,' + reverseSortDir) : 'lastModifiedDate,asc'),
                                                    emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">
-                                                Ngày sửa cuối
+                                                Lần cuối cập nhật
                                                 <span th:if="${currentSortField == 'lastModifiedDate'}"
                                                     class="sort-icon"
                                                     th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
@@ -164,13 +164,26 @@
                                         <td
                                             th:text="${user.lastModifiedDate != null ? #temporals.format(user.lastModifiedDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
                                         </td>
-                                        <td class="text-center">
-                                            <a href="#" class="btn btn-sm btn-outline-info" title="Xem chi tiết"><i
+                                        <td class="d-flex justify-content-center gap-3">
+                                            <a th:href="@{/admin/users/{id}(id=${user.id})}"
+                                                class="btn btn-sm btn-outline-info" title="Xem chi tiết"><i
                                                     class="ri-eye-line"></i></a>
-                                            <a href="#" class="btn btn-sm btn-outline-warning" title="Chỉnh sửa"><i
-                                                    class="ri-pencil-line"></i></a>
-                                            <a href="#" class="btn btn-sm btn-outline-danger" title="Xoá"><i
-                                                    class="ri-delete-bin-2-line"></i></a>
+                                            <a th:href="@{/admin/users/update/{id}(id=${user.id})}"
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="Quản lý vai trò & trạng thái"><i
+                                                    class="ri-shield-user-line"></i></a>
+                                            <form id="deleteUserForm" action="/admin/users/delete" method="POST">
+                                                <input type="hidden" name="userId" th:value="${user.id}">
+
+                                                <button type="submit" title="Xoá" onclick="showConfirm(event,
+                                 'Xác nhận lưu thay đổi',
+                                 'Bạn có chắc chắn muốn xoá người dùng?',
+                                 'deleteUserForm',  
+                                 null
+                                )" class="btn btn-sm btn-outline-danger">
+                                                    <i class="ri-delete-bin-2-line"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     <tr th:if="${usersPage.empty}">

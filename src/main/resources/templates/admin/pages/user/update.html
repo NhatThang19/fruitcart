@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title ?: 'Quản lý Người dùng'}"></title>
+    <style>
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-value {
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        <form th:action="@{/admin/users/update-admin-settings}" th:object="${adminUserUpdateReq}"
+                            method="post" id="adminUpdateUserForm">
+                            <input type="hidden" th:field="*{userId}" />
+
+                            <div class="mb-3">
+                                <p><span class="info-label">Họ và Tên:</span><span class="info-value"
+                                        th:text="${userToManage.fullName ?: 'N/A'}"></span></p>
+                                <p><span class="info-label">Email:</span><span class="info-value"
+                                        th:text="${userToManage.email ?: 'N/A'}"></span></p>
+                            </div>
+                            <hr>
+
+                            <div class="mb-3">
+                                <label for="roleId" class="form-label fw-bold">Vai trò <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="roleId" th:field="*{roleId}" th:errorclass="is-invalid">
+                                    <option value="">-- Chọn vai trò --</option>
+                                    <option th:each="roleOpt : ${allRoles}" th:value="${roleOpt.id}"
+                                        th:text="${roleOpt.name.replace('ROLE_', '')}"
+                                        th:selected="${roleOpt.id == adminUserUpdateReq.roleId}">
+                                        Tên vai trò
+                                    </option>
+                                </select>
+                                <div th:if="${#fields.hasErrors('roleId')}" th:errors="*{roleId}"
+                                    class="invalid-feedback"></div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Trạng thái tài khoản <span
+                                        class="text-danger">*</span></label>
+                                <div class="form-check form-switch fs-5">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="isBlocked"
+                                        th:field="*{isBlocked}" th:errorclass="is-invalid">
+                                    <label class="form-check-label" for="isBlocked"
+                                        th:text="*{isBlocked} ? 'Đang bị chặn (Chọn để Mở khóa)' : 'Đang hoạt động (Chọn để Chặn)'">
+                                        Trạng thái
+                                    </label>
+                                </div>
+                                <div th:if="${#fields.hasErrors('isBlocked')}" th:errors="*{isBlocked}"
+                                    class="invalid-feedback d-block"></div>
+                            </div>
+
+                            <hr>
+                            <div class="d-flex justify-content-end mt-3">
+                                <a th:href="@{/admin/users/{id}(id=${adminUserUpdateReq.userId})}"
+                                    class="btn btn-secondary me-2">
+                                    <i class="ri-close-line me-1"></i> Hủy bỏ
+                                </a>
+                                <button type="submit" class="btn btn-primary" onclick="showConfirm(event,
+                                 'Xác nhận lưu thay đổi',
+                                 'Bạn có chắc chắn muốn cập nhật người dùng?',
+                                 'adminUpdateUserForm',  
+                                 null
+                                )">
+                                    <i class="ri-save-line me-1"></i> Lưu thay đổi
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

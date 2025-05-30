@@ -53,4 +53,20 @@ public class BreadcrumbService {
         return new PageMetadata("Quản lý người dùng", breadcrumbList);
     }
 
+    public PageMetadata buildAdminUserDetailPageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý người dùng", "/admin/users"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết người dùng", null));
+        return new PageMetadata("Chi tiết người dùng", breadcrumbList);
+    }
+
+    public PageMetadata buildAdminUserUpdatePageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý người dùng", "/admin/users"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Cập nhật người dùng", null));
+        return new PageMetadata("Cập nhật người dùng", breadcrumbList);
+    }
+
 }
