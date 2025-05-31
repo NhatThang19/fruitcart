@@ -73,7 +73,7 @@ public class AdminCategoryController {
             @RequestParam(defaultValue = "id,asc") String[] sort,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status) {
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminCategoryCreatePageMetadata());
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminCategoryPageMetadata());
 
         String sortField = sort[0];
         String sortDir = (sort.length > 1 && (sort[1].equalsIgnoreCase("asc") || sort[1].equalsIgnoreCase("desc")))
@@ -186,7 +186,7 @@ public class AdminCategoryController {
     @GetMapping("/detail/{id}")
     public String showCategoryDetail(@PathVariable("id") Long id, Model model,
             RedirectAttributes redirectAttributes) {
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminCategoryUpdatePageMetadata());
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminCategoryDetailPageMetadata());
         try {
             Category category = categoryService.getCategoryById(id);
             model.addAttribute("category", category);

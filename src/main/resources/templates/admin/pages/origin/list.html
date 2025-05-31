@@ -23,28 +23,11 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                        <h4 class="mb-sm-0 font-size-18" th:text="${pageTitle} ?: 'Danh sách Danh mục'"></h4>
-                        <div class="page-title-right">
-                            <ol class="breadcrumb m-0" th:if="${breadcrumbs != null}">
-                                <li class="breadcrumb-item" th:each="breadcrumb, iterStat : ${breadcrumbs}">
-                                    <a th:if="${!iterStat.last && breadcrumb.value != ''}"
-                                        th:href="@{${breadcrumb.value}}" th:text="${breadcrumb.key}"></a>
-                                    <span th:if="${iterStat.last || breadcrumb.value == ''}"
-                                        th:text="${breadcrumb.key}"></span>
-                                </li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
                     <div class="card">
                         <div class="card-body">
                             <div class="row mb-3">
                                 <div class="col-sm-12 col-md-8">
-                                    <form th:action="@{/admin/categories}" method="get"
+                                    <form th:action="@{/admin/origins}" method="get"
                                         class="row gx-2 gy-2 align-items-center">
                                         <div class="col-auto" style="min-width: 200px;">
                                             <input type="text" class="form-control" id="keyword" name="keyword"
@@ -72,16 +55,16 @@
                                         <input type="hidden" name="sort" th:value="${sortField + ',' + sortDir}" />
                                         <div class="col-auto">
                                             <button type="submit" class="btn btn-primary">Lọc</button>
-                                            <a th:href="@{/admin/categories(size=${pageSize}, sort='id,asc')}"
+                                            <a th:href="@{/admin/origins(size=${pageSize}, sort='id,asc')}"
                                                 class="btn btn-secondary ms-1">Reset</a>
                                         </div>
                                     </form>
                                 </div>
                                 <div class="col-sm-12 col-md-4">
                                     <div class="text-sm-end mt-2 mt-md-0">
-                                        <a th:href="@{/admin/categories/create}"
+                                        <a th:href="@{/admin/origins/create}"
                                             class="btn btn-success btn-rounded waves-effect waves-light">
-                                            <i class="mdi mdi-plus me-1"></i> Thêm mới danh mục
+                                            <i class="mdi mdi-plus me-1"></i> Thêm mới nguồn gốc
                                         </a>
                                     </div>
                                 </div>
@@ -108,29 +91,29 @@
                                             <th style="width: 20px;">#</th>
                                             <th class="sortable">
                                                 <a
-                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='id,' + (${sortField == 'id'} ? ${reverseSortDir} : 'asc'))}">
+                                                    th:href="@{/admin/origins(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='id,' + (${sortField == 'id'} ? ${reverseSortDir} : 'asc'))}">
                                                     ID <span th:if="${sortField == 'id'}"><i
                                                             th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
                                                 </a>
                                             </th>
                                             <th class="sortable">
                                                 <a
-                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='name,' + (${sortField == 'name'} ? ${reverseSortDir} : 'asc'))}">
-                                                    Tên danh mục <span th:if="${sortField == 'name'}"><i
+                                                    th:href="@{/admin/origins(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='name,' + (${sortField == 'name'} ? ${reverseSortDir} : 'asc'))}">
+                                                    Tên nguồn gốc <span th:if="${sortField == 'name'}"><i
                                                             th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
                                                 </a>
                                             </th>
                                             <th>Slug</th>
                                             <th class="sortable">
                                                 <a
-                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='status,' + (${sortField == 'status'} ? ${reverseSortDir} : 'asc'))}">
+                                                    th:href="@{/admin/origins(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='status,' + (${sortField == 'status'} ? ${reverseSortDir} : 'asc'))}">
                                                     Trạng thái <span th:if="${sortField == 'status'}"><i
                                                             th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
                                                 </a>
                                             </th>
                                             <th class="sortable">
                                                 <a
-                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='createdDate,' + (${sortField == 'createdDate'} ? ${reverseSortDir} : 'asc'))}">
+                                                    th:href="@{/admin/origins(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='createdDate,' + (${sortField == 'createdDate'} ? ${reverseSortDir} : 'asc'))}">
                                                     Ngày tạo <span th:if="${sortField == 'createdDate'}"><i
                                                             th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
                                                 </a>
@@ -139,41 +122,39 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:each="category, iterStat : ${categories}">
+                                        <tr th:each="origin, iterStat : ${origins}">
                                             <td th:text="${(currentPage - 1) * pageSize + iterStat.count}"></td>
-                                            <td th:text="${category.id}"></td>
-                                            <td th:text="${category.name}"></td>
-                                            <td th:text="${category.slug}"></td>
+                                            <td th:text="${origin.id}"></td>
+                                            <td th:text="${origin.name}"></td>
+                                            <td th:text="${origin.slug}"></td>
                                             <td>
-                                                <span th:if="${category.status}"
+                                                <span th:if="${origin.status}"
                                                     class="badge bg-success-subtle text-success font-size-12">Hoạt
                                                     động</span>
-                                                <span th:unless="${category.status}"
+                                                <span th:unless="${origin.status}"
                                                     class="badge bg-danger-subtle text-danger font-size-12">Không hoạt
                                                     động</span>
                                             </td>
-                                            <td
-                                                th:text="${#temporals.format(category.createdDate, 'dd-MM-yyyy HH:mm')}">
+                                            <td th:text="${#temporals.format(origin.createdDate, 'dd-MM-yyyy HH:mm')}">
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-2">
-                                                    <a th:href="@{/admin/categories/detail/{id}(id=${category.id})}"
+                                                    <a th:href="@{/admin/origins/detail/{id}(id=${origin.id})}"
                                                         class="text-primary" title="Xem chi tiết">
                                                         <i class="mdi mdi-eye-outline font-size-18"></i>
                                                     </a>
-                                                    <a th:href="@{/admin/categories/update/{id}(id=${category.id})}"
+                                                    <a th:href="@{/admin/origins/update/{id}(id=${origin.id})}"
                                                         class="text-success" title="Chỉnh sửa">
                                                         <i class="mdi mdi-pencil font-size-18"></i>
                                                     </a>
-                                                    <form id="deleteCategoryForm" action="/admin/categories/delete"
+                                                    <form id="deleteOriginForm" action="/admin/origins/delete"
                                                         method="POST">
-                                                        <input type="hidden" name="categoryId"
-                                                            th:value="${category.id}">
+                                                        <input type="hidden" name="originId" th:value="${origin.id}">
 
                                                         <button type="submit" title="Xoá" onclick="showConfirm(event,
                                  'Xác nhận lưu thay đổi',
                                  'Bạn có chắc chắn muốn xoá người dùng?',
-                                 'deleteCategoryForm',  
+                                 'deleteOriginForm',  
                                  null
                                 )" class="btn btn-sm btn-outline-danger">
                                                             <i class="ri-delete-bin-2-line"></i>
@@ -182,8 +163,8 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                        <tr th:if="${#lists.isEmpty(categories)}">
-                                            <td colspan="7" class="text-center">Không có danh mục nào phù hợp.</td>
+                                        <tr th:if="${#lists.isEmpty(origins)}">
+                                            <td colspan="7" class="text-center">Không có nguồn gốc nào phù hợp.</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -193,11 +174,11 @@
                                 <ul class="pagination justify-content-end mb-0">
                                     <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                                         <a class="page-link"
-                                            th:href="@{/admin/categories(size=${pageSize}, page=1, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}">Đầu</a>
+                                            th:href="@{/admin/origins(size=${pageSize}, page=1, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}">Đầu</a>
                                     </li>
                                     <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                                         <a class="page-link"
-                                            th:href="@{/admin/categories(size=${pageSize}, page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"><i
+                                            th:href="@{/admin/origins(size=${pageSize}, page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"><i
                                                 class="ri-arrow-left-s-line"></i></a>
                                     </li>
 
@@ -205,19 +186,19 @@
                                         th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage - 2), T(java.lang.Math).min(totalPages, currentPage + 2) )}">
                                         <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
                                             <a class="page-link"
-                                                th:href="@{/admin/categories(size=${pageSize}, page=${i}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"
+                                                th:href="@{/admin/origins(size=${pageSize}, page=${i}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"
                                                 th:text="${i}"></a>
                                         </li>
                                     </th:block>
 
                                     <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                                         <a class="page-link"
-                                            th:href="@{/admin/categories(size=${pageSize}, page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"><i
+                                            th:href="@{/admin/origins(size=${pageSize}, page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"><i
                                                 class="ri-arrow-right-s-line"></i></a>
                                     </li>
                                     <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
                                         <a class="page-link"
-                                            th:href="@{/admin/categories(size=${pageSize}, page=${totalPages}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}">Cuối</a>
+                                            th:href="@{/admin/origins(size=${pageSize}, page=${totalPages}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}">Cuối</a>
                                     </li>
                                 </ul>
                             </nav>

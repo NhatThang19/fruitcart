@@ -69,6 +69,13 @@ public class BreadcrumbService {
         return new PageMetadata("Cập nhật người dùng", breadcrumbList);
     }
 
+    public PageMetadata buildAdminCategoryPageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý danh mục", null));
+        return new PageMetadata("Quản lý danh mục", breadcrumbList);
+    }
+
     public PageMetadata buildAdminCategoryCreatePageMetadata() {
         List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
@@ -83,6 +90,45 @@ public class BreadcrumbService {
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý danh mục", "/admin/categories"));
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sửa danh mục", null));
         return new PageMetadata("Sửa danh mục", breadcrumbList);
+    }
+
+    public PageMetadata buildAdminCategoryDetailPageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý danh mục", "/admin/categories"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết danh mục", null));
+        return new PageMetadata("Chi tiết danh mục", breadcrumbList);
+    }
+
+    public PageMetadata buildAdminOriginPageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý nguồn gốc", null));
+        return new PageMetadata("Quản lý nguồn gốc", breadcrumbList);
+    }
+
+    public PageMetadata buildAdminOriginCreatePageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý nguồn gốc", "/admin/origins"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Thêm nguồn gốc", null));
+        return new PageMetadata("Thêm nguồn gốc", breadcrumbList);
+    }
+
+    public PageMetadata buildAdminOriginUpdatePageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý nguồn gốc", "/admin/origins"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sửa nguồn gốc", null));
+        return new PageMetadata("Sửa nguồn gốc", breadcrumbList);
+    }
+
+    public Object buildAdminOriginDetailPageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý nguồn gốc", "/admin/origins"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết nguồn gốc", null));
+        return new PageMetadata("Chi tiết nguồn gốc", breadcrumbList);
     }
 
 }
