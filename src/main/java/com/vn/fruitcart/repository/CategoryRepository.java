@@ -17,4 +17,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSp
     Optional<Category> findBySlug(String slug);
 
     Page<Category> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    Optional<Category> findById(Long id);
+
+    boolean existsByName(String name);
+
 }

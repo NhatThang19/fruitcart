@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}"></title>
+    <style>
+        .detail-label {
+            font-weight: 600;
+            /* Semi-bold */
+            width: 200px;
+            /* Cố định chiều rộng cho nhãn */
+            color: #495057;
+            /* Màu chữ tối hơn một chút */
+        }
+
+        .detail-value {
+            word-break: break-word;
+        }
+
+        .product-list-container {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: .25rem;
+            background-color: #f8f9fa;
+        }
+
+        .product-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .product-list .list-group-item {
+            border-left: none;
+            border-right: none;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .product-list .list-group-item:first-child {
+            border-top: none;
+        }
+
+        .product-list .list-group-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div th:if="${category != null}">
+                                <h5 class="card-title mb-4">
+                                    Thông tin chi tiết: <span class="text-primary" th:text="${category.name}"></span>
+                                </h5>
+
+                                <div class="table-responsive">
+                                    <table class="table table-borderless mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="detail-label">ID Danh mục:</td>
+                                                <td class="detail-value" th:text="${category.id}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Tên Danh mục:</td>
+                                                <td class="detail-value" th:text="${category.name}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Slug:</td>
+                                                <td class="detail-value" th:text="${category.slug}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Mô tả:</td>
+                                                <td class="detail-value"
+                                                    th:text="${category.description} ?: '(Không có mô tả)'"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Trạng thái:</td>
+                                                <td class="detail-value">
+                                                    <span th:if="${category.status}"
+                                                        class="badge bg-success-subtle text-success font-size-12 py-1 px-2">Hoạt
+                                                        động</span>
+                                                    <span th:unless="${category.status}"
+                                                        class="badge bg-danger-subtle text-danger font-size-12 py-1 px-2">Không
+                                                        hoạt động</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Ngày tạo:</td>
+                                                <td class="detail-value"
+                                                    th:text="${category.createdDate != null ? #temporals.format(category.createdDate, 'HH:mm:ss, dd-MM-yyyy') : 'N/A'}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Người tạo:</td>
+                                                <td class="detail-value" th:text="${category.createdBy} ?: 'N/A'"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Ngày cập nhật cuối:</td>
+                                                <td class="detail-value"
+                                                    th:text="${category.lastModifiedDate != null ? #temporals.format(category.lastModifiedDate, 'HH:mm:ss, dd-MM-yyyy') : 'N/A'}">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="detail-label">Người cập nhật cuối:</td>
+                                                <td class="detail-value" th:text="${category.lastModifiedBy} ?: 'N/A'">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="product-list-container">
+                                    <h5 class="font-size-16 mb-3">Sản phẩm thuộc danh mục này:</h5>
+                                    <div th:if="${category.products != null && !#lists.isEmpty(category.products)}"
+                                        class="product-list">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item" th:each="product : ${category.products}">
+                                                <span th:text="${product.name}"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div th:if="${category.products == null || #lists.isEmpty(category.products)}">
+                                        <p class="text-muted mb-0">Hiện chưa có sản phẩm nào trong danh mục này.</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div th:unless="${category != null}">
+                                <div class="alert alert-warning" role="alert">
+                                    Không tìm thấy thông tin chi tiết cho danh mục này.
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-top">
+                                <a th:href="@{/admin/categories}" class="btn btn-secondary waves-effect">
+                                    <i class="ri-arrow-left-line align-middle me-1"></i> Quay lại Danh sách
+                                </a>
+                                <a th:if="${category != null && category.status}"
+                                    th:href="@{/admin/categories/update/{id}(id=${category.id})}"
+                                    class="btn btn-primary waves-effect waves-light ms-2">
+                                    <i class="ri-pencil-line align-middle me-1"></i> Chỉnh sửa
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

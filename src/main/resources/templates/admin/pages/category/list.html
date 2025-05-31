@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageTitle} ?: 'Danh sách Danh mục'">Danh sách Danh mục</title>
+    <style>
+        .sortable a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .sortable a .ri-sort-asc,
+        .sortable a .ri-sort-desc {
+            font-size: 0.8em;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                        <h4 class="mb-sm-0 font-size-18" th:text="${pageTitle} ?: 'Danh sách Danh mục'"></h4>
+                        <div class="page-title-right">
+                            <ol class="breadcrumb m-0" th:if="${breadcrumbs != null}">
+                                <li class="breadcrumb-item" th:each="breadcrumb, iterStat : ${breadcrumbs}">
+                                    <a th:if="${!iterStat.last && breadcrumb.value != ''}"
+                                        th:href="@{${breadcrumb.value}}" th:text="${breadcrumb.key}"></a>
+                                    <span th:if="${iterStat.last || breadcrumb.value == ''}"
+                                        th:text="${breadcrumb.key}"></span>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-12 col-md-8">
+                                    <form th:action="@{/admin/categories}" method="get"
+                                        class="row gx-2 gy-2 align-items-center">
+                                        <div class="col-auto" style="min-width: 200px;">
+                                            <input type="text" class="form-control" id="keyword" name="keyword"
+                                                th:value="${keyword}" placeholder="Tìm theo tên...">
+                                        </div>
+                                        <div class="col-auto" style="min-width: 180px;">
+                                            <select class="form-select" id="status" name="status">
+                                                <option value="" th:selected="${selectedStatus == ''}">Tất cả trạng thái
+                                                </option>
+                                                <option value="true" th:selected="${selectedStatus == 'true'}">Hoạt động
+                                                </option>
+                                                <option value="false" th:selected="${selectedStatus == 'false'}">Không
+                                                    hoạt động</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto" style="min-width: 120px;">
+                                            <label for="pageSizeSelect" class="visually-hidden">Hiển thị:</label>
+                                            <select class="form-select" id="pageSizeSelect" name="size">
+                                                <option value="5" th:selected="${pageSize == 5}">5 / trang</option>
+                                                <option value="10" th:selected="${pageSize == 10}">10 / trang</option>
+                                                <option value="20" th:selected="${pageSize == 20}">20 / trang</option>
+                                                <option value="50" th:selected="${pageSize == 50}">50 / trang</option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" name="sort" th:value="${sortField + ',' + sortDir}" />
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-primary">Lọc</button>
+                                            <a th:href="@{/admin/categories(size=${pageSize}, sort='id,asc')}"
+                                                class="btn btn-secondary ms-1">Reset</a>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-sm-12 col-md-4">
+                                    <div class="text-sm-end mt-2 mt-md-0">
+                                        <a th:href="@{/admin/categories/create}"
+                                            class="btn btn-success btn-rounded waves-effect waves-light">
+                                            <i class="mdi mdi-plus me-1"></i> Thêm mới danh mục
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show"
+                                role="alert">
+                                <i class="mdi mdi-check-all me-2"></i> <span th:text="${successMessage}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
+                                role="alert">
+                                <i class="mdi mdi-block-helper me-2"></i> <span th:text="${errorMessage}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table align-middle table-nowrap table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 20px;">#</th>
+                                            <th class="sortable">
+                                                <a
+                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='id,' + (${sortField == 'id'} ? ${reverseSortDir} : 'asc'))}">
+                                                    ID <span th:if="${sortField == 'id'}"><i
+                                                            th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
+                                                </a>
+                                            </th>
+                                            <th class="sortable">
+                                                <a
+                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='name,' + (${sortField == 'name'} ? ${reverseSortDir} : 'asc'))}">
+                                                    Tên danh mục <span th:if="${sortField == 'name'}"><i
+                                                            th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
+                                                </a>
+                                            </th>
+                                            <th>Slug</th>
+                                            <th class="sortable">
+                                                <a
+                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='status,' + (${sortField == 'status'} ? ${reverseSortDir} : 'asc'))}">
+                                                    Trạng thái <span th:if="${sortField == 'status'}"><i
+                                                            th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
+                                                </a>
+                                            </th>
+                                            <th class="sortable">
+                                                <a
+                                                    th:href="@{/admin/categories(size=${pageSize}, page=${currentPage}, keyword=${keyword}, status=${selectedStatus}, sort='createdDate,' + (${sortField == 'createdDate'} ? ${reverseSortDir} : 'asc'))}">
+                                                    Ngày tạo <span th:if="${sortField == 'createdDate'}"><i
+                                                            th:class="${sortDir == 'asc'} ? 'ri-sort-asc' : 'ri-sort-desc'"></i></span>
+                                                </a>
+                                            </th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="category, iterStat : ${categories}">
+                                            <td th:text="${(currentPage - 1) * pageSize + iterStat.count}"></td>
+                                            <td th:text="${category.id}"></td>
+                                            <td th:text="${category.name}"></td>
+                                            <td th:text="${category.slug}"></td>
+                                            <td>
+                                                <span th:if="${category.status}"
+                                                    class="badge bg-success-subtle text-success font-size-12">Hoạt
+                                                    động</span>
+                                                <span th:unless="${category.status}"
+                                                    class="badge bg-danger-subtle text-danger font-size-12">Không hoạt
+                                                    động</span>
+                                            </td>
+                                            <td
+                                                th:text="${#temporals.format(category.createdDate, 'dd-MM-yyyy HH:mm')}">
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <a th:href="@{/admin/categories/detail/{id}(id=${category.id})}"
+                                                        class="text-primary" title="Xem chi tiết">
+                                                        <i class="mdi mdi-eye-outline font-size-18"></i>
+                                                    </a>
+                                                    <a th:href="@{/admin/categories/update/{id}(id=${category.id})}"
+                                                        class="text-success" title="Chỉnh sửa">
+                                                        <i class="mdi mdi-pencil font-size-18"></i>
+                                                    </a>
+                                                    <form id="deleteCategoryForm" action="/admin/categories/delete"
+                                                        method="POST">
+                                                        <input type="hidden" name="categoryId"
+                                                            th:value="${category.id}">
+
+                                                        <button type="submit" title="Xoá" onclick="showConfirm(event,
+                                 'Xác nhận lưu thay đổi',
+                                 'Bạn có chắc chắn muốn xoá người dùng?',
+                                 'deleteCategoryForm',  
+                                 null
+                                )" class="btn btn-sm btn-outline-danger">
+                                                            <i class="ri-delete-bin-2-line"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(categories)}">
+                                            <td colspan="7" class="text-center">Không có danh mục nào phù hợp.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <nav th:if="${totalPages > 0}" aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-end mb-0">
+                                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                        <a class="page-link"
+                                            th:href="@{/admin/categories(size=${pageSize}, page=1, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}">Đầu</a>
+                                    </li>
+                                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                                        <a class="page-link"
+                                            th:href="@{/admin/categories(size=${pageSize}, page=${currentPage - 1}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"><i
+                                                class="ri-arrow-left-s-line"></i></a>
+                                    </li>
+
+                                    <th:block
+                                        th:each="i : ${#numbers.sequence( T(java.lang.Math).max(1, currentPage - 2), T(java.lang.Math).min(totalPages, currentPage + 2) )}">
+                                        <li class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                                            <a class="page-link"
+                                                th:href="@{/admin/categories(size=${pageSize}, page=${i}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"
+                                                th:text="${i}"></a>
+                                        </li>
+                                    </th:block>
+
+                                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                        <a class="page-link"
+                                            th:href="@{/admin/categories(size=${pageSize}, page=${currentPage + 1}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}"><i
+                                                class="ri-arrow-right-s-line"></i></a>
+                                    </li>
+                                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                                        <a class="page-link"
+                                            th:href="@{/admin/categories(size=${pageSize}, page=${totalPages}, keyword=${keyword}, status=${selectedStatus}, sort=${sortField + ',' + sortDir})}">Cuối</a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

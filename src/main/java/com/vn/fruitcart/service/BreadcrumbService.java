@@ -69,4 +69,20 @@ public class BreadcrumbService {
         return new PageMetadata("Cập nhật người dùng", breadcrumbList);
     }
 
+    public PageMetadata buildAdminCategoryCreatePageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý danh mục", "/admin/categories"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Thêm danh mục", null));
+        return new PageMetadata("Thêm danh mục", breadcrumbList);
+    }
+
+    public PageMetadata buildAdminCategoryUpdatePageMetadata() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Quản lý danh mục", "/admin/categories"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sửa danh mục", null));
+        return new PageMetadata("Sửa danh mục", breadcrumbList);
+    }
+
 }
