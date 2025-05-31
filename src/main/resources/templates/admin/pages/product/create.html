@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}"></title>
+    <style>
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 150px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .image-preview-item img {
+            max-width: 120px;
+            max-height: 120px;
+            display: block;
+            margin-bottom: 8px;
+            border-radius: 3px;
+        }
+
+        .image-preview-item .remove-image-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            line-height: 22px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-preview-item .remove-image-btn:hover {
+            background: #c82333;
+        }
+
+        .variant-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: .25rem;
+        }
+
+        .main-image-label {
+            font-size: 0.8rem;
+            margin-left: 0.25rem;
+        }
+
+        .form-check-input[type="checkbox"],
+        .form-check-input[type="radio"] {
+            width: 1.2em;
+            height: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+        <div class="container-fluid">
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h5 class="m-0 font-weight-bold text-primary" th:text="${pageMetadata.title}"></h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div th:if="${pageErrorMessage}" class="alert alert-warning alert-dismissible fade show"
+                        role="alert">
+                        <span th:text="${pageErrorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <form th:action="@{/admin/products/create}" th:object="${productDTO}" method="post"
+                        enctype="multipart/form-data" id="createProductForm">
+
+                        <h5 class="mb-3 text-secondary">Thông tin cơ bản</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">Tên sản phẩm <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}"
+                                    th:errors="*{name}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="basePrice" class="form-label">Giá cơ bản (VNĐ) <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" step="1000" min="0" class="form-control" id="basePrice"
+                                    th:field="*{basePrice}" required>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('basePrice')}"
+                                    th:errors="*{basePrice}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="category" class="form-label">Danh mục <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="category" th:field="*{categoryId}" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('categoryId')}"
+                                    th:errors="*{categoryId}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="origin" class="form-label">Nguồn gốc <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="origin" th:field="*{originId}" required>
+                                    <option value="">-- Chọn nguồn gốc --</option>
+                                    <option th:each="ori : ${origins}" th:value="${ori.id}" th:text="${ori.name}">
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('originId')}"
+                                    th:errors="*{originId}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Mô tả</label>
+                            <textarea class="form-control" id="description" th:field="*{description}"
+                                rows="3"></textarea>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('description')}"
+                                th:errors="*{description}"></div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label d-block">Trạng thái:</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input p-0" type="radio" th:field="*{status}"
+                                        id="statusActive" th:value="true"
+                                        th:checked="*{status == true or status == null}">
+                                    <label class="form-check-label" for="statusActive">Kích hoạt</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input p-0" type="radio" th:field="*{status}"
+                                        id="statusInactive" th:value="false" th:checked="*{status == false}">
+                                    <label class="form-check-label" for="statusInactive">Vô hiệu hóa</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label d-block">Sản phẩm mới:</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input p-0" type="checkbox" th:field="*{new}" id="isNew" />
+                                    <label class="form-check-label" for="isNew">Đánh dấu là sản phẩm mới</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="text-secondary mb-0">Biến thể sản phẩm</h5>
+                            <button type="button" id="add-variant-btn" class="btn btn-outline-primary btn-sm">
+                                <i class="ri-add-line"></i> Thêm biến thể
+                            </button>
+                        </div>
+                        <div id="variants-container">
+                            <th:block th:if="*{variants != null and !variants.empty}">
+                                <div th:each="variant, iterStat : *{variants}" class="variant-item">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-2">
+                                            <label th:for="|variantAttribute${iterStat.index}|" class="form-label">Thuộc
+                                                tính <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control form-control-sm"
+                                                th:id="|variantAttribute${iterStat.index}|"
+                                                th:field="*{variants[__${iterStat.index}__].attribute}">
+                                            <div class="invalid-feedback d-block"
+                                                th:if="${#fields.hasErrors('variants[__${iterStat.index}__].attribute')}"
+                                                th:errors="*{variants[__${iterStat.index}__].attribute}"></div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label th:for="|variantSku${iterStat.index}|" class="form-label">SKU <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control form-control-sm"
+                                                th:id="|variantSku${iterStat.index}|"
+                                                th:field="*{variants[__${iterStat.index}__].sku}">
+                                            <div class="invalid-feedback d-block"
+                                                th:if="${#fields.hasErrors('variants[__${iterStat.index}__].sku')}"
+                                                th:errors="*{variants[__${iterStat.index}__].sku}"></div>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label th:for="|variantPrice${iterStat.index}|" class="form-label">Giá (VNĐ)
+                                                <span class="text-danger">*</span></label>
+                                            <input type="number" step="1000" min="0"
+                                                class="form-control form-control-sm"
+                                                th:id="|variantPrice${iterStat.index}|"
+                                                th:field="*{variants[__${iterStat.index}__].price}">
+                                            <div class="invalid-feedback d-block"
+                                                th:if="${#fields.hasErrors('variants[__${iterStat.index}__].price')}"
+                                                th:errors="*{variants[__${iterStat.index}__].price}"></div>
+                                        </div>
+                                        <div class="col-md-2 mb-2 d-flex align-items-end">
+                                            <button type="button"
+                                                class="btn btn-danger btn-sm remove-variant-btn w-100">
+                                                <i class="ri-delete-bin-line"></i> Xóa
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+                        <div class="invalid-feedback d-block"
+                            th:if="${#fields.hasErrors('variants') && #fields.errors('variants').size() > 0 && #fields.errors('variants')[0].contains('không được để trống')}"
+                            th:errors="*{variants}"></div>
+
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3 text-secondary">Hình ảnh sản phẩm</h5>
+                        <div class="mb-3">
+                            <label for="productImages" class="form-label">Tải lên hình ảnh (có thể chọn nhiều
+                                ảnh)</label>
+                            <input type="file" class="form-control" id="productImages" name="images" multiple
+                                accept="image/png, image/jpeg, image/gif, image/webp">
+                        </div>
+                        <div id="image-preview-container" class="image-preview-container">
+                        </div>
+
+
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end">
+                            <a th:href="@{/admin/products}" class="btn btn-outline-secondary me-2">Hủy</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-save-line"></i> Lưu sản phẩm
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block layout:fragment="extras-scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // --- Phần xử lý Biến thể ---
+                const variantsContainer = document.getElementById('variants-container');
+                const addVariantBtn = document.getElementById('add-variant-btn');
+
+                let variantIndex = variantsContainer.querySelectorAll('.variant-item').length;
+
+                addVariantBtn.addEventListener('click', function () {
+                    const variantItemHtml = `
+                    <div class="variant-item">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label for="variants${variantIndex}.attribute" class="form-label">Thuộc tính <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="variants${variantIndex}.attribute" name="variants[${variantIndex}].attribute" required>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label for="variants${variantIndex}.sku" class="form-label">SKU <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" id="variants${variantIndex}.sku" name="variants[${variantIndex}].sku" required>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <label for="variants${variantIndex}.price" class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
+                                <input type="number" step="1000" min="0" class="form-control form-control-sm" id="variants${variantIndex}.price" name="variants[${variantIndex}].price" required>
+                            </div>
+                            <div class="col-md-2 mb-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-variant-btn w-100">
+                                    <i class="ri-delete-bin-line"></i> Xóa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    variantsContainer.insertAdjacentHTML('beforeend', variantItemHtml);
+                    variantIndex++;
+                });
+
+                variantsContainer.addEventListener('click', function (event) {
+                    const removeButton = event.target.closest('.remove-variant-btn');
+                    if (removeButton) {
+                        removeButton.closest('.variant-item').remove();
+                    }
+                });
+
+                // --- Phần xử lý Hình ảnh ---
+                const productImagesInput = document.getElementById('productImages');
+                const imagePreviewContainer = document.getElementById('image-preview-container');
+                let imageFilesStore = [];
+
+                productImagesInput.addEventListener('change', function (event) {
+                    const newFiles = Array.from(event.target.files);
+
+                    newFiles.forEach(file => {
+                        const isDuplicate = imageFilesStore.some(existingFileObj =>
+                            existingFileObj.file.name === file.name && existingFileObj.file.size === file.size
+                        );
+                        if (!isDuplicate) {
+                            imageFilesStore.push({
+                                file: file,
+                                id: 'img-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                                isMain: false
+                            });
+                        }
+                    });
+                    renderImagePreviewsAndUpdateFormInputs();
+                });
+
+                function renderImagePreviewsAndUpdateFormInputs() {
+                    imagePreviewContainer.innerHTML = '';
+
+                    if (imageFilesStore.length > 0 && !imageFilesStore.some(item => item.isMain)) {
+                        imageFilesStore[0].isMain = true;
+                    }
+
+                    const form = document.getElementById('createProductForm');
+                    form.querySelectorAll('input[name="isMainImage"]').forEach(inp => inp.remove());
+
+                    imageFilesStore.forEach((item, indexInStore) => {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const checkedAttribute = item.isMain ? 'checked' : '';
+                            const previewItemHtml = `
+                            <div class="image-preview-item" data-id="${item.id}">
+                                <img src="${e.target.result}" alt="${item.file.name}">
+                                <button type="button" class="remove-image-btn" data-id="${item.id}">&times;</button>
+                                <div class="form-check mt-1">
+                                    <input type="radio" class="form-check-input main-image-radio p-0" 
+                                           id="isMainImageRadio_${item.id}" 
+                                           name="mainImageSelectionUniqueName" 
+                                           value="${item.id}" ${checkedAttribute}
+                                           title="Đặt làm ảnh chính">
+                                    <label class="form-check-label main-image-label" for="isMainImageRadio_${item.id}">Ảnh chính</label>
+                                </div>
+                            </div>
+                        `;
+                            imagePreviewContainer.insertAdjacentHTML('beforeend', previewItemHtml);
+                        }
+                        reader.readAsDataURL(item.file);
+
+                        const hiddenInputIsMain = document.createElement('input');
+                        hiddenInputIsMain.type = 'hidden';
+                        hiddenInputIsMain.name = 'isMainImage';
+                        hiddenInputIsMain.value = item.isMain ? 'true' : 'false';
+                        form.appendChild(hiddenInputIsMain);
+                    });
+
+                    const dataTransfer = new DataTransfer();
+                    imageFilesStore.forEach(item => dataTransfer.items.add(item.file));
+                    productImagesInput.files = dataTransfer.files;
+                }
+
+                imagePreviewContainer.addEventListener('click', function (event) {
+                    const target = event.target;
+                    if (target.classList.contains('remove-image-btn')) {
+                        const imageIdToRemove = target.dataset.id;
+                        const wasMain = imageFilesStore.find(item => item.id === imageIdToRemove)?.isMain;
+
+                        imageFilesStore = imageFilesStore.filter(item => item.id !== imageIdToRemove);
+
+                        if (wasMain && imageFilesStore.length > 0 && !imageFilesStore.some(item => item.isMain)) {
+                            imageFilesStore[0].isMain = true;
+                        }
+                        renderImagePreviewsAndUpdateFormInputs();
+                    }
+                });
+
+                imagePreviewContainer.addEventListener('change', function (event) {
+                    const target = event.target;
+                    if (target.classList.contains('main-image-radio') && target.checked) {
+                        const selectedImageId = target.value;
+                        imageFilesStore.forEach(item => {
+                            item.isMain = (item.id === selectedImageId);
+                        });
+                        renderImagePreviewsAndUpdateFormInputs();
+                    }
+                });
+            });
+        </script>
+    </th:block>
+
+</body>
+
+</html>

@@ -91,4 +91,10 @@ public class OriginService {
         }
         originRepository.deleteById(id);
     }
+
+    public List<Origin> findAllActiveOrigins() {
+        Specification<Origin> spec = OriginSpecification.hasStatus(true); //
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+        return originRepository.findAll(spec, sort);
+    }
 }

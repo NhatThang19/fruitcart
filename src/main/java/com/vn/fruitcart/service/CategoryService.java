@@ -90,4 +90,10 @@ public class CategoryService {
         categoryRepository.deleteById(id);
     }
 
+    public List<Category> findAllActiveCategories() {
+        Specification<Category> spec = CategorySpecification.hasStatus(true);
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+        return categoryRepository.findAll(spec, sort);
+    }
+
 }
