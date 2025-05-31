@@ -9,9 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.Origin;
-import com.vn.fruitcart.entity.dto.request.CategoryReq;
 import com.vn.fruitcart.entity.dto.request.OriginReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.OriginRepository;
@@ -93,7 +91,7 @@ public class OriginService {
     }
 
     public List<Origin> findAllActiveOrigins() {
-        Specification<Origin> spec = OriginSpecification.hasStatus(true); //
+        Specification<Origin> spec = OriginSpecification.hasStatus(true);
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
         return originRepository.findAll(spec, sort);
     }

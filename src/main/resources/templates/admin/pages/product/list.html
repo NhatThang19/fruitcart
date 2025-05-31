@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}"></title>
+    <style>
+        .product-image-thumbnail {
+            max-width: 70px;
+            max-height: 70px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
+
+        .form-filters .form-control,
+        .form-filters .form-select {
+            height: calc(1.5em + .75rem + 2px);
+            /* Standard input height */
+            padding: .375rem .75rem;
+            font-size: .875rem;
+            /* Slightly smaller font for filter inputs */
+        }
+
+        .filter-label {
+            font-size: .8rem;
+            font-weight: 500;
+            margin-bottom: .25rem;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h5 class="m-0 font-weight-bold text-primary" th:text="${pageTitle ?: 'Danh sách sản phẩm'}">Danh
+                        sách sản phẩm</h5>
+                    <a th:href="@{/admin/products/create}" class="btn btn-primary btn-sm">
+                        <i class="ri-add-line"></i> Thêm mới sản phẩm
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/products}" method="get" class="mb-4 form-filters">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label for="keyword" class="filter-label">Tìm theo tên</label>
+                                <input type="text" class="form-control form-control-sm" id="keyword" name="keyword"
+                                    th:value="${keyword}" placeholder="Nhập tên sản phẩm...">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="categoryId" class="filter-label">Danh mục</label>
+                                <select class="form-select form-select-sm" id="categoryId" name="categoryId">
+                                    <option value="">Tất cả danh mục</option>
+                                    <option th:each="category : ${categories}" th:value="${category.id}"
+                                        th:text="${category.name}"
+                                        th:selected="${selectedCategoryId != null && selectedCategoryId == category.id}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="originId" class="filter-label">Nguồn gốc</label>
+                                <select class="form-select form-select-sm" id="originId" name="originId">
+                                    <option value="">Tất cả nguồn gốc</option>
+                                    <option th:each="origin : ${origins}" th:value="${origin.id}"
+                                        th:text="${origin.name}"
+                                        th:selected="${selectedOriginId != null && selectedOriginId == origin.id}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="status" class="filter-label">Trạng thái</label>
+                                <select class="form-select form-select-sm" id="status" name="status">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="true"
+                                        th:selected="${selectedStatus != null && selectedStatus == true}">Kích hoạt
+                                    </option>
+                                    <option value="false"
+                                        th:selected="${selectedStatus != null && selectedStatus == false}">Vô hiệu hóa
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-info btn-sm me-2">
+                                    <i class="ri-search-line"></i> Tìm kiếm
+                                </button>
+                                <a th:href="@{/admin/products}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="ri-refresh-line"></i> Reset
+                                </a>
+                            </div>
+                        </div>
+                        <input type="hidden" name="sortField" th:value="${sortField}">
+                        <input type="hidden" name="sortDir" th:value="${sortDir}">
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">
+                                        <a
+                                            th:href="@{/admin/products(page=${productPage.number + 1}, size=${productPage.size}, keyword=${keyword}, categoryId=${selectedCategoryId}, originId=${selectedOriginId}, status=${selectedStatus}, sortField='id', sortDir=${sortField == 'id' ? reverseSortDir : 'asc'})}">
+                                            ID
+                                            <i th:if="${sortField == 'id' && sortDir == 'asc'}" class="ri-sort-asc"></i>
+                                            <i th:if="${sortField == 'id' && sortDir == 'desc'}"
+                                                class="ri-sort-desc"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">Ảnh</th>
+                                    <th>
+                                        <a
+                                            th:href="@{/admin/products(page=${productPage.number + 1}, size=${productPage.size}, keyword=${keyword}, categoryId=${selectedCategoryId}, originId=${selectedOriginId}, status=${selectedStatus}, sortField='name', sortDir=${sortField == 'name' ? reverseSortDir : 'asc'})}">
+                                            Tên sản phẩm
+                                            <i th:if="${sortField == 'name' && sortDir == 'asc'}"
+                                                class="ri-sort-asc"></i>
+                                            <i th:if="${sortField == 'name' && sortDir == 'desc'}"
+                                                class="ri-sort-desc"></i>
+                                        </a>
+                                    </th>
+                                    <th>Danh mục</th>
+                                    <th>Nguồn gốc</th>
+                                    <th class="text-end">
+                                        <a
+                                            th:href="@{/admin/products(page=${productPage.number + 1}, size=${productPage.size}, keyword=${keyword}, categoryId=${selectedCategoryId}, originId=${selectedOriginId}, status=${selectedStatus}, sortField='basePrice', sortDir=${sortField == 'basePrice' ? reverseSortDir : 'asc'})}">
+                                            Giá (VNĐ)
+                                            <i th:if="${sortField == 'basePrice' && sortDir == 'asc'}"
+                                                class="ri-sort-asc"></i>
+                                            <i th:if="${sortField == 'basePrice' && sortDir == 'desc'}"
+                                                class="ri-sort-desc"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-center">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${productPage.empty}">
+                                    <td colspan="8" class="text-center text-muted py-3">Không tìm thấy sản phẩm nào phù
+                                        hợp.</td>
+                                </tr>
+                                <tr th:each="product : ${productPage.content}">
+                                    <td class="text-center" th:text="${product.id}"></td>
+                                    <td class="text-center">
+                                        <img th:if="${product.images != null && !product.images.empty}"
+                                            th:src="@{${product.images.?[isMain == true].get(0).imageUrl}}"
+                                            th:alt="${product.name}" class="product-image-thumbnail"
+                                            onerror="this.onerror=null; this.src='/shared/assets/images/default-product.png';">
+                                        <img th:unless="${product.images != null && !product.images.empty}"
+                                            th:src="@{/shared/assets/images/default-product.png}"
+                                            alt="Default product image" class="product-image-thumbnail">
+                                    </td>
+                                    <td th:text="${product.name}"></td>
+                                    <td th:text="${product.category != null ? product.category.name : 'N/A'}"></td>
+                                    <td th:text="${product.origin != null ? product.origin.name : 'N/A'}"></td>
+                                    <td class="text-end"
+                                        th:text="${#numbers.formatDecimal(product.basePrice, 0, 'COMMA', 0, 'POINT')}">
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:if="${product.status}" class="badge bg-success">Kích hoạt</span>
+                                        <span th:unless="${product.status}" class="badge bg-danger">Vô hiệu hóa</span>
+                                    </td>
+                                    <td class="text-center action-buttons">
+                                        <a th:href="@{/admin/products/detail/{id}(id=${product.id})}"
+                                            class="btn btn-sm btn-outline-info me-1" title="Xem chi tiết sản phẩm">
+                                            <i class="ri-eye-line"></i>
+                                        </a>
+                                        <a th:href="@{/admin/products/edit/{id}(id=${product.id})}"
+                                            class="btn btn-sm btn-outline-warning me-1" title="Sửa sản phẩm">
+                                            <i class="ri-edit-2-line"></i>
+                                        </a>
+                                        <form th:id="'deleteProductForm-' + ${product.id}"
+                                            th:action="@{/admin/products/delete}" method="POST"
+                                            style="display: inline;">
+                                            <input type="hidden" name="productId" th:value="${product.id}" />
+                                            <button type="submit" title="Xóa sản phẩm"
+                                                th:onclick="'showConfirm(event, \'Xác nhận xóa sản phẩm\', \'Bạn có chắc chắn muốn xóa sản phẩm \\'' + ${product.name} + '\\'?\', \'deleteProductForm-' + ${product.id} + '\', null)'"
+                                                class="btn btn-sm btn-outline-danger">
+                                                <i class="ri-delete-bin-7-line"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <nav th:if="${productPage.totalPages > 0}" aria-label="Product navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" th:classappend="${productPage.first ? 'disabled' : ''}">
+                                <a class="page-link"
+                                    th:href="@{/admin/products(page=${productPage.number}, size=${productPage.size}, keyword=${keyword}, categoryId=${selectedCategoryId}, originId=${selectedOriginId}, status=${selectedStatus}, sortField=${sortField}, sortDir=${sortDir})}">
+                                    <span>&laquo;</span>
+                                </a>
+                            </li>
+
+                            <li class="page-item" th:each="pageNumber : ${pageNumbers}"
+                                th:classappend="${pageNumber == productPage.number + 1 ? 'active' : ''}">
+                                <a class="page-link"
+                                    th:href="@{/admin/products(page=${pageNumber}, size=${productPage.size}, keyword=${keyword}, categoryId=${selectedCategoryId}, originId=${selectedOriginId}, status=${selectedStatus}, sortField=${sortField}, sortDir=${sortDir})}"
+                                    th:text="${pageNumber}"></a>
+                            </li>
+
+                            <li class="page-item" th:classappend="${productPage.last ? 'disabled' : ''}">
+                                <a class="page-link"
+                                    th:href="@{/admin/products(page=${productPage.number + 2}, size=${productPage.size}, keyword=${keyword}, categoryId=${selectedCategoryId}, originId=${selectedOriginId}, status=${selectedStatus}, sortField=${sortField}, sortDir=${sortDir})}">
+                                    <span>&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <th:block layout:fragment="scripts">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', function () {
+                const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+                if (deleteConfirmModal) {
+                    deleteConfirmModal.addEventListener('show.bs.modal', function (event) {
+                        const button = event.relatedTarget; // Nút đã kích hoạt modal
+                        const deleteUrl = button.getAttribute('data-delete-url');
+                        const itemName = button.getAttribute('data-item-name');
+
+                        const modalTitle = deleteConfirmModal.querySelector('.modal-title');
+                        const modalBodyStrong = deleteConfirmModal.querySelector('.modal-body strong');
+                        const confirmForm = deleteConfirmModal.querySelector('#deleteConfirmForm');
+
+                        modalBodyStrong.textContent = itemName;
+                        confirmForm.setAttribute('action', deleteUrl);
+                    });
+                }
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+
+</body>
+
+</html>
