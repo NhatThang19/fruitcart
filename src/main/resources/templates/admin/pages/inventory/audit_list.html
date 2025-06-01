@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}"></title>
+    <style>
+        .sortable-header a {
+            color: inherit;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .sortable-header a:hover {
+            color: #007bff;
+            /* Hoặc màu primary của theme */
+        }
+
+        .sortable-header .mdi {
+            margin-left: 5px;
+            font-size: 1rem;
+        }
+
+        .filter-form .form-label {
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            color: #495057;
+        }
+
+        .filter-form .form-control,
+        .filter-form .form-select {
+            font-size: 0.875rem;
+            padding: 0.475rem 0.75rem;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+
+        .table th {
+            font-weight: 500;
+            background-color: #f8f9fa;
+        }
+
+        .product-info small {
+            display: block;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .pagination .page-link {
+            font-size: 0.9rem;
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="mdi mdi-check-circle-outline me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="mdi mdi-alert-circle-outline me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${filterErrorMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="mdi mdi-information-outline me-2"></i>
+            <span th:text="${filterErrorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                    <h4 class="card-title mb-0">Danh sách Lịch sử Kiểm Kho</h4>
+                    <a th:href="@{/admin/inventory/stocktake/form}" class="btn btn-primary mt-2 mt-md-0">
+                        <i class="mdi mdi-plus-circle-outline"></i> Thực hiện Kiểm kê mới
+                    </a>
+                </div>
+
+                <form th:action="@{/admin/inventory/audits}" method="get"
+                    class="filter-form border p-3 mb-4 rounded bg-light">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="productVariantIdFilter" class="form-label">Sản phẩm</label>
+                            <select id="productVariantIdFilter" name="productVariantId"
+                                class="form-select select2-enable">
+                                <option value="">-- Tất cả sản phẩm --</option>
+                                <option th:each="pv : ${productVariants}" th:value="${pv.id}"
+                                    th:text="${pv.product?.name + ' - ' + pv.attribute + ' (SKU: ' + pv.sku + ')'}"
+                                    th:selected="${pv.id == currentProductVariantIdFilter}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateFromFilter" class="form-label">Từ ngày (Ngày tạo Audit)</label>
+                            <input type="date" id="dateFromFilter" name="dateFrom" class="form-control"
+                                th:value="${currentDateFromFilter != null ? #temporals.format(currentDateFromFilter, 'yyyy-MM-dd') : ''}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateToFilter" class="form-label">Đến ngày (Ngày tạo Audit)</label>
+                            <input type="date" id="dateToFilter" name="dateTo" class="form-control"
+                                th:value="${currentDateToFilter != null ? #temporals.format(currentDateToFilter, 'yyyy-MM-dd') : ''}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-info w-100">
+                                <i class="mdi mdi-filter-variant"></i> Lọc
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="size" th:value="${inventoryAuditsPage.size}" />
+                    <input type="hidden" name="sort" th:value="${currentSortParam}"
+                        th:if="${currentSortParam != '' && currentSortParam != null}" />
+                </form>
+
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center sortable-header">
+                                    <a
+                                        th:href="@{/admin/inventory/audits(page=${inventoryAuditsPage.number}, size=${inventoryAuditsPage.size}, productVariantId=${currentProductVariantIdFilter}, dateFrom=${#temporals.format(currentDateFromFilter, 'yyyy-MM-dd')}, dateTo=${#temporals.format(currentDateToFilter, 'yyyy-MM-dd')}, sort='id,' + (${currentSortField == 'id' && currentSortDirection == 'ASC'} ? 'desc' : 'asc'))}">
+                                        ID
+                                        <i th:if="${currentSortField == 'id'}"
+                                            th:class="${currentSortDirection == 'ASC' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending'}"></i>
+                                        <i th:unless="${currentSortField == 'id'}" class="mdi mdi-sort"></i>
+                                    </a>
+                                </th>
+                                <th class="sortable-header">
+                                    <a
+                                        th:href="@{/admin/inventory/audits(page=${inventoryAuditsPage.number}, size=${inventoryAuditsPage.size}, productVariantId=${currentProductVariantIdFilter}, dateFrom=${#temporals.format(currentDateFromFilter, 'yyyy-MM-dd')}, dateTo=${#temporals.format(currentDateToFilter, 'yyyy-MM-dd')}, sort='createdDate,' + (${currentSortField == 'createdDate' && currentSortDirection == 'ASC'} ? 'desc' : 'asc'))}">
+                                        Ngày Tạo Audit <i th:if="${currentSortField == 'createdDate'}"
+                                            th:class="${currentSortDirection == 'ASC' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending'}"></i>
+                                        <i th:unless="${currentSortField == 'createdDate'}" class="mdi mdi-sort"></i>
+                                    </a>
+                                </th>
+                                <th>Sản phẩm (Biến thể)</th>
+                                <th class="text-end">SL Hệ thống (Trước)</th>
+                                <th class="text-end">SL Thực tế (Đếm)</th>
+                                <th class="text-end">Chênh lệch</th>
+                                <th>Người thực hiện</th>
+                                <th>Ghi chú</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="audit : ${inventoryAuditsPage.content}">
+                                <td class="text-center" th:text="${audit.id}"></td>
+                                <td th:text="${#temporals.format(audit.createdDate, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                                <td class="product-info">
+                                    <strong th:text="${audit.productVariant?.product?.name}"></strong><br /> <small
+                                        th:text="'Thuộc tính: ' + ${audit.productVariant?.attribute}"></small> <small
+                                        th:text="'SKU: ' + ${audit.productVariant?.sku}"></small>
+                                </td>
+                                <td class="text-end" th:text="${audit.systemQuantity}"></td>
+                                <td class="text-end fw-bold" th:text="${audit.actualQuantity}"></td>
+                                <td class="text-end fw-bold" th:text="${audit.adjustment}"
+                                    th:classappend="${audit.adjustment > 0 ? 'text-success' : (audit.adjustment < 0 ? 'text-danger' : '')}">
+                                </td>
+                                <td th:text="${audit.createdBy}"></td>
+                                <td th:text="${#strings.abbreviate(audit.takeNote, 40)}"></td>
+                                <td class="text-center action-buttons">
+                                    <a th:href="@{/admin/inventory/audits/{id}(id=${audit.id})}"
+                                        class="btn btn-outline-info btn-sm" title="Xem chi tiết">
+                                        <i class="mdi mdi-eye-outline"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${inventoryAuditsPage.empty}">
+                                <td colspan="9" class="text-center py-4">
+                                    <i class="mdi mdi-information-outline fs-3 text-muted"></i>
+                                    <p class="mb-0 mt-1 text-muted">Không có lịch sử kiểm kho nào phù hợp.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav th:if="${inventoryAuditsPage.totalPages > 0}" aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${inventoryAuditsPage.first ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/inventory/audits(page=0, size=${inventoryAuditsPage.size}, productVariantId=${currentProductVariantIdFilter}, dateFrom=${#temporals.format(currentDateFromFilter, 'yyyy-MM-dd')}, dateTo=${#temporals.format(currentDateToFilter, 'yyyy-MM-dd')}, sort=${currentSortParam})}">Đầu</a>
+                        </li>
+                        <li class="page-item" th:classappend="${inventoryAuditsPage.first ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/inventory/audits(page=${inventoryAuditsPage.number - 1}, size=${inventoryAuditsPage.size}, productVariantId=${currentProductVariantIdFilter}, dateFrom=${#temporals.format(currentDateFromFilter, 'yyyy-MM-dd')}, dateTo=${#temporals.format(currentDateToFilter, 'yyyy-MM-dd')}, sort=${currentSortParam})}">Trước</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence( 
+        T(java.lang.Math).max(0, (inventoryAuditsPage?.number ?: 0) - 2), 
+        T(java.lang.Math).min((inventoryAuditsPage?.totalPages ?: 1) - 1, (inventoryAuditsPage?.number ?: 0) + 2) 
+    )}" th:classappend="${i == (inventoryAuditsPage?.number ?: 0) ? 'active' : ''}">
+                            <!-- Nội dung thẻ a -->
+                            <a class="page-link"
+                                th:href="@{/admin/inventory/audits(page=${i}, size=${inventoryAuditsPage.size}, productVariantId=${currentProductVariantIdFilter}, dateFrom=${#temporals.format(currentDateFromFilter, 'yyyy-MM-dd')}, dateTo=${#temporals.format(currentDateToFilter, 'yyyy-MM-dd')}, sort=${currentSortParam})}"
+                                th:text="${i + 1}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${inventoryAuditsPage.last ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/inventory/audits(page=${inventoryAuditsPage.number + 1}, size=${inventoryAuditsPage.size}, productVariantId=${currentProductVariantIdFilter}, dateFrom=${#temporals.format(currentDateFromFilter, 'yyyy-MM-dd')}, dateTo=${#temporals.format(currentDateToFilter, 'yyyy-MM-dd')}, sort=${currentSortParam})}">Sau</a>
+                        </li>
+                        <li class="page-item" th:classappend="${inventoryAuditsPage.last ? 'disabled' : ''}">
+                            <a class="page-link"
+                                th:href="@{/admin/inventory/audits(page=${inventoryAuditsPage.totalPages - 1}, size=${inventoryAuditsPage.size}, productVariantId=${currentProductVariantIdFilter}, dateFrom=${#temporals.format(currentDateFromFilter, 'yyyy-MM-dd')}, dateTo=${#temporals.format(currentDateToFilter, 'yyyy-MM-dd')}, sort=${currentSortParam})}">Cuối</a>
+                        </li>
+                    </ul>
+                    <div class="text-center mt-2">
+                        <small class="text-muted"
+                            th:text="'Hiển thị ' + ${inventoryAuditsPage.numberOfElements} + ' trên tổng số ' + ${inventoryAuditsPage.totalElements} + ' bản ghi. (Trang ' + (${inventoryAuditsPage.number} + 1) + ' của ' + ${inventoryAuditsPage.totalPages} + ')'"></small>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <th:block layout:fragment="scripts">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            $(document).ready(function () {
+                // Khởi tạo Select2 cho dropdown lọc sản phẩm
+                $('.select2-enable').select2({
+                    theme: "bootstrap-5", // Sử dụng theme Bootstrap 5 cho Select2
+                    placeholder: "-- Tất cả sản phẩm --",
+                    allowClear: true // Cho phép xóa lựa chọn
+                });
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+</body>
+
+</html>

@@ -68,4 +68,44 @@ public class InventoryService {
                 .map(Inventory::getQuantity)
                 .orElse(0);
     }
+
+    @Transactional
+    public void performStocktake(Long productVariantId, int actualCountedQuantity, String stocktakeNote) {
+        ProductVariant productVariant = productVariantRepository.findById(productVariantId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy Biến thể sản phẩm với ID: " + productVariantId + " để kiểm kê."));
+
+        if (actualCountedQuantity < 0) {
+            throw new IllegalArgumentException("Số lượng thực tế đếm được không thể âm.");
+        }
+
+        Inventory inventory = inventoryRepository.findByProductVariant(productVariant)
+                .orElseGet(() -> {
+                    Inventory newInventory = new Inventory();
+                    newInventory.setProductVariant(productVariant);
+                    newInventory.setQuantity(0);
+                    return newInventory;
+                });
+
+        int systemQuantityBeforeStocktake = inventory.getQuantity();
+        int adjustment = actualCountedQuantity - systemQuantityBeforeStocktake;
+
+        inventory.setQuantity(actualCountedQuantity);
+
+        inventoryRepository.save(inventory);
+
+        InventoryAudit audit = new InventoryAudit();
+        audit.setProductVariant(productVariant);
+        audit.setSystemQuantity(systemQuantityBeforeStocktake);
+        audit.setActualQuantity(actualCountedQuantity);
+        audit.setAdjustment(adjustment);
+
+        String finalNote = "Thực hiện kiểm kê kho.";
+        if (stocktakeNote != null && !stocktakeNote.isBlank()) {
+            finalNote += " Ghi chú: " + stocktakeNote;
+        }
+        audit.setTakeNote(finalNote);
+
+        inventoryAuditRepository.save(audit);
+    }
 }

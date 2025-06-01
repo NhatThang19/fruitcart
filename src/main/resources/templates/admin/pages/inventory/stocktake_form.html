@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}"></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Tùy chỉnh thêm nếu cần */
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: calc(1.5em + .75rem + 2px);
+            /* Khớp chiều cao input Bootstrap */
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            /* Khớp font-size input Bootstrap */
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            line-height: 1.5;
+            /* Căn chỉnh text */
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
+            height: calc(1.5em + .75rem);
+            /* Khớp chiều cao input Bootstrap */
+        }
+    </style>
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="mdi mdi-check-circle-outline me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="mdi mdi-alert-circle-outline me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-8 grid-margin stretch-card mx-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Nhập thông tin kiểm kê</h4>
+                        <p class="card-description">Điền thông tin số lượng thực tế của sản phẩm tại kho.</p>
+
+                        <form th:action="@{/admin/inventory/stocktake/perform}" th:object="${stocktakeRequestDTO}"
+                            method="post" class="forms-sample">
+
+                            <div class="mb-3">
+                                <label for="productVariantId" class="form-label">Chọn Biến Thể Sản Phẩm <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="productVariantId" th:field="*{productVariantId}"
+                                    required>
+                                    <option value="">-- Chọn sản phẩm --</option>
+                                    <option th:each="pv : ${productVariants}" th:value="${pv.id}"
+                                        th:text="${pv.product?.name + ' - ' + pv.attribute + ' (SKU: ' + pv.sku + ')'}"
+                                        th:data-current-stock="${pv.inventory?.quantity != null ? pv.inventory.quantity : 'N/A'}">
+                                    </option>
+                                </select>
+                                <small th:if="${#fields.hasErrors('productVariantId')}" th:errors="*{productVariantId}"
+                                    class="text-danger d-block mt-1"></small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="currentSystemStock" class="form-label">Số Lượng Hệ Thống Hiện
+                                        Tại</label>
+                                    <input type="text" class="form-control" id="currentSystemStock" readonly disabled
+                                        placeholder="Chọn sản phẩm để xem" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="actualCountedQuantity" class="form-label">Số Lượng Thực Tế Đếm Được
+                                        <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="actualCountedQuantity"
+                                        th:field="*{actualCountedQuantity}" min="0" required
+                                        placeholder="Nhập số lượng thực tế" />
+                                    <small th:if="${#fields.hasErrors('actualCountedQuantity')}"
+                                        th:errors="*{actualCountedQuantity}" class="text-danger d-block mt-1"></small>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="stocktakeNote" class="form-label">Ghi Chú Kiểm Kê</label>
+                                <textarea class="form-control" id="stocktakeNote" th:field="*{stocktakeNote}" rows="3"
+                                    placeholder="Ghi chú thêm nếu có (ví dụ: hàng hỏng, thất thoát,...)"></textarea>
+                                <small th:if="${#fields.hasErrors('stocktakeNote')}" th:errors="*{stocktakeNote}"
+                                    class="text-danger d-block mt-1"></small>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <a th:href="@{/admin/dashboard}" class="btn btn-light me-2">
+                                    <i class="mdi mdi-cancel"></i> Hủy
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="mdi mdi-content-save-outline"></i> Xác nhận Kiểm Kê
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <th:block layout:fragment="extras-scripts">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            $(document).ready(function () {
+                const productVariantSelect = $('#productVariantId');
+                const currentSystemStockInput = $('#currentSystemStock');
+
+                productVariantSelect.select2({
+                    theme: "bootstrap-5", // Sử dụng theme Bootstrap 5 cho Select2
+                    placeholder: "-- Chọn sản phẩm --",
+                    allowClear: true // Cho phép xóa lựa chọn
+                });
+
+                // Hàm cập nhật số lượng tồn kho hệ thống
+                function updateSystemStock() {
+                    const selectedOption = productVariantSelect.find('option:selected');
+                    const systemStock = selectedOption.data('current-stock');
+
+                    if (systemStock !== undefined && systemStock !== null && systemStock !== 'N/A') {
+                        currentSystemStockInput.val(systemStock);
+                    } else if (productVariantSelect.val() === '') { // Nếu không chọn sản phẩm
+                        currentSystemStockInput.val('Chọn sản phẩm để xem');
+                    }
+                    else {
+                        currentSystemStockInput.val('N/A'); // Hoặc để trống, hoặc thông báo đang tải
+                        // Nâng cao: Nếu 'N/A', có thể gọi API để lấy số lượng tồn kho
+                        // const selectedId = productVariantSelect.val();
+                        // if (selectedId) {
+                        //     $.get('/api/v1/admin/inventory/product-variants/' + selectedId + '/stock', function(data) {
+                        //         currentSystemStockInput.val(data);
+                        //     }).fail(function() {
+                        //         currentSystemStockInput.val('Lỗi tải SL tồn');
+                        //     });
+                        // }
+                    }
+                }
+
+                // Cập nhật khi chọn sản phẩm
+                productVariantSelect.on('change', function () {
+                    updateSystemStock();
+                });
+
+                // Cập nhật lần đầu khi tải trang (nếu có giá trị được chọn sẵn do validation fail)
+                if (productVariantSelect.val()) {
+                    updateSystemStock();
+                } else {
+                    currentSystemStockInput.val('Chọn sản phẩm để xem');
+                }
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+</body>
+
+</html>
