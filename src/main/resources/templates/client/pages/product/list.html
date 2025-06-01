@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{client/layouts/client-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}">Tiêu đề trang</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section class="section-shop padding-tb-100">
+            <div class="container">
+                <div class="row d-none">
+                    <div class="col-lg-12">
+                        <div class="mb-30 aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                            data-aos-delay="400">
+                            <div class="cr-banner">
+                                <h2>Categories</h2>
+                            </div>
+                            <div class="cr-banner-sub-title">
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    incididunt
+                                    ut labore lacus vel facilisis. </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/products}" method="get" id="filterSortForm">
+                    <input type="hidden" name="page" th:value="${param.page != null ? param.page : '1'}">
+                    <input type="hidden" name="size" th:value="${pageSize}">
+                    <input type="hidden" name="sortBy" id="sortByParam" th:value="${sortBy}">
+                    <input type="hidden" name="sortOrder" id="sortOrderParam" th:value="${sortOrder}">
+
+                    <div class="row">
+                        <div class="col-lg-3 col-12 md-30 aos-init aos-animate" data-aos="fade-up"
+                            data-aos-duration="2000" data-aos-delay="400">
+                            <div class="cr-shop-sideview">
+
+                                <div class="cr-shop-categories mb-4">
+                                    <h4 class="cr-shop-sub-title">Tìm kiếm</h4>
+                                    <input type="text" class="form-control" name="keyword" th:value="${keyword}"
+                                        placeholder="Tên sản phẩm...">
+                                </div>
+
+                                <div class="cr-shop-categories">
+                                    <h4 class="cr-shop-sub-title">Loại sản phẩm</h4>
+                                    <div class="cr-checkbox">
+                                        <select name="category" class="form-select mb-3" onchange="this.form.submit()">
+                                            <option value="">Tất cả loại</option>
+                                            <option th:each="cat : ${categories}" th:value="${cat.slug}"
+                                                th:text="${cat.name}" th:selected="${cat.slug == selectedCategory}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="cr-shop-categories mt-4">
+                                    <h4 class="cr-shop-sub-title">Xuất xứ</h4>
+                                    <div class="cr-checkbox">
+                                        <select name="origin" class="form-select mb-3" onchange="this.form.submit()">
+                                            <option value="">Tất cả xuất xứ</option>
+                                            <option th:each="org : ${origins}" th:value="${org.slug}"
+                                                th:text="${org.name}" th:selected="${org.slug == selectedOrigin}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="cr-shop-price mt-4">
+                                    <h4 class="cr-shop-sub-title">Giá</h4>
+                                    <div class="price-range-inputs mb-2">
+                                        <input type="number" class="form-control mb-1" name="minPrice"
+                                            th:value="${minPrice}" placeholder="Giá từ (VND)">
+                                        <input type="number" class="form-control" name="maxPrice" th:value="${maxPrice}"
+                                            placeholder="Giá đến (VND)">
+                                    </div>
+                                </div>
+
+                                <div class="cr-shop-categories mt-4">
+                                    <h4 class="cr-shop-sub-title">Tình trạng</h4>
+                                    <div class="cr-checkbox">
+                                        <div class="checkbox-group">
+                                            <input type="checkbox" name="inStock" value="true" id="inStockFilter"
+                                                th:checked="${inStockOnly == true}" onchange="this.form.submit()">
+                                            <label for="inStockFilter">Chỉ hiển thị hàng còn kho</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button type="submit" class="cr-button d-block w-100 mb-2">Lọc sản phẩm</button>
+                                    <a th:href="@{/products}" class="btn btn-outline-secondary d-block w-100">Xóa tất cả
+                                        bộ lọc</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-9 col-12 md-30 aos-init aos-animate" data-aos="fade-up"
+                            data-aos-duration="2000" data-aos-delay="600">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="cr-shop-bredekamp">
+                                        <div class="cr-toggle">
+                                            <a href="javascript:void(0)" class="gridCol active-grid">
+                                                <i class="ri-grid-line"></i>
+                                            </a>
+                                            <a href="javascript:void(0)" class="gridRow">
+                                                <i class="ri-list-check-2"></i>
+                                            </a>
+                                        </div>
+                                        <div class="center-content">
+                                            <span th:if="${totalItems != null}"
+                                                th:text="'Tìm thấy ' + ${totalItems} + ' sản phẩm'"></span>
+                                            <span th:if="${totalItems == null}">Đang tải sản phẩm...</span>
+                                        </div>
+                                        <div class="cr-select">
+                                            <label>Sắp xếp theo :</label>
+                                            <select class="form-select" name="sortByCombined"
+                                                onchange="applySortAndSubmit(this.value)">
+                                                <option value="createdDate_desc"
+                                                    th:selected="${sortBy == 'createdDate' && sortOrder == 'desc'}">Mới
+                                                    nhất</option>
+                                                <option value="basePrice_asc"
+                                                    th:selected="${sortBy == 'basePrice' && sortOrder == 'asc'}">Giá:
+                                                    Thấp
+                                                    đến Cao</option>
+                                                <option value="basePrice_desc"
+                                                    th:selected="${sortBy == 'basePrice' && sortOrder == 'desc'}">Giá:
+                                                    Cao
+                                                    đến Thấp</option>
+                                                <option value="name_asc"
+                                                    th:selected="${sortBy == 'name' && sortOrder == 'asc'}">Tên: A-Z
+                                                </option>
+                                                <option value="name_desc"
+                                                    th:selected="${sortBy == 'name' && sortOrder == 'desc'}">Tên: Z-A
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row col-100 mb-minus-24" id="productListingArea">
+                                <div th:each="product : ${products}"
+                                    class="col-xxl-4 col-xl-4 col-md-6 col-sm-6 col-12 cr-product-box mb-24">
+                                    <div class="cr-product-card">
+                                        <div class="cr-product-image">
+                                            <div class="cr-image-inner zoom-image-hover">
+                                                <a th:href="@{'/san-pham/' + ${product.slug}}">
+                                                    <th:block
+                                                        th:with="mainImagesList = (${product.images != null} ? ${product.images.?[isMain == true]} : null)">
+                                                        <img th:if="${mainImagesList != null && not #lists.isEmpty(mainImagesList)}"
+                                                            th:src="@{${mainImagesList[0].imageUrl}}"
+                                                            alt="product-image"
+                                                            style="height: 250px; object-fit: cover; width:100%;">
+
+                                                        <img th:if="${(mainImagesList == null || #lists.isEmpty(mainImagesList)) && (product.images != null && not #lists.isEmpty(product.images))}"
+                                                            th:src="@{${product.images[0].imageUrl}}"
+                                                            alt="product-image"
+                                                            style="height: 250px; object-fit: cover; width:100%;">
+                                                    </th:block>
+                                                </a>
+                                            </div>
+                                            <div class="cr-side-view">
+                                                <a href="javascript:void(0)" class="wishlist">
+                                                    <i class="ri-heart-line"></i>
+                                                </a>
+                                                <a class="model-oraganic-product quick-view-btn" data-bs-toggle="modal"
+                                                    href="#quickview" role="button"
+                                                    th:attr="data-product-slug=${product.slug}">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
+                                            </div>
+                                            <a href="javascript:void(0);" class="cr-shopping-bag add-to-cart-btn"
+                                                th:attr="data-product-variant-id=${(product.variants != null && not #lists.isEmpty(product.variants)) ? product.variants[0].id : ''}">
+                                                <i class="ri-shopping-bag-line"></i>
+                                            </a>
+                                        </div>
+                                        <div class="cr-product-details">
+                                            <div class="cr-brand">
+                                                <a th:if="${product.category != null}"
+                                                    th:href="@{/products(category=${product.category.slug})}"
+                                                    th:text="${product.category.name}">Category</a>
+                                            </div>
+                                            <a th:href="@{'/san-pham/' + ${product.slug}}" class="title"
+                                                th:text="${product.name}">Product Name</a>
+
+                                            <p class="cr-price"
+                                                th:if="${product.variants != null && not #lists.isEmpty(product.variants) && product.variants[0].price != null}">
+                                                <span class="new-price"
+                                                    th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                                                </span>
+                                            </p>
+                                            <p class="cr-price fst-italic"
+                                                th:if="${product.variants == null || #lists.isEmpty(product.variants) || (not #lists.isEmpty(product.variants) && product.variants[0].price == null)}">
+                                                Giá liên hệ
+                                            </p>
+
+                                            <div class="mt-2">
+                                                <span
+                                                    th:if="${product.variants != null && not #lists.isEmpty(product.variants) && product.variants[0].inventory != null && product.variants[0].inventory.quantity > 0}"
+                                                    class="badge bg-success">Còn hàng</span>
+                                                <span
+                                                    th:if="${product.variants != null && not #lists.isEmpty(product.variants) && (product.variants[0].inventory == null || product.variants[0].inventory.quantity <= 0)}"
+                                                    class="badge bg-danger">Hết hàng</span>
+                                                <span
+                                                    th:if="${product.variants == null || #lists.isEmpty(product.variants)}"
+                                                    class="badge bg-warning text-dark">Chưa có biến thể</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${products == null || #lists.isEmpty(products)}" class="col-12">
+                                    <p class="text-center text-muted mt-5 py-5">Không tìm thấy sản phẩm nào phù hợp với
+                                        tiêu chí của bạn.</p>
+                                </div>
+                            </div>
+
+                            <nav th:if="${totalPages != null && totalPages > 0}" aria-label="Product navigation"
+                                class="cr-pagination mt-5">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled' : ''">
+                                        <a class="page-link"
+                                            th:href="@{/products(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword}, category=${selectedCategory}, origin=${selectedOrigin}, minPrice=${minPrice}, maxPrice=${maxPrice}, inStock=${inStockOnly}, sortBy=${sortBy}, sortOrder=${sortOrder})}">Trước</a>
+                                    </li>
+
+                                    <li th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-item"
+                                        th:classappend="${i == currentPage} ? 'active' : ''">
+                                        <a class="page-link"
+                                            th:href="@{/products(page=${i}, size=${pageSize}, keyword=${keyword}, category=${selectedCategory}, origin=${selectedOrigin}, minPrice=${minPrice}, maxPrice=${maxPrice}, inStock=${inStockOnly}, sortBy=${sortBy}, sortOrder=${sortOrder})}"
+                                            th:text="${i}"></a>
+                                    </li>
+
+                                    <li class="page-item"
+                                        th:classappend="${currentPage == totalPages} ? 'disabled' : ''">
+                                        <a class="page-link"
+                                            th:href="@{/products(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword}, category=${selectedCategory}, origin=${selectedOrigin}, minPrice=${minPrice}, maxPrice=${maxPrice}, inStock=${inStockOnly}, sortBy=${sortBy}, sortOrder=${sortOrder})}">Sau</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <th:block layout:fragment="extras-scripts">
+        <script th:inline="javascript">
+            function applySortAndSubmit(value) {
+                if (value) {
+                    const parts = value.split('_');
+                    document.getElementById('sortByParam').value = parts[0];
+                    document.getElementById('sortOrderParam').value = parts[1];
+                }
+                document.getElementById('filterSortForm').submit();
+            }
+        </script>
+    </th:block>
+</body>
+
+</html>

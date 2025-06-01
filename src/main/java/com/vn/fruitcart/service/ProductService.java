@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -381,7 +382,7 @@ public class ProductService {
                                 ? imageUrl.substring("/storage/".length())
                                 : imageUrl;
                         if (!relativePath.trim().isEmpty()) {
-                            fileStorageService.deleteFile(relativePath); //
+                            fileStorageService.deleteFile(relativePath);
                         }
                     }
                 } catch (Exception e) {
@@ -391,6 +392,45 @@ public class ProductService {
         }
 
         productRepository.delete(product);
+    }
+
+    public Page<Product> searchProducts(String keyword, String categorySlug, String originSlug,
+            Double minPrice, Double maxPrice,
+            Boolean inStockOnly,
+            String sortBy, String sortOrder, Pageable pageable) {
+
+        Specification<Product> spec = Specification.where(ProductSpecification.isActive());
+
+        if (keyword != null && !keyword.isEmpty()) {
+            spec = spec.and(ProductSpecification.byKeyword(keyword));
+        }
+        if (categorySlug != null && !categorySlug.isEmpty()) {
+            spec = spec.and(ProductSpecification.byCategorySlug(categorySlug));
+        }
+        if (originSlug != null && !originSlug.isEmpty()) {
+            spec = spec.and(ProductSpecification.byOriginSlug(originSlug));
+        }
+        if (minPrice != null || maxPrice != null) {
+            spec = spec.and(ProductSpecification.byPriceRange(minPrice, maxPrice));
+        }
+
+        if (inStockOnly != null) {
+            spec = spec.and(ProductSpecification.byInStock(inStockOnly));
+        }
+
+        Sort sort = Sort.unsorted();
+        if (sortBy != null && !sortBy.isEmpty()) {
+
+            if ("desc".equalsIgnoreCase(sortOrder)) {
+                sort = Sort.by(Sort.Direction.DESC, sortBy);
+            } else {
+                sort = Sort.by(Sort.Direction.ASC, sortBy);
+            }
+        }
+
+        Pageable pageableWithSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        return productRepository.findAll(spec, pageableWithSort);
     }
 
 }
