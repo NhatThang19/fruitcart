@@ -7,11 +7,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import com.vn.fruitcart.entity.Origin;
+import com.vn.fruitcart.entity.ProductVariant;
 
 @Repository
 public interface OriginRepository extends JpaRepository<Origin, Long>, JpaSpecificationExecutor<Origin> {
     Optional<Origin> findByName(String name);
 
     boolean existsByName(String name);
+
+    Optional<Origin> findByIdAndIsDeletedFalse(Long originId);
 
 }

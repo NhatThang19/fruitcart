@@ -23,4 +23,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long>, JpaSp
 
     boolean existsByName(String name);
 
+    Optional<Category> findByIdAndIsDeletedFalse(Long categoryId);
+
 }
