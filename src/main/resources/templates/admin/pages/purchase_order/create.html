@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageTitle ?: 'Tạo Đơn Nhập Hàng Mới'}">Tạo Đơn Nhập Hàng Mới</title>
+    <style>
+        .order-item-row {
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: .25rem;
+            margin-bottom: 1rem;
+            background-color: #f9f9f9;
+        }
+
+        .order-item-row .form-label {
+            font-size: 0.875rem;
+            margin-bottom: .25rem;
+            color: #495057;
+        }
+
+        .remove-item-btn {
+            margin-top: 30px;
+            /* Align with input fields that have labels */
+        }
+    </style>
+</head>
+
+<body>
+    <section layout:fragment="content">
+        <div class="row">
+            <div class="col-md-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Thông tin Đơn Nhập Hàng</h4>
+
+                        <form th:action="@{/admin/purchase-orders/create}" th:object="${purchaseOrderCreateRequestDTO}"
+                            method="post" class="forms-sample">
+
+                            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
+                                role="alert">
+                                <i class="mdi mdi-alert-circle-outline me-2"></i>
+                                <span th:text="${errorMessage}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div th:if="${#fields.hasGlobalErrors()}"
+                                class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="mdi mdi-alert-circle-outline me-2"></i>
+                                <strong>Lỗi!</strong>
+                                <ul>
+                                    <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div th:if="${#fields.hasErrors('items') && !#fields.hasErrors('items[0].*')}"
+                                class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="mdi mdi-alert-circle-outline me-2"></i>
+                                <span th:errors="*{items}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+
+
+                            <div class="mb-3">
+                                <label for="purchaseOrderNote" class="form-label">Ghi chú đơn hàng</label>
+                                <textarea class="form-control" id="purchaseOrderNote" th:field="*{note}" rows="3"
+                                    placeholder="Ví dụ: Hàng nhập gấp, kiểm tra kỹ chất lượng..."></textarea>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Chi tiết sản phẩm</h5>
+                                <button type="button" id="addOrderItemBtn" class="btn btn-sm btn-outline-success">
+                                    <i class="mdi mdi-plus-circle-outline"></i> Thêm sản phẩm
+                                </button>
+                            </div>
+
+                            <div id="orderItemsContainer">
+                                <div class="order-item-row" th:each="item, itemStat : *{items}"
+                                    th:id="'item-row-' + ${itemStat.index}">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label th:for="'productVariantId-' + ${itemStat.index}"
+                                                class="form-label">Sản phẩm<span class="text-danger">*</span></label>
+                                            <select class="form-select product-variant-select"
+                                                th:field="*{items[__${itemStat.index}__].productVariantId}"
+                                                th:id="'productVariantId-' + ${itemStat.index}" required>
+                                                <option value="">-- Chọn biến thể sản phẩm --</option>
+                                                <option th:each="pv : ${productVariants}" th:value="${pv.id}"
+                                                    th:text="${pv.product.name + ' - ' + pv.attribute + ' (SKU: ' + pv.sku + ')'}"
+                                                    th:data-price="${pv.price}"></option>
+                                            </select>
+                                            <small
+                                                th:if="${#fields.hasErrors('items[__${itemStat.index}__].productVariantId')}"
+                                                th:errors="*{items[__${itemStat.index}__].productVariantId}"
+                                                class="text-danger d-block mt-1"></small>
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                            <label th:for="'quantity-' + ${itemStat.index}" class="form-label">Số
+                                                lượng<span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control quantity-input"
+                                                th:field="*{items[__${itemStat.index}__].quantity}"
+                                                th:id="'quantity-' + ${itemStat.index}" placeholder="SL" min="1"
+                                                required />
+                                            <small th:if="${#fields.hasErrors('items[__${itemStat.index}__].quantity')}"
+                                                th:errors="*{items[__${itemStat.index}__].quantity}"
+                                                class="text-danger d-block mt-1"></small>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label th:for="'unitPrice-' + ${itemStat.index}" class="form-label">Đơn giá
+                                                (VNĐ)<span class="text-danger">*</span></label>
+                                            <input type="number" step="100" class="form-control unit-price-input"
+                                                th:field="*{items[__${itemStat.index}__].unitPrice}"
+                                                th:id="'unitPrice-' + ${itemStat.index}" placeholder="Đơn giá" min="0"
+                                                required />
+                                            <small
+                                                th:if="${#fields.hasErrors('items[__${itemStat.index}__].unitPrice')}"
+                                                th:errors="*{items[__${itemStat.index}__].unitPrice}"
+                                                class="text-danger d-block mt-1"></small>
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                            <label th:for="'itemNote-' + ${itemStat.index}" class="form-label">Ghi chú
+                                                item</label>
+                                            <input type="text" class="form-control"
+                                                th:field="*{items[__${itemStat.index}__].note}"
+                                                th:id="'itemNote-' + ${itemStat.index}" placeholder="Ghi chú item" />
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-center">
+                                            <button type="button" class="btn btn-danger btn-sm remove-item-btn w-100"
+                                                style="margin-top: 20px;" title="Xóa mục này">
+                                                <i class="mdi mdi-delete-outline"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="mdi mdi-content-save-outline"></i> Tạo đơn hàng
+                                </button>
+                                <a th:href="@{/admin/purchase-orders}" class="btn btn-light">
+                                    <i class="mdi mdi-cancel"></i> Hủy
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="orderItemTemplate" style="display: none;">
+            <div class="order-item-row" id="item-row-INDEX">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="productVariantId-INDEX" class="form-label">Sản phẩm<span
+                                class="text-danger">*</span></label>
+                        <select class="form-select product-variant-select" name="items[INDEX].productVariantId"
+                            id="productVariantId-INDEX" required>
+                            <option value="">-- Chọn biến thể sản phẩm --</option>
+                            <option th:each="pv : ${productVariants}" th:value="${pv.id}"
+                                th:text="${pv.product.name + ' - ' + pv.attribute + ' (SKU: ' + pv.sku + ')'}"
+                                th:data-price="${pv.price}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="quantity-INDEX" class="form-label">Số lượng<span
+                                class="text-danger">*</span></label>
+                        <input type="number" class="form-control quantity-input" name="items[INDEX].quantity"
+                            id="quantity-INDEX" placeholder="SL" value="1" min="1" required />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="unitPrice-INDEX" class="form-label">Đơn giá (VNĐ)<span
+                                class="text-danger">*</span></label>
+                        <input type="number" step="100" class="form-control unit-price-input"
+                            name="items[INDEX].unitPrice" id="unitPrice-INDEX" placeholder="Đơn giá" value="0" min="0"
+                            required />
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="itemNote-INDEX" class="form-label">Ghi chú item</label>
+                        <input type="text" class="form-control" name="items[INDEX].note" id="itemNote-INDEX"
+                            placeholder="Ghi chú item" />
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-item-btn w-100"
+                            style="margin-top: 20px;" title="Xóa mục này">
+                            <i class="mdi mdi-delete-outline"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <th:block layout:fragment="extras-scripts">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', function () {
+                const container = document.getElementById('orderItemsContainer');
+                const addButton = document.getElementById('addOrderItemBtn');
+                const templateNode = document.getElementById('orderItemTemplate');
+
+                if (!container || !addButton || !templateNode) {
+                    console.error("Một hoặc nhiều element DOM cần thiết cho form động không tìm thấy.");
+                    return;
+                }
+
+                const template = templateNode.firstElementChild.cloneNode(true);
+                let itemIndex = container.getElementsByClassName('order-item-row').length; // Đếm số item đã có (nếu validation fail)
+
+                function addNewItemRow() {
+                    const newItemRow = template.cloneNode(true);
+
+                    // Cập nhật ID và name cho các element trong dòng mới
+                    newItemRow.id = 'item-row-' + itemIndex;
+
+                    const productSelect = newItemRow.querySelector('.product-variant-select');
+                    productSelect.name = 'items[' + itemIndex + '].productVariantId';
+                    productSelect.id = 'productVariantId-' + itemIndex;
+                    productSelect.closest('.col-md-4').querySelector('label').setAttribute('for', productSelect.id);
+
+
+                    const quantityInput = newItemRow.querySelector('.quantity-input');
+                    quantityInput.name = 'items[' + itemIndex + '].quantity';
+                    quantityInput.id = 'quantity-' + itemIndex;
+                    quantityInput.closest('.col-md-2').querySelector('label').setAttribute('for', quantityInput.id);
+
+
+                    const unitPriceInput = newItemRow.querySelector('.unit-price-input');
+                    unitPriceInput.name = 'items[' + itemIndex + '].unitPrice';
+                    unitPriceInput.id = 'unitPrice-' + itemIndex;
+                    unitPriceInput.closest('.col-md-3').querySelector('label').setAttribute('for', unitPriceInput.id);
+
+                    const itemNoteInput = newItemRow.querySelector('input[placeholder="Ghi chú item"]');
+                    itemNoteInput.name = 'items[' + itemIndex + '].note';
+                    itemNoteInput.id = 'itemNote-' + itemIndex;
+                    itemNoteInput.closest('.col-md-2').querySelector('label').setAttribute('for', itemNoteInput.id);
+
+
+                    // Gắn sự kiện tự động điền giá khi chọn sản phẩm
+                    productSelect.addEventListener('change', function () {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const price = selectedOption.dataset.price;
+                        if (price && unitPriceInput.value === '0') { // Chỉ cập nhật nếu giá trị hiện tại là 0 (mặc định)
+                            unitPriceInput.value = price;
+                        }
+                    });
+
+                    container.appendChild(newItemRow);
+                    attachRemoveListener(newItemRow.querySelector('.remove-item-btn'));
+                    itemIndex++;
+                }
+
+                function attachRemoveListener(button) {
+                    button.addEventListener('click', function () {
+                        this.closest('.order-item-row').remove();
+                        // Không cần re-index itemIndex vì Spring MVC có thể xử lý các index bị thiếu.
+                        // Nếu muốn re-index thì phức tạp hơn, phải duyệt và cập nhật lại name, id.
+                    });
+                }
+
+                // Gắn sự kiện cho các nút xóa đã có (nếu có từ server do validation fail)
+                container.querySelectorAll('.remove-item-btn').forEach(button => {
+                    attachRemoveListener(button);
+                });
+
+                // Gắn sự kiện cho các select product đã có để tự điền giá
+                container.querySelectorAll('.product-variant-select').forEach(select => {
+                    const itemRow = select.closest('.order-item-row');
+                    const unitPriceInput = itemRow.querySelector('.unit-price-input');
+                    select.addEventListener('change', function () {
+                        const selectedOption = this.options[this.selectedIndex];
+                        const price = selectedOption.dataset.price;
+                        if (price) {
+                            unitPriceInput.value = price;
+                        }
+                    });
+                });
+
+                addButton.addEventListener('click', addNewItemRow);
+
+                // Tự động thêm một dòng item nếu chưa có item nào khi tải trang
+                if (itemIndex === 0 && container.children.length === 0) {
+                    addNewItemRow();
+                }
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+</body>
+
+</html>
