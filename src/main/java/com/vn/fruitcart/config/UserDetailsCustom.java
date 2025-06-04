@@ -25,7 +25,7 @@ public class UserDetailsCustom implements UserDetailsService {
   @Override
   @Transactional(readOnly = true)
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException, LockedException {
-    User user = userService.findUserByEmail(email);
+    User user = userService.getUserByEmail(email);
 
     if (user == null) {
       throw new UsernameNotFoundException("Email không tồn tại trong hệ thống");
@@ -58,7 +58,7 @@ public class UserDetailsCustom implements UserDetailsService {
   public User getCurrentUserEntity(UserService userService) {
     String username = getCurrentUsername();
     if (username != null) {
-      return userService.findUserByEmail(username);
+      return userService.getUserByEmail(username);
     }
     return null;
   }

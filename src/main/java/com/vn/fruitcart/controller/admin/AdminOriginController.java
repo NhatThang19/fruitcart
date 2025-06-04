@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.Origin;
-import com.vn.fruitcart.entity.dto.request.CategoryReq;
 import com.vn.fruitcart.entity.dto.request.OriginReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;

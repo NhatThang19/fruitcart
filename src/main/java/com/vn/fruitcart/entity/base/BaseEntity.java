@@ -32,15 +32,4 @@ public abstract class BaseEntity {
   @LastModifiedDate
   @Column(name = "last_modified_date")
   private Instant lastModifiedDate;
-
-  @Column(name = "is_deleted", columnDefinition = "BOOLEAN DEFAULT FALSE")
-  private boolean isDeleted = false;
-
-  public boolean isDeleted() {
-    return isDeleted;
-  }
-
-  public void setDeleted(boolean deleted) {
-    isDeleted = deleted;
-  }
 }

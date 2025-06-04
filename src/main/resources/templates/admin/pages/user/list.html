@@ -172,16 +172,13 @@
                                                 class="btn btn-sm btn-outline-primary"
                                                 title="Quản lý vai trò & trạng thái"><i
                                                     class="ri-shield-user-line"></i></a>
-                                            <form id="deleteUserForm" action="/admin/users/delete" method="POST">
-                                                <input type="hidden" name="userId" th:value="${user.id}">
-
-                                                <button type="submit" title="Xoá" onclick="showConfirm(event,
-                                 'Xác nhận lưu thay đổi',
-                                 'Bạn có chắc chắn muốn xoá người dùng?',
-                                 'deleteUserForm',  
-                                 null
-                                )" class="btn btn-sm btn-outline-danger">
-                                                    <i class="ri-delete-bin-2-line"></i>
+                                            <form th:id="${'deleteUserForm' + user.id}"
+                                                th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="POST"
+                                                style="display: inline;"> <button type="button" title="Xoá"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    th:data-form-id="${'deleteUserForm' + user.id}"
+                                                    th:data-user-name="${user.getFullName()}"
+                                                    onclick="confirmDelete(this)"> <i class="ri-delete-bin-2-line"></i>
                                                 </button>
                                             </form>
                                         </td>

@@ -6,6 +6,7 @@ import com.vn.fruitcart.entity.dto.request.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.UserProfileUpdateReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
+import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.UserRepository;
 import com.vn.fruitcart.service.specification.UserSpecification;
 
@@ -35,7 +36,7 @@ public class UserService {
   private final HttpSession session;
   private final SessionRegistry sessionRegistry;
 
-  public User findUserByEmail(String email) {
+  public User getUserByEmail(String email) {
     return userRepository.findByEmail(email)
         .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
   }
@@ -53,7 +54,7 @@ public class UserService {
 
   @Transactional
   public User updateUserProfile(Long userId, UserProfileUpdateReq updateReq) {
-    User userToUpdate = this.findUserById(userId);
+    User userToUpdate = this.getUserById(userId);
 
     userToUpdate.setFirstName(updateReq.getFirstName());
     userToUpdate.setLastName(updateReq.getLastName());
@@ -122,7 +123,7 @@ public class UserService {
     return userRepository.findAll(spec, pageable);
   }
 
-  public User findUserById(Long id) {
+  public User getUserById(Long id) {
     return userRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với Id: " + id));
   }
@@ -160,7 +161,9 @@ public class UserService {
 
   @Transactional
   public void deleteUserById(Long id) {
-    this.userRepository.deleteById(id);
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với ID: " + id));
+    userRepository.delete(user);
   }
 
   public boolean existsByEmail(String email) {
@@ -171,8 +174,9 @@ public class UserService {
     return userRepository.existsByPhone(phone);
   }
 
+  @Transactional
   public void expireUserSessions(Long userId) {
-    String userEmail = this.findUserById(userId).getEmail();
+    String userEmail = this.getUserById(userId).getEmail();
 
     sessionRegistry.getAllPrincipals().forEach(principal -> {
       if (principal instanceof UserDetails) {
@@ -185,4 +189,5 @@ public class UserService {
       }
     });
   }
+
 }

@@ -7,6 +7,45 @@
  * @param {string} redirectUrl - URL chuyển hướng (nếu không dùng form)
  */
 
+function confirmDelete(buttonElement) {
+  const formId = buttonElement.getAttribute("data-form-id");
+  const userName = buttonElement.getAttribute("data-user-name"); // Lấy tên người dùng từ data attribute
+
+  let message = "Bạn có chắc chắn muốn xoá mục này?";
+  if (userName) {
+    message = `Bạn có chắc chắn muốn xoá người dùng "${userName}"? Hành động này không thể hoàn tác!`;
+  } else {
+    message =
+      "Bạn có chắc chắn muốn thực hiện hành động xoá này? Hành động này không thể hoàn tác!";
+  }
+
+  Swal.fire({
+    title: "Xác nhận xoá",
+    text: message,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Đồng ý xoá",
+    cancelButtonText: "Huỷ bỏ",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Nếu người dùng xác nhận, tìm form bằng ID và submit nó
+      const formToSubmit = document.getElementById(formId);
+      if (formToSubmit) {
+        formToSubmit.submit();
+      } else {
+        console.error("Không tìm thấy form với ID:", formId);
+        Swal.fire(
+          "Lỗi!",
+          "Không thể tìm thấy form để thực hiện hành động xoá.",
+          "error"
+        );
+      }
+    }
+  });
+}
+
 function showConfirm(
   event = null,
   title,

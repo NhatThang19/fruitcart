@@ -77,7 +77,7 @@ public class AdminUserController {
     @GetMapping("/{id}")
     public String getUserDetailPage(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
-            User user = userService.findUserById(id);
+            User user = userService.getUserById(id);
             model.addAttribute("user", user);
             model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserDetailPageMetadata());
             return "admin/pages/user/detail";
@@ -141,13 +141,14 @@ public class AdminUserController {
         }
     }
 
-    @PostMapping("/delete")
-    public String deleteUser(@RequestParam("userId") Long id, RedirectAttributes redirectAttributes) {
+    @PostMapping("/delete/{userId}")
+    public String deleteUser(@PathVariable("userId") Long id, RedirectAttributes redirectAttributes) {
         try {
-            User user = userService.findUserById(id);
+            User user = userService.getUserById(id);
             if (user != null) {
                 userService.expireUserSessions(id);
                 userService.deleteUserById(id);
+                System.out.println("Xoa thanh cong!!!");
                 redirectAttributes.addFlashAttribute("message", "Xoá người dùng thành công.");
                 redirectAttributes.addFlashAttribute("messageType", "success");
             } else {
