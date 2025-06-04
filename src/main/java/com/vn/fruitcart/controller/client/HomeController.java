@@ -77,9 +77,21 @@ public class HomeController {
             model.addAttribute("origins", Collections.emptyList());
         }
 
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+        model.addAttribute("pageMetadata", breadcrumbService.demo());
 
         return "client/pages/product/list";
+    }
+
+    @GetMapping("/about-us")
+    public String getAboutUsPage(Model model) {
+        model.addAttribute("pageMetadata", breadcrumbService.demo());
+        return "client/pages/about-us";
+    }
+
+        @GetMapping("/contact")
+    public String getContactPage(Model model) {
+        model.addAttribute("pageMetadata", breadcrumbService.demo());
+        return "client/pages/contact";
     }
 
 }

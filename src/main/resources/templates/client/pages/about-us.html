@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{client/layouts/client-layout}">
+
+<head>
+    <title>FruitCart - Giới Thiệu</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section class="section-hero padding-b-100 next">
+            <section class="section-about padding-tb-100">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="cr-about aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                                data-aos-delay="400">
+                                <h4 class="heading">Giới thiệu về FruitCart</h4>
+                                <div class="cr-about-content">
+                                    <p>Chào mừng bạn đến với FruitCart! Chúng tôi ra đời với mong muốn mang đến một giải
+                                        pháp mua sắm trái cây trực tuyến tiện lợi, hiện đại, khắc phục những hạn chế của
+                                        các cửa hàng truyền thống. Tại FruitCart, bạn sẽ tìm thấy những loại trái cây
+                                        tươi ngon nhất, được lựa chọn cẩn thận từ các nhà vườn uy tín, có nguồn gốc xuất
+                                        xứ rõ ràng.</p>
+                                    <p>Sứ mệnh của chúng tôi là tự động hóa quy trình từ quản lý sản phẩm, tồn kho cho
+                                        đến xử lý đơn hàng một cách hiệu quả, đảm bảo mỗi sản phẩm đến tay bạn đều đạt
+                                        chất lượng cao nhất. Chúng tôi tin rằng công nghệ sẽ giúp việc lựa chọn và
+                                        thưởng thức trái cây trở nên dễ dàng và thú vị hơn bao giờ hết.</p>
+                                    <p>Với giao diện thân thiện, dễ sử dụng và cam kết về chất lượng, FruitCart hướng
+                                        tới việc trở thành người bạn đồng hành tin cậy của mọi gia đình Việt trong việc
+                                        chăm sóc sức khỏe qua những sản phẩm trái cây an toàn và bổ dưỡng.</p>
+                                    <div class="elementor-counter">
+                                        <div class="row">
+                                            <div class="col-sm-4 col-12 margin-575">
+                                                <h4 class="elementor">
+                                                    <span class="elementor-counter-number">1.2</span>
+                                                    <span class="elementor-suffix">k</span>
+                                                </h4>
+                                                <div class="elementor-counter-title">
+                                                    <span>Đối tác Nhà vườn</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 col-12 margin-575">
+                                                <h4 class="elementor">
+                                                    <span class="elementor-counter-number">410</span>
+                                                    <span class="elementor-suffix">k</span>
+                                                </h4>
+                                                <div class="elementor-counter-title">
+                                                    <span>Khách hàng Hài lòng</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 col-12 margin-575">
+                                                <h4 class="elementor">
+                                                    <span class="elementor-counter-number">34</span>
+                                                    <span class="elementor-suffix">k</span>
+                                                </h4>
+                                                <div class="elementor-counter-title">
+                                                    <span>Sản phẩm Tươi ngon</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="cr-about-image aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                                data-aos-delay="800">
+                                <img th:src="@{/client/assets/img/about/1.jpg}" alt="Hình ảnh giới thiệu FruitCart">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </div>
+</body>
+
+</html>

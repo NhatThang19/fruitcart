@@ -58,6 +58,8 @@ public class SecurityConfiguration {
             .requestMatchers(
                 "/register",
                 "/login",
+                "/products",
+                "/storage/**",
                 "/admin/assets/**",
                 "/shared/assets/**",
                 "/client/assets/**",

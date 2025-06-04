@@ -88,7 +88,7 @@ public class ProductSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             query.distinct(true);
-            Join<Product, ProductVariant> variantJoin = root.join("productVariants");
+            Join<Product, ProductVariant> variantJoin = root.join("variants");
 
             if (minPrice != null) {
                 predicates.add(cb.greaterThanOrEqualTo(variantJoin.get("price"), minPrice));

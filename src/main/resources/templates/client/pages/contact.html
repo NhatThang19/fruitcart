@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{client/layouts/client-layout}">
+
+<head>
+    <title>FruitCart - Liên Hệ</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section class="section-Contact padding-tb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-30 aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                            data-aos-delay="400">
+                            <div class="cr-banner">
+                                <h2>Liên Hệ Với Chúng Tôi</h2>
+                            </div>
+                            <div class="cr-banner-sub-title">
+                                <p>Chúng tôi luôn sẵn lòng lắng nghe và hỗ trợ bạn. Đừng ngần ngại liên hệ nếu bạn có
+                                    bất kỳ câu hỏi, góp ý hoặc yêu cầu nào về sản phẩm và dịch vụ của FruitCart.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-minus-24">
+                    <div class="col-lg-4 col-md-6 col-12 mb-24 aos-init aos-animate" data-aos="fade-up"
+                        data-aos-duration="2000" data-aos-delay="400">
+                        <div class="cr-info-box">
+                            <div class="cr-icon">
+                                <i class="ri-phone-line"></i>
+                            </div>
+                            <div class="cr-info-content">
+                                <h4 class="heading">Điện thoại</h4>
+                                <p><a href="tel:0123456789"><i class="ri-phone-line"></i> &nbsp; (0208) 384 6XXX</a>
+                                </p>
+                                <p><a href="tel:0987654321"><i class="ri-phone-line"></i> &nbsp; 0987 654 XXX
+                                        (Hotline)</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-12 mb-24 aos-init aos-animate" data-aos="fade-up"
+                        data-aos-duration="2000" data-aos-delay="600">
+                        <div class="cr-info-box">
+                            <div class="cr-icon">
+                                <i class="ri-mail-line"></i>
+                            </div>
+                            <div class="cr-info-content">
+                                <h4 class="heading">Email & Website</h4>
+                                <p><a href="mailto:hotro@fruitcart.vn"><i class="ri-mail-line"></i> &nbsp;
+                                        hotro@fruitcart.vn</a></p>
+                                <p><a href="http://www.fruitcart.vn" target="_blank"><i class="ri-globe-line"></i>
+                                        &nbsp;
+                                        www.fruitcart.vn</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-12 mb-24 aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                        data-aos-delay="800">
+                        <div class="cr-info-box">
+                            <div class="cr-icon">
+                                <i class="ri-map-pin-line"></i>
+                            </div>
+                            <div class="cr-info-content">
+                                <h4 class="heading">Địa chỉ</h4>
+                                <p><a href="javascript:void(0)">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Đường Z115, Quyết Thắng, TP. Thái Nguyên,
+                                        Thái Nguyên</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row padding-t-100 mb-minus-24">
+                    <div class="col-md-6 col-12 mb-24 aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                        data-aos-delay="400">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3710.970042459871!2d105.8053199149197!3d21.54784848571883!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31352749a9519779%3A0x2b20a36ea825634!2sICTU%20-%20Truong%20Dai%20Hoc%20Cong%20Nghe%20Thong%20Tin%20Va%20Truyen%20Thong%20Thai%20Nguyen!5e0!3m2!1sen!2svn!4v1678886400000!5m2!1sen!2svn"
+                            width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade" title="Bản đồ vị trí FruitCart">
+                        </iframe>
+                    </div>
+                    <div class="col-md-6 col-12 mb-24 aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
+                        data-aos-delay="800">
+                        <form class="cr-content-form">
+                            <div class="form-group">
+                                <input type="text" placeholder="Họ và Tên" class="cr-form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="email" placeholder="Địa chỉ Email" class="cr-form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" placeholder="Số Điện Thoại (Tùy chọn)" class="cr-form-control">
+                            </div>
+                            <div class="form-group">
+                                <textarea class="cr-form-control" id="exampleFormControlTextarea1" rows="4"
+                                    placeholder="Lời nhắn của bạn..."></textarea>
+                            </div>
+                            <button type="button" class="cr-button">Gửi Liên Hệ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

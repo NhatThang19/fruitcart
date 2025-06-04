@@ -28,7 +28,8 @@
                             </li>
 
                             <li class="nav-item dropdown" th:if="${session.loggedInUser}">
-                                <a class="nav-link dropdown-toggle cr-right-bar-item" href="javascript:void(0)" style="padding: 0px 8px;">
+                                <a class="nav-link dropdown-toggle cr-right-bar-item" href="javascript:void(0)"
+                                    style="padding: 0px 8px;">
                                     <th:block th:if="${session.loggedInUser.avatar}">
                                         <img th:src="@{${session.loggedInUser.avatar}}" alt="Avatar"
                                             class="rounded-circle"
@@ -131,6 +132,12 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" th:href="@{/products}">Sản phẩm</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/contact}">Liên hệ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/about-us}">Về chúng tôi</a>
                             </li>
                         </ul>
                     </div>

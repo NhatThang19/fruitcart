@@ -131,4 +131,11 @@ public class BreadcrumbService {
         return new PageMetadata("Chi tiết nguồn gốc", breadcrumbList);
     }
 
+        public Object demo() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", null));
+        return new PageMetadata("Sản phẩm", breadcrumbList);
+    }
+
 }

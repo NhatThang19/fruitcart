@@ -46,7 +46,7 @@
                                 <div class="cr-shop-categories">
                                     <h4 class="cr-shop-sub-title">Loại sản phẩm</h4>
                                     <div class="cr-checkbox">
-                                        <select name="category" class="form-select mb-3" onchange="this.form.submit()">
+                                        <select name="category" class="form-select mb-3">
                                             <option value="">Tất cả loại</option>
                                             <option th:each="cat : ${categories}" th:value="${cat.slug}"
                                                 th:text="${cat.name}" th:selected="${cat.slug == selectedCategory}">
@@ -58,7 +58,7 @@
                                 <div class="cr-shop-categories mt-4">
                                     <h4 class="cr-shop-sub-title">Xuất xứ</h4>
                                     <div class="cr-checkbox">
-                                        <select name="origin" class="form-select mb-3" onchange="this.form.submit()">
+                                        <select name="origin" class="form-select mb-3">
                                             <option value="">Tất cả xuất xứ</option>
                                             <option th:each="org : ${origins}" th:value="${org.slug}"
                                                 th:text="${org.name}" th:selected="${org.slug == selectedOrigin}">
@@ -82,7 +82,7 @@
                                     <div class="cr-checkbox">
                                         <div class="checkbox-group">
                                             <input type="checkbox" name="inStock" value="true" id="inStockFilter"
-                                                th:checked="${inStockOnly == true}" onchange="this.form.submit()">
+                                                th:checked="${inStockOnly == true}">
                                             <label for="inStockFilter">Chỉ hiển thị hàng còn kho</label>
                                         </div>
                                     </div>

@@ -143,7 +143,7 @@
                                 <dt class="col-sm-4">Mô tả:</dt>
                                 <dd class="col-sm-8">
                                     <div th:if="${product.description != null && !product.description.trim().isEmpty()}"
-                                        th:utext="${#strings.replace(product.description, T(java.lang.System).getProperty('line.separator'), '<br/>')}">
+                                         th:utext="${#strings.replace(product.description, '\n', '<br/>')}">
                                     </div>
                                     <span th:if="${product.description == null || product.description.trim().isEmpty()}"
                                         class="text-muted">Không có mô tả.</span>

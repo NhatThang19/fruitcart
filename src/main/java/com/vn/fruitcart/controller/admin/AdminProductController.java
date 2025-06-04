@@ -235,8 +235,8 @@ public class AdminProductController {
 
     @GetMapping
     public String listProducts(
-            @RequestParam(name = "page", defaultValue = "1") int pageParam, // Đổi tên để tránh nhầm lẫn với biến Page
-            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "page", defaultValue = "1") int pageParam, 
+            @RequestParam(name = "size", defaultValue = "5") int size,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "categoryId", required = false) Long categoryId,
             @RequestParam(name = "originId", required = false) Long originId,
@@ -246,35 +246,31 @@ public class AdminProductController {
             Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
 
-        Pageable pageable = PageRequest.of(pageParam - 1, size); // Spring Data Pageable là 0-indexed
-        Page<Product> productPage; // Khai báo ở đây
+        Pageable pageable = PageRequest.of(pageParam - 1, size); 
+        Page<Product> productPage; 
 
         List<Category> categories = new ArrayList<>();
         List<Origin> origins = new ArrayList<>();
 
         try {
-            // Gọi service để lấy dữ liệu sản phẩm
             productPage = productService.findAllAdminProducts(pageable, keyword, categoryId, originId, status,
                     sortField, sortDir);
 
-            // Lấy danh sách categories và origins cho dropdown lọc
-            categories = categoryService.findAllActiveCategories(); //
-            origins = originService.findAllActiveOrigins(); //
+            categories = categoryService.findAllActiveCategories(); 
+            origins = originService.findAllActiveOrigins(); 
 
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
-            // Trong trường hợp lỗi, tạo một trang rỗng để tránh lỗi NullPointer trong view
             productPage = Page.empty(pageable);
-            // categories và origins sẽ là danh sách rỗng nếu lỗi xảy ra trước khi chúng
-            // được lấy
+
         }
 
-        // Luôn thêm productPage vào model, ngay cả khi nó là Page.empty()
+
         model.addAttribute("productPage", productPage);
         model.addAttribute("categories", categories);
         model.addAttribute("origins", origins);
 
-        // Truyền lại các tham số tìm kiếm/lọc/sắp xếp để giữ trạng thái trên view
+
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("selectedOriginId", originId);
@@ -283,12 +279,11 @@ public class AdminProductController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", "asc".equals(sortDir) ? "desc" : "asc");
 
-        // Tính toán thông tin phân trang cho view dựa trên productPage (đã đảm bảo
-        // không null)
+
         int totalPages = productPage.getTotalPages();
         List<Integer> pageNumbers = new ArrayList<>();
         if (totalPages > 0) {
-            int currentPageNumberInView = productPage.getNumber() + 1; // Chuyển 0-indexed sang 1-indexed cho view
+            int currentPageNumberInView = productPage.getNumber() + 1; 
             int startPage = Math.max(1, currentPageNumberInView - 2);
             int endPage = Math.min(totalPages, currentPageNumberInView + 2);
 
@@ -307,9 +302,9 @@ public class AdminProductController {
         return "admin/pages/product/list";
     }
 
-    @PostMapping("/delete") // Thay đổi từ /delete/{id} nếu bạn muốn nhận ID từ form parameter
+    @PostMapping("/delete") 
     public String deleteProductByForm(
-            @RequestParam("productId") Long id, // Nhận productId từ input ẩn của form
+            @RequestParam("productId") Long id,
             RedirectAttributes redirectAttributes) {
         try {
             productService.deleteProduct(id);
