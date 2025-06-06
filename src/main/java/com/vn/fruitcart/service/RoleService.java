@@ -20,8 +20,9 @@ public class RoleService {
         return roleRepository.findById(id);
     }
 
-    public Optional<Role> getRoleByName(String name) {
-        return roleRepository.findByName(name);
+    public Role getRoleByName(String name) {
+        return roleRepository.findByName(name)
+                .orElseThrow(() -> new IllegalStateException("Không tìm thấy vai trò người dùng: " + name));
     }
 
     public void save(Role role) {

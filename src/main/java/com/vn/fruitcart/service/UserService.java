@@ -41,6 +41,12 @@ public class UserService {
         .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với email: " + email));
   }
 
+  public void checkEmailDoesNotExist(String email) {
+    userRepository.findByEmail(email).ifPresent(user -> {
+      throw new IllegalArgumentException("Email '" + email + "' đã được sử dụng.");
+    });
+  }
+
   public boolean isEmailExists(String email) {
     return this.userRepository.existsByEmail(email);
   }

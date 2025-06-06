@@ -3,41 +3,45 @@ package com.vn.fruitcart.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.vn.fruitcart.entity.Cart;
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.entity.dto.request.UserRegisterReq;
+import com.vn.fruitcart.entity.dto.request.auth.UserRegisterReq;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthService(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.roleService = roleService;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final CartService cartService;
 
     @Transactional
-    public void register(UserRegisterReq rReq) throws Exception {
+    public void register(UserRegisterReq req) {
+
+        userService.checkEmailDoesNotExist(req.getEmail());
+
+        Role clientRole = roleService.getRoleByName("ROLE_USER");
+
         User newUser = User.builder()
-                .lastName(rReq.getLastName())
-                .firstName(rReq.getFirstName())
-                .email(rReq.getEmail())
-                .phone(rReq.getPhone())
-                .address(rReq.getAddress())
-                .password(passwordEncoder.encode(rReq.getPassword()))
+                .lastName(req.getLastName())
+                .firstName(req.getFirstName())
+                .email(req.getEmail())
+                .phone(req.getPhone())
+                .address(req.getAddress())
+                .password(passwordEncoder.encode(req.getPassword()))
                 .isBlocked(false)
                 .avatarUrl("/storage/default/avatar.jpg")
+                .role(clientRole)
                 .build();
 
-        Role userRole = roleService.getRoleByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò người dùng."));
-        newUser.setRole(userRole);
-
         userService.save(newUser);
+
+        Cart cart = new Cart();
+        cart.setUser(newUser);
+        cartService.saveCart(cart);
     }
 }

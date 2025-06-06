@@ -242,4 +242,8 @@ public class CartService {
         }
         return 0;
     }
+
+    public Cart saveCart(Cart cart) {
+        return cartRepository.save(cart);
+    }
 }

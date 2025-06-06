@@ -14,7 +14,9 @@
                     <div class="col-lg-6 col-md-8 col-sm-10">
                         <div class="cr-login aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
                             data-aos-delay="400">
-                            <h3 class="cr-fw-normal cr-fc mb-4 text-center">Đăng nhập tài khoản</h3>
+                            <div class="form-logo">
+                                <img th:src="@{/client/assets/img/logo/logo.png}" alt="logo">
+                            </div>
 
                             <div th:if="${param.error != null}" class="alert alert-danger" role="alert">
                                 Email hoặc mật khẩu không đúng. Vui lòng thử lại.
@@ -29,21 +31,15 @@
                                 lại.
                             </div>
 
-                            <div th:if="${param.register != null}" class="alert alert-success" role="alert">
-                                Đăng ký tài khoản thành công.
+                            <div th:if="${successMessage}" class="alert alert-success" role="alert">
+                                <p th:text="${successMessage}"></p>
                             </div>
-
-                            <div th:if="${globalSuccessMessage != null}" class="alert alert-success" role="alert"
-                                th:text="${globalSuccessMessage}"></div>
-                            <div th:if="${globalErrorMessage != null}" class="alert alert-danger" role="alert"
-                                th:text="${globalErrorMessage}"></div>
-
 
                             <form class="cr-content-form" th:action="@{/login}" method="post">
                                 <div class="form-group mb-3">
-                                    <label for="email">Địa chỉ Email*</label>
+                                    <label for="email">Email*</label>
                                     <input type="email" id="email" name="email" placeholder="Nhập địa chỉ email của bạn"
-                                        class="cr-form-control" required>
+                                        class="cr-form-control" autocomplete="off" required>
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="password">Mật khẩu*</label>

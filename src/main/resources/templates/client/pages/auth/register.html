@@ -14,20 +14,17 @@
                     <div class="col-12">
                         <div class="cr-register aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
                             data-aos-delay="400">
-                            <h3 class="cr-fw-normal cr-fc mb-4 text-center">Đăng ký tài khoản</h3>
-
-                            <div th:if="${successMessage}" class="alert alert-success" role="alert"
-                                th:text="${successMessage}"></div>
-                            <div th:if="${errorMessage}" class="alert alert-danger" role="alert"
-                                th:text="${errorMessage}"></div>
+                            <div class="form-logo">
+                                <img th:src="@{/client/assets/img/logo/logo.png}" alt="logo">
+                            </div>
 
                             <form class="cr-content-form" th:action="@{/register}" th:object="${registerReq}"
                                 method="post" novalidate>
                                 <div class="row">
                                     <div class="col-12 col-sm-6">
                                         <div class="form-group">
-                                            <label for="firstName">Họ*</label> <input type="text" id="firstName"
-                                                placeholder="Nhập Họ của bạn" class="cr-form-control"
+                                            <label for="firstName">Họ*</label> <input autocomplete="off" type="text"
+                                                id="firstName" placeholder="Nhập Họ của bạn" class="cr-form-control"
                                                 th:field="*{firstName}"
                                                 th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''">
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
@@ -36,9 +33,9 @@
                                     </div>
                                     <div class="col-12 col-sm-6">
                                         <div class="form-group">
-                                            <label for="lastName">Tên (và tên đệm)*</label> <input type="text"
-                                                id="lastName" placeholder="Nhập Tên của bạn" class="cr-form-control"
-                                                th:field="*{lastName}"
+                                            <label for="lastName">Tên (và tên đệm)*</label> <input autocomplete="off"
+                                                type="text" id="lastName" placeholder="Nhập Tên của bạn"
+                                                class="cr-form-control" th:field="*{lastName}"
                                                 th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''">
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
                                                 th:errors="*{lastName}"></div>
@@ -47,8 +44,9 @@
                                     <div class="col-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="email">Email*</label>
-                                            <input type="email" id="email" placeholder="Nhập email của bạn"
-                                                class="cr-form-control" th:field="*{email}"
+                                            <input autocomplete="off" type="email" id="email"
+                                                placeholder="Nhập email của bạn" class="cr-form-control"
+                                                th:field="*{email}"
                                                 th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
                                                 th:errors="*{email}"></div>
@@ -57,8 +55,9 @@
                                     <div class="col-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="phone">Số điện thoại*</label>
-                                            <input type="text" id="phone" placeholder="Nhập số điện thoại"
-                                                class="cr-form-control" th:field="*{phone}"
+                                            <input autocomplete="off" type="text" id="phone"
+                                                placeholder="Nhập số điện thoại" class="cr-form-control"
+                                                th:field="*{phone}"
                                                 th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''">
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('phone')}"
                                                 th:errors="*{phone}"></div>
@@ -67,22 +66,15 @@
                                     <div class="col-12">
                                         <div class="form-group">
                                             <label for="address">Địa chỉ*</label>
-                                            <input type="text" id="address" placeholder="Nhập địa chỉ của bạn"
-                                                class="cr-form-control" th:field="*{address}"
+                                            <input autocomplete="off" type="text" id="address"
+                                                placeholder="Nhập địa chỉ của bạn" class="cr-form-control"
+                                                th:field="*{address}"
                                                 th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''">
                                             <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}"
                                                 th:errors="*{address}"></div>
                                         </div>
                                     </div>
 
-                                    <div class="col-12 col-sm-6 d-none">
-                                        <div class="form-group">
-                                            <label>City*</label>
-                                            <select class="cr-form-control" aria-label="Default select example">
-                                                <option selected>City</option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="col-12 col-sm-6">
                                         <div class="form-group">
                                             <label for="password">Mật khẩu*</label>
