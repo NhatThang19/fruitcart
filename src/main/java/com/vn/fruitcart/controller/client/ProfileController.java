@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 
 import com.vn.fruitcart.config.UserDetailsCustom;
 import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.entity.dto.request.UserPasswordChangeReq;
-import com.vn.fruitcart.entity.dto.request.UserProfileUpdateReq;
+import com.vn.fruitcart.entity.dto.request.profile.UserPasswordChangeReq;
+import com.vn.fruitcart.entity.dto.request.profile.UserProfileUpdateReq;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.UserService;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -106,6 +106,7 @@ public class ProfileController {
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             Model model) {
+        model.addAttribute("pageMetadata", breadcrumbService.buildChangeUserPassPageMetadata());
 
         User currentUser = userDetailsCustom.getCurrentUserEntity(userService);
         if (currentUser == null) {
@@ -120,7 +121,6 @@ public class ProfileController {
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("pageMetadata", breadcrumbService.buildChangeUserPassPageMetadata());
             return "client/pages/profile/change-password";
         }
 
@@ -128,13 +128,11 @@ public class ProfileController {
             userService.changePassword(passwordChangeReq, currentUser);
             redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thành công.");
             redirectAttributes.addFlashAttribute("messageType", "success");
+            return "redirect:/profile";
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error_message", e.getMessage());
-            redirectAttributes.addFlashAttribute("message", "Đổi mật khẩu thất bại.");
-            redirectAttributes.addFlashAttribute("messageType", "error");
+            model.addAttribute("error_message", e.getMessage());
             return "client/pages/profile/change-password";
         }
-        return "redirect:/profile";
     }
 
 }

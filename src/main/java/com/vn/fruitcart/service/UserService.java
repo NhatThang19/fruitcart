@@ -3,8 +3,8 @@ package com.vn.fruitcart.service;
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.AdminUserUpdateReq;
-import com.vn.fruitcart.entity.dto.request.UserPasswordChangeReq;
-import com.vn.fruitcart.entity.dto.request.UserProfileUpdateReq;
+import com.vn.fruitcart.entity.dto.request.profile.UserPasswordChangeReq;
+import com.vn.fruitcart.entity.dto.request.profile.UserProfileUpdateReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.UserRepository;
@@ -59,26 +59,26 @@ public class UserService {
   }
 
   @Transactional
-  public User updateUserProfile(Long userId, UserProfileUpdateReq updateReq) {
+  public User updateUserProfile(Long userId, UserProfileUpdateReq req) {
     User userToUpdate = this.getUserById(userId);
 
-    userToUpdate.setFirstName(updateReq.getFirstName());
-    userToUpdate.setLastName(updateReq.getLastName());
-    userToUpdate.setPhone(updateReq.getPhone());
-    userToUpdate.setAddress(updateReq.getAddress());
-    userToUpdate.setGender(updateReq.getGender());
-    userToUpdate.setBirthDate(updateReq.getBirthDate());
+    userToUpdate.setFirstName(req.getFirstName());
+    userToUpdate.setLastName(req.getLastName());
+    userToUpdate.setPhone(req.getPhone());
+    userToUpdate.setAddress(req.getAddress());
+    userToUpdate.setGender(req.getGender());
+    userToUpdate.setBirthDate(req.getBirthDate());
 
-    MultipartFile avatarFile = updateReq.getAvatarFile();
+    MultipartFile avatarFile = req.getAvatarFile();
     if (avatarFile != null && !avatarFile.isEmpty()) {
-      // if (userToUpdate.getAvatarUrl() != null &&
-      // !userToUpdate.getAvatarUrl().isEmpty()) {
-      // fileStorageService.deleteFile(userToUpdate.getAvatarUrl());
-      // }
+      if (userToUpdate.getAvatarUrl() != null &&
+          !userToUpdate.getAvatarUrl().isEmpty()) {
+        fileStorageService.deleteFile(userToUpdate.getAvatarUrl());
+      }
       String newAvatarFileName = fileStorageService.storeFile(avatarFile, "avatars");
       userToUpdate.setAvatarUrl(newAvatarFileName);
-    } else if (updateReq.getCurrentAvatar() != null) {
-      userToUpdate.setAvatarUrl(updateReq.getCurrentAvatar());
+    } else if (req.getCurrentAvatar() != null) {
+      userToUpdate.setAvatarUrl(req.getCurrentAvatar());
     }
 
     User updatedUserEntity = userRepository.save(userToUpdate);
