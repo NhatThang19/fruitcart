@@ -89,7 +89,7 @@
                                     <dd class="col-sm-7 col-md-8">
                                         <span th:if="${user.role != null}"
                                             th:text="${user.role.name.replace('ROLE_', '')}" class="badge"
-                                            th:classappend="${user.role.name == 'ROLE_ADMIN'} ? 'bg-primary' : (${user.role.name == 'ROLE_USER'} ? 'bg-info' : 'bg-secondary')">
+                                            th:classappend="${user.role.name == 'Admin'} ? 'bg-primary' : (${user.role.name == 'ROLE_USER'} ? 'bg-info' : 'bg-secondary')">
                                         </span>
                                         <span th:if="${user.role == null}" class="badge bg-light text-dark">N/A</span>
                                     </dd>

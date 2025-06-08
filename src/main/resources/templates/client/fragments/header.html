@@ -39,7 +39,7 @@
                                     <span th:text="${#strings.capitalizeWords(session.loggedInUser.fullName)}"></span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li sec:authorize="hasRole('ADMIN')">
+                                    <li sec:authorize="hasRole('Admin')">
                                         <a class="dropdown-item" th:href="@{/admin}">Trang quản trị</a>
                                     </li>
                                     <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ cá nhân</a></li>
@@ -94,7 +94,7 @@
                                     <i class="ri-user-3-line" th:unless="${session.loggedInUser.avatar}"></i>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li sec:authorize="hasRole('ADMIN')">
+                                    <li sec:authorize="hasRole('Admin')">
                                         <a class="dropdown-item" th:href="@{/admin}">Trang quản trị</a>
                                     </li>
                                     <li><a class="dropdown-item" th:href="@{/profile}">Thông tin cá nhân</a></li>

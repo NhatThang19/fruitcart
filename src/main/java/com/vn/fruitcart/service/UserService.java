@@ -5,6 +5,7 @@ import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.profile.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.profile.UserProfileUpdateReq;
+import com.vn.fruitcart.entity.dto.request.user.UserSearchCriteriaReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.UserRepository;
@@ -13,8 +14,6 @@ import com.vn.fruitcart.service.specification.UserSpecification;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -121,10 +120,8 @@ public class UserService {
     return userRepository.findAll(spec, pageable);
   }
 
-  public Page<User> findUsersByCriteria(String emailSearch, Integer roleIdSearchValue, Boolean isBlockedStatus,
-      Pageable pageable) {
-    Long roleIdLong = (roleIdSearchValue != null) ? roleIdSearchValue.longValue() : null;
-    Specification<User> spec = UserSpecification.filterBy(emailSearch, roleIdLong, isBlockedStatus);
+  public Page<User> findUsersByCriteria(UserSearchCriteriaReq criteria, Pageable pageable) {
+    Specification<User> spec = UserSpecification.filterBy(criteria);
 
     return userRepository.findAll(spec, pageable);
   }
@@ -132,10 +129,6 @@ public class UserService {
   public User getUserById(Long id) {
     return userRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng với Id: " + id));
-  }
-
-  public Optional<User> findUserByIdOptional(Long id) {
-    return userRepository.findById(id);
   }
 
   @Transactional

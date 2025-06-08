@@ -24,7 +24,7 @@ public class AuthService {
 
         userService.checkEmailDoesNotExist(req.getEmail());
 
-        Role clientRole = roleService.getRoleByName("ROLE_USER");
+        Role clientRole = roleService.getRoleByName("User");
 
         User newUser = User.builder()
                 .lastName(req.getLastName())

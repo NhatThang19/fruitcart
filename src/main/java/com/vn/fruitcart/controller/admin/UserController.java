@@ -1,10 +1,10 @@
 package com.vn.fruitcart.controller.admin;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,12 +14,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.AdminUserUpdateReq;
+import com.vn.fruitcart.entity.dto.request.user.UserSearchCriteriaReq;
+import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.RoleService;
 import com.vn.fruitcart.service.UserService;
@@ -30,36 +31,25 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
-public class AdminUserController {
+public class UserController {
     private final UserService userService;
     private final RoleService roleService;
     private final BreadcrumbService breadcrumbService;
 
     @GetMapping
     public String getUsersPage(
-            @PageableDefault(size = 10, sort = "id") Pageable pageable,
             Model model,
-            @RequestParam(name = "emailSearchValue", required = false) String emailSearch,
-            @RequestParam(name = "roleIdSearchValue", required = false) Integer roleId,
-            @RequestParam(name = "isBlockedSearchValue", required = false) Boolean isBlockedStatus) {
+            @PageableDefault(size = 1, sort = "id", direction = Direction.DESC) Pageable pageable,
+            @ModelAttribute("criteria") UserSearchCriteriaReq criteria) {
 
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserLisPageMetadata());
 
-        Page<User> usersPage = userService.findUsersByCriteria(emailSearch, roleId, isBlockedStatus, pageable);
         List<Role> allRoles = roleService.findAll();
 
+        Page<User> usersPage = userService.findUsersByCriteria(criteria, pageable);
+
         model.addAttribute("usersPage", usersPage);
         model.addAttribute("allRoles", allRoles);
-
-        model.addAttribute("currentEmailSearch", emailSearch);
-        model.addAttribute("currentRoleId", roleId);
-        model.addAttribute("currentIsBlockedStatus", isBlockedStatus);
-        model.addAttribute("usersPage", usersPage);
-        model.addAttribute("allRoles", allRoles);
-
-        model.addAttribute("currentEmailSearch", emailSearch);
-        model.addAttribute("currentRoleId", roleId);
-        model.addAttribute("currentIsBlockedStatus", isBlockedStatus);
 
         String currentSortField = "";
         String currentSortDir = "asc";
@@ -93,37 +83,36 @@ public class AdminUserController {
     public String getAdminUpdateUserPage(@PathVariable("id") Long id, Model model,
             RedirectAttributes redirectAttributes) {
 
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserUpdatePageMetadata());
+        try {
+            model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserUpdatePageMetadata());
 
-        Optional<User> userOptional = userService.findUserByIdOptional(id);
-        if (userOptional.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy người dùng với ID: " + id);
+            User user = userService.getUserById(id);
+            AdminUserUpdateReq adminUserUpdateReq = new AdminUserUpdateReq();
+            adminUserUpdateReq.setUserId(user.getId());
+            if (user.getRole() != null) {
+                adminUserUpdateReq.setRoleId(user.getRole().getId());
+            }
+            adminUserUpdateReq.setIsBlocked(user.getIsBlocked());
+
+            model.addAttribute("adminUserUpdateReq", adminUserUpdateReq);
+            model.addAttribute("userToManage", user);
+            model.addAttribute("allRoles", roleService.findAll());
+
+            return "admin/pages/user/update";
+
+        } catch (ResourceNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/admin/users";
         }
-        User user = userOptional.get();
-
-        AdminUserUpdateReq adminUserUpdateReq = new AdminUserUpdateReq();
-        adminUserUpdateReq.setUserId(user.getId());
-        if (user.getRole() != null) {
-            adminUserUpdateReq.setRoleId(user.getRole().getId());
-        }
-        adminUserUpdateReq.setIsBlocked(user.getIsBlocked());
-
-        model.addAttribute("adminUserUpdateReq", adminUserUpdateReq);
-        model.addAttribute("userToManage", user);
-        List<Role> allRoles = roleService.findAll();
-        model.addAttribute("allRoles", allRoles);
-
-        return "admin/pages/user/update";
     }
 
-    @PostMapping("/update-admin-settings")
+    @PostMapping("/update")
     public String updateUserAdminSettings(
             @Valid @ModelAttribute("adminUserUpdateReq") AdminUserUpdateReq adminUserUpdateReq,
             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserUpdatePageMetadata());
-            User userToManage = userService.findUserByIdOptional(adminUserUpdateReq.getUserId()).orElse(null);
+            User userToManage = userService.getUserById(adminUserUpdateReq.getUserId());
             model.addAttribute("userToManage", userToManage);
             List<Role> allRoles = roleService.findAll();
             model.addAttribute("allRoles", allRoles);

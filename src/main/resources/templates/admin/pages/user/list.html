@@ -3,10 +3,10 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title th:text="${pageTitle} ?: 'User List'"></title>
+    <title th:text="${pageMetadata.title} ?: 'Quản lý người dùng'"></title>
     <style>
-        /* ... (your existing CSS) ... */
         .sortable-header a {
+            display: block;
             text-decoration: none;
             color: inherit;
         }
@@ -20,73 +20,75 @@
         .table td {
             vertical-align: middle;
         }
-
-        .pagination .page-item.disabled .page-link {
-            color: #6c757d;
-            pointer-events: none;
-            background-color: #fff;
-            border-color: #dee2e6;
-        }
-
-        .pagination .page-item.active .page-link {
-            z-index: 3;
-            color: #fff;
-            background-color: #0d6efd;
-            /* Bootstrap primary blue */
-            border-color: #0d6efd;
-        }
     </style>
 </head>
 
 <body>
     <div layout:fragment="content">
+        <div th:remove="all">
+            <th:block th:fragment="sort_header(field, text)">
+                <a th:href="@{/admin/users(
+                page=${usersPage.number},
+                size=${usersPage.size},
+                sort=${field} + ',' + (${currentSortField} == ${field} ? ${reverseSortDir} : 'asc'),
+                email=${criteria.email},
+                role=${criteria.role},
+                isBlocked=${criteria.isBlocked}
+            )}">
+                    <span th:text="${text}"></span>
+                    <span th:if="${currentSortField} == ${field}" class="sort-icon"
+                        th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
+                </a>
+            </th:block>
+
+            <th:block th:fragment="page_link(page, text, disabledCondition, isActive)">
+                <li class="page-item"
+                    th:classappend="${disabledCondition} ? 'disabled' : '' + (${isActive} ? ' active' : '')">
+                    <a class="page-link" th:href="@{/admin/users(
+                    page=${page},
+                    size=${usersPage.size},
+                    sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
+                    email=${criteria.email},
+                    role=${criteria.role},
+                    isBlocked=${criteria.isBlocked}
+                )}" th:text="${text}"></a>
+                </li>
+            </th:block>
+        </div>
+
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <p class="card-subtitle mb-3">
-                            Quản lý tất cả người dùng trong hệ thống. Sử dụng bộ lọc để tìm kiếm và sắp xếp.
-                        </p>
+                        <h4 class="header-title" th:text="${pageMetadata.title}"></h4>
+                        <p class="card-subtitle mb-3">Quản lý tất cả người dùng trong hệ thống.</p>
 
-                        <form th:action="@{/admin/users}" method="get" id="filterForm" class="mb-3">
+                        <form th:action="@{/admin/users}" method="get" class="mb-3" th:object="${criteria}">
                             <div class="row g-2">
+                                <div class="col-md-3"><input type="text" class="form-control"
+                                        placeholder="Tìm theo email..." th:field="*{email}"></div>
                                 <div class="col-md-3">
-                                    <input type="text" class="form-control" id="emailSearchInput"
-                                        name="emailSearchValue" placeholder="Tìm theo email..."
-                                        th:value="${currentEmailSearch}">
-                                </div>
-                                <div class="col-md-3">
-                                    <select class="form-select" id="roleIdFilterInput" name="roleIdSearchValue">
+                                    <select class="form-select" th:field="*{role}">
                                         <option value="">Tất cả vai trò</option>
-                                        <option th:each="r : ${allRoles}" th:value="${r.id}"
-                                            th:text="${r.name.replace('ROLE_', '')}"
-                                            th:selected="${currentRoleId != null && r.id == currentRoleId}"></option>
+                                        <option th:each="r : ${allRoles}" th:value="${r.id}" th:text="${r.name}">
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <select class="form-select" id="isBlockedFilterInput" name="isBlockedSearchValue">
+                                    <select class="form-select" th:field="*{isBlocked}">
                                         <option value="">Tất cả trạng thái</option>
-                                        <option value="true"
-                                            th:selected="${currentIsBlockedStatus != null && currentIsBlockedStatus}">Bị
-                                            khóa</option>
-                                        <option value="false"
-                                            th:selected="${currentIsBlockedStatus != null && !currentIsBlockedStatus}">
-                                            Hoạt động</option>
+                                        <option value="true">Bị khóa</option>
+                                        <option value="false">Hoạt động</option>
                                     </select>
                                 </div>
-                                <div class="col-md-auto ms-auto">
-                                    <button type="submit" class="btn btn-primary"><i
-                                            class="ri-filter-3-line me-1"></i>Lọc</button>
-                                </div>
-                                <div class="col-md-auto">
-                                    <a th:href="@{/admin/users(size=${usersPage.size}, sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null})}"
+                                <div class="col-md-auto ms-auto"><button type="submit" class="btn btn-primary"><i
+                                            class="ri-filter-3-line me-1"></i>Lọc</button></div>
+                                <div class="col-md-auto"><a th:href="@{/admin/users(size=${usersPage.size})}"
                                         class="btn btn-secondary"><i class="ri-refresh-line me-1"></i>Xóa lọc</a>
                                 </div>
                             </div>
-                            <input type="hidden" name="size" th:value="${usersPage.size}">
                             <input type="hidden" name="sort"
-                                th:value="${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null}"
-                                th:if="${currentSortField != null && !currentSortField.isEmpty()}">
+                                th:value="${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : ''}">
                         </form>
 
                         <div class="table-responsive">
@@ -94,67 +96,41 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th class="sortable-header text-center" style="width: 5%;">
-                                            <a
-                                                th:href="@{/admin/users(page=${usersPage.number}, size=${usersPage.size}, sort=(${currentSortField == 'id'} ? ('id,' + reverseSortDir) : 'id,asc'),
-                                                   emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">
-                                                ID
-                                                <span th:if="${currentSortField == 'id'}" class="sort-icon"
-                                                    th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
-                                            </a>
+                                            <div th:replace="~{this :: sort_header('id', 'ID')}"></div>
                                         </th>
                                         <th class="sortable-header" style="width: 20%;">
-                                            <a
-                                                th:href="@{/admin/users(page=${usersPage.number}, size=${usersPage.size}, sort=(${currentSortField == 'email'} ? ('email,' + reverseSortDir) : 'email,asc'),
-                                                   emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">
-                                                Email
-                                                <span th:if="${currentSortField == 'email'}" class="sort-icon"
-                                                    th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
-                                            </a>
+                                            <div th:replace="~{this :: sort_header('email', 'Email')}"></div>
                                         </th>
                                         <th class="sortable-header" style="width: 20%;">
-                                            <a
-                                                th:href="@{/admin/users(page=${usersPage.number}, size=${usersPage.size}, sort=(${currentSortField == 'fullName'} ? ('fullName,' + reverseSortDir) : 'fullName,asc'),
-                                                   emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">
-                                                Họ và Tên
-                                                <span th:if="${currentSortField == 'fullName'}" class="sort-icon"
-                                                    th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
-                                            </a>
+                                            <div th:replace="~{this :: sort_header('firstName', 'Họ và Tên')}">
+                                            </div>
                                         </th>
-                                        <th style="width: 15%;">Vai trò</th>
+                                        <th style="width: 10%;">Vai trò</th>
                                         <th class="sortable-header text-center" style="width: 10%;">
-                                            <a
-                                                th:href="@{/admin/users(page=${usersPage.number}, size=${usersPage.size}, sort=(${currentSortField == 'isBlocked'} ? ('isBlocked,' + reverseSortDir) : 'isBlocked,asc'),
-                                                   emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">
-                                                Trạng thái
-                                                <span th:if="${currentSortField == 'isBlocked'}" class="sort-icon"
-                                                    th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
-                                            </a>
+                                            <div th:replace="~{this :: sort_header('isBlocked', 'Trạng thái')}">
+                                            </div>
                                         </th>
                                         <th class="sortable-header" style="width: 15%;">
-                                            <a
-                                                th:href="@{/admin/users(page=${usersPage.number}, size=${usersPage.size}, sort=(${currentSortField == 'lastModifiedDate'} ? ('lastModifiedDate,' + reverseSortDir) : 'lastModifiedDate,asc'),
-                                                   emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">
-                                                Lần cuối cập nhật
-                                                <span th:if="${currentSortField == 'lastModifiedDate'}"
-                                                    class="sort-icon"
-                                                    th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
-                                            </a>
+                                            <div th:replace="~{this :: sort_header('lastModifiedDate', 'Cập nhật')}">
+                                            </div>
                                         </th>
-                                        <th class="text-center" style="width: 15%;">Hành động</th>
+                                        <th class="text-center" style="width: 10%;">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr th:each="user : ${usersPage.content}">
                                         <td class="text-center" th:text="${user.id}"></td>
                                         <td th:text="${user.email}"></td>
-                                        <td th:text="${user.fullName}"></td>
+                                        <td th:text="${user.getFullName()}"></td>
                                         <td>
-                                            <span th:if="${user.role != null}"
-                                                th:text="${user.role.name.replace('ROLE_', '')}" class="badge"
-                                                th:classappend="${user.role.name == 'ROLE_ADMIN'} ? 'bg-primary' : (${user.role.name == 'ROLE_USER'} ? 'bg-info' : 'bg-secondary')">
-                                            </span>
-                                            <span th:if="${user.role == null}"
-                                                class="badge bg-light text-dark">N/A</span>
+                                            <th:block th:if="${user.role != null}" th:switch="${user.role.name}">
+                                                <span th:case="'ADMIN'" class="badge bg-danger"
+                                                    th:text="${user.role.name}"></span>
+                                                <span th:case="'CLIENT'" class="badge bg-primary"
+                                                    th:text="${user.role.name}"></span>
+                                                <span th:case="*" class="badge bg-secondary"
+                                                    th:text="${user.role.name}"></span>
+                                            </th:block>
                                         </td>
                                         <td class="text-center">
                                             <span th:if="${user.isBlocked}" class="badge bg-danger">Bị khóa</span>
@@ -162,70 +138,53 @@
                                                 động</span>
                                         </td>
                                         <td
-                                            th:text="${user.lastModifiedDate != null ? #temporals.format(user.lastModifiedDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                                            th:text="${#temporals.format(user.getLastModifiedDate(), 'dd/MM/yyyy HH:mm')}">
                                         </td>
-                                        <td class="d-flex justify-content-center gap-3">
+                                        <td class="d-flex justify-content-center gap-2">
                                             <a th:href="@{/admin/users/{id}(id=${user.id})}"
                                                 class="btn btn-sm btn-outline-info" title="Xem chi tiết"><i
                                                     class="ri-eye-line"></i></a>
                                             <a th:href="@{/admin/users/update/{id}(id=${user.id})}"
-                                                class="btn btn-sm btn-outline-primary"
-                                                title="Quản lý vai trò & trạng thái"><i
-                                                    class="ri-shield-user-line"></i></a>
-                                            <form th:id="${'deleteUserForm' + user.id}"
-                                                th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="POST"
-                                                style="display: inline;"> <button type="button" title="Xoá"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    th:data-form-id="${'deleteUserForm' + user.id}"
-                                                    th:data-user-name="${user.getFullName()}"
-                                                    onclick="confirmDelete(this)"> <i class="ri-delete-bin-2-line"></i>
-                                                </button>
-                                            </form>
+                                                class="btn btn-sm btn-outline-primary" title="Sửa"><i
+                                                    class="ri-pencil-line"></i></a>
+
+                                            <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
+                                                style="display:inline;" th:id="${'deleteForm-' + user.id}"></form>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Xoá"
+                                                th:onclick="confirmDelete([[${user.id}]], [[${user.getFullName()}]])">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                     <tr th:if="${usersPage.empty}">
-                                        <td colspan="7" class="text-center fst-italic py-3">Không tìm thấy người dùng
-                                            nào phù hợp.</td>
+                                        <td colspan="7" class="text-center fst-italic py-3">Không tìm thấy người
+                                            dùng
+                                            nào.</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <nav aria-label="Page navigation" th:if="${usersPage.totalPages > 0}">
+                        <nav aria-label="Page navigation" th:if="${usersPage.totalPages > 1}">
                             <ul class="pagination justify-content-center">
-                                <li class="page-item" th:classappend="${usersPage.first} ? 'disabled'">
-                                    <a class="page-link"
-                                        th:href="@{/admin/users(page=0, size=${usersPage.size},
-                                        sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
-                                        emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">Đầu</a>
-                                </li>
-                                <li class="page-item" th:classappend="${!usersPage.hasPrevious()} ? 'disabled'">
-                                    <a class="page-link"
-                                        th:href="@{/admin/users(page=${usersPage.number - 1}, size=${usersPage.size},
-                                        sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
-                                        emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">Trước</a>
-                                </li>
-                                <li class="page-item" th:each="i : ${#numbers.sequence(0, usersPage.totalPages - 1)}"
-                                    th:classappend="${i == usersPage.number} ? 'active'">
-                                    <a class="page-link"
-                                        th:href="@{/admin/users(page=${i}, size=${usersPage.size},
-                                        sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
-                                        emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}"
-                                        th:text="${i + 1}"></a>
-                                </li>
-                                <li class="page-item" th:classappend="${!usersPage.hasNext()} ? 'disabled'">
-                                    <a class="page-link"
-                                        th:href="@{/admin/users(page=${usersPage.number + 1}, size=${usersPage.size},
-                                        sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
-                                        emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">Sau</a>
-                                </li>
-                                <li class="page-item" th:classappend="${usersPage.last} ? 'disabled'">
-                                    <a class="page-link"
-                                        th:href="@{/admin/users(page=${usersPage.totalPages - 1}, size=${usersPage.size},
-                                        sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
-                                        emailSearchValue=${currentEmailSearch}, roleIdSearchValue=${currentRoleId}, isBlockedSearchValue=${currentIsBlockedStatus})}">Cuối</a>
-                                </li>
+                                <th:block th:replace="~{this :: page_link(0, 'Đầu', ${usersPage.first}, false)}" />
+                                <th:block
+                                    th:replace="~{this :: page_link(${usersPage.number - 1}, 'Trước', ${!usersPage.hasPrevious()}, false)}" />
+
+                                <th:block th:each="i : ${#numbers.sequence(0, usersPage.totalPages - 1)}">
+                                    <th:block
+                                        th:replace="~{this :: page_link(${i}, ${i + 1}, false, ${i == usersPage.number})}" />
+                                </th:block>
+
+                                <th:block
+                                    th:replace="~{this :: page_link(${usersPage.number + 1}, 'Sau', ${!usersPage.hasNext()}, false)}" />
+                                <th:block
+                                    th:replace="~{this :: page_link(${usersPage.totalPages - 1}, 'Cuối', ${usersPage.last}, false)}" />
                             </ul>
+                            <div class="text-center mt-2">
+                                <small
+                                    th:text="'Hiển thị ' + ${usersPage.numberOfElements} + ' trên tổng số ' + ${usersPage.totalElements} + ' người dùng. (Trang ' + (${usersPage.number} + 1) + ' của ' + ${usersPage.totalPages} + ')'"></small>
+                            </div>
                         </nav>
 
                     </div>
@@ -233,6 +192,7 @@
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

@@ -68,7 +68,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     boolean isAdmin = false;
 
     for (GrantedAuthority grantedAuthority : authorities) {
-      if (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {
+      if (grantedAuthority.getAuthority().equals("Role_Admin")) {
         isAdmin = true;
         break;
       }
