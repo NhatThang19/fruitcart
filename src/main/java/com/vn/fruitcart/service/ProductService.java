@@ -3,6 +3,7 @@ package com.vn.fruitcart.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -202,7 +203,7 @@ public class ProductService {
 
         product.setName(productDTO.getName());
         if (!Objects.equals(product.getSlug(), FruitCartUtils.toSlug(productDTO.getName()))) {
-            product.setSlug(FruitCartUtils.toSlug(productDTO.getName())); 
+            product.setSlug(FruitCartUtils.toSlug(productDTO.getName()));
         }
         product.setDescription(productDTO.getDescription());
         product.setBasePrice(productDTO.getPrice());
@@ -242,60 +243,51 @@ public class ProductService {
 
     @Transactional
     private void updateProductVariants(Product product, List<ProductVariantUpdateReq> variantDTOs) {
-
-        List<ProductVariant> variantsToKeepOrUpdate = new ArrayList<>();
-        List<Long> dtoVariantIdsProcessed = new ArrayList<>();
-
-        for (ProductVariantUpdateReq dto : variantDTOs) {
-            if (dto.getId() != null && dto.getId() != 0) {
-                dtoVariantIdsProcessed.add(dto.getId());
-                ProductVariant existingVariant = product.getVariants().stream()
-                        .filter(v -> v.getId().equals(dto.getId()))
-                        .findFirst()
-                        .orElseThrow(() -> new ResourceNotFoundException("Biến thể với ID: " + dto.getId()
-                                + " không tìm thấy để cập nhật cho sản phẩm " + product.getName()));
-
-                existingVariant.setSku(dto.getSku());
-                existingVariant.setPrice(dto.getPrice());
-                existingVariant.setAttribute(dto.getAttribute());
-                variantsToKeepOrUpdate.add(existingVariant);
-            } else {
-                ProductVariant newVariant = new ProductVariant();
-                newVariant.setSku(dto.getSku());
-                newVariant.setPrice(dto.getPrice());
-                newVariant.setAttribute(dto.getAttribute());
-                variantsToKeepOrUpdate.add(newVariant);
-            }
+        if (variantDTOs == null) {
+            // Nếu không có DTO nào được gửi lên, hãy xóa tất cả các biến thể hiện có.
+            product.getVariants().clear();
+            return;
         }
 
-        product.getVariants().retainAll(variantsToKeepOrUpdate.stream()
-                .filter(v -> v.getId() != null)
-                .collect(Collectors.toList()));
+        // Tạo một map các biến thể hiện có theo ID để tra cứu nhanh.
+        // Dùng Collectors.toMap để xử lý hiệu quả.
+        Map<Long, ProductVariant> existingVariantsMap = product.getVariants().stream()
+                .collect(Collectors.toMap(ProductVariant::getId, variant -> variant));
 
-        for (ProductVariant v : variantsToKeepOrUpdate) {
-            if (v.getId() == null) {
-                product.addVariant(v);
-            }
-        }
-
+        // Danh sách các biến thể sẽ được giữ lại hoặc thêm mới.
         List<ProductVariant> finalVariants = new ArrayList<>();
+
         for (ProductVariantUpdateReq dto : variantDTOs) {
             ProductVariant variant;
             if (dto.getId() != null && dto.getId() != 0) {
-                variant = productVariantRepository.findById(dto.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Variant not found with id: " + dto.getId()));
-            } else { // New variant
+                // Đây là một biến thể hiện có cần cập nhật.
+                variant = existingVariantsMap.get(dto.getId());
+                if (variant == null) {
+                    // Lỗi này không nên xảy ra nếu frontend gửi dữ liệu ID chính xác.
+                    throw new ResourceNotFoundException(
+                            "Không tìm thấy biến thể với ID: " + dto.getId() + " để cập nhật.");
+                }
+            } else {
+                // Đây là một biến thể mới cần được tạo.
                 variant = new ProductVariant();
             }
+
+            // Cập nhật các thuộc tính của biến thể từ DTO.
             variant.setSku(dto.getSku());
             variant.setPrice(dto.getPrice());
             variant.setAttribute(dto.getAttribute());
+
             finalVariants.add(variant);
         }
-        product.getVariants().clear();
-        productVariantRepository.flush();
+
+        // Xóa các biến thể không còn tồn tại trong DTO list.
+        product.getVariants().retainAll(finalVariants);
+
+        // Thêm các biến thể mới (những biến thể chưa có trong collection ban đầu).
         for (ProductVariant finalVariant : finalVariants) {
-            product.addVariant(finalVariant);
+            if (!product.getVariants().contains(finalVariant)) {
+                product.addVariant(finalVariant);
+            }
         }
     }
 
