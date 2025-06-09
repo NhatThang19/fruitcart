@@ -2,9 +2,9 @@ package com.vn.fruitcart.service;
 
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.entity.dto.request.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.profile.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.profile.UserProfileUpdateReq;
+import com.vn.fruitcart.entity.dto.request.user.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.user.UserSearchCriteriaReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
 import com.vn.fruitcart.exception.ResourceNotFoundException;

@@ -14,7 +14,7 @@ import com.vn.fruitcart.entity.dto.request.CategoryReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.service.specification.CategorySpecification;
-import com.vn.fruitcart.util.StringUtil;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import groovyjarjarpicocli.CommandLine.DuplicateNameException;
 import jakarta.transaction.Transactional;
@@ -33,7 +33,7 @@ public class CategoryService {
 
         Category category = new Category();
         category.setName(cReq.getName());
-        category.setSlug(StringUtil.toSlug(cReq.getName()));
+        category.setSlug(FruitCartUtils.toSlug(cReq.getName()));
         category.setDescription(cReq.getDescription());
         category.setStatus(cReq.getStatus());
 
@@ -79,7 +79,7 @@ public class CategoryService {
         existingCategory.setName(req.getName());
         existingCategory.setDescription(req.getDescription());
         existingCategory.setStatus(req.getStatus());
-        existingCategory.setSlug(StringUtil.toSlug(req.getName()));
+        existingCategory.setSlug(FruitCartUtils.toSlug(req.getName()));
         return categoryRepository.save(existingCategory);
     }
 

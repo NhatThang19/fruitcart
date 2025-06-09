@@ -22,7 +22,7 @@
             <div class="col-lg-7 col-md-9">
                 <div class="card">
                     <div class="card-body">
-                        <form th:action="@{/admin/users/update-admin-settings}" th:object="${adminUserUpdateReq}"
+                        <form th:action="@{/admin/users/update}" th:object="${adminUserUpdateReq}"
                             method="post" id="adminUpdateUserForm">
                             <input type="hidden" th:field="*{userId}" />
 

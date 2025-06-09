@@ -18,12 +18,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.entity.dto.request.AdminUserUpdateReq;
+import com.vn.fruitcart.entity.dto.request.user.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.user.UserSearchCriteriaReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.RoleService;
 import com.vn.fruitcart.service.UserService;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class UserController {
     @GetMapping
     public String getUsersPage(
             Model model,
-            @PageableDefault(size = 1, sort = "id", direction = Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 10, sort = "id", direction = Direction.DESC) Pageable pageable,
             @ModelAttribute("criteria") UserSearchCriteriaReq criteria) {
 
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserLisPageMetadata());
@@ -51,15 +52,7 @@ public class UserController {
         model.addAttribute("usersPage", usersPage);
         model.addAttribute("allRoles", allRoles);
 
-        String currentSortField = "";
-        String currentSortDir = "asc";
-        if (pageable.getSort().isSorted()) {
-            currentSortField = pageable.getSort().get().findFirst().get().getProperty();
-            currentSortDir = pageable.getSort().get().findFirst().get().getDirection().name().toLowerCase();
-        }
-        model.addAttribute("currentSortField", currentSortField);
-        model.addAttribute("currentSortDir", currentSortDir);
-        model.addAttribute("reverseSortDir", currentSortDir.equals("asc") ? "desc" : "asc");
+        FruitCartUtils.addPagingAndSortingAttributes(model, pageable);
 
         return "admin/pages/user/list";
     }
@@ -110,8 +103,8 @@ public class UserController {
     public String updateUserAdminSettings(
             @Valid @ModelAttribute("adminUserUpdateReq") AdminUserUpdateReq adminUserUpdateReq,
             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserUpdatePageMetadata());
         if (bindingResult.hasErrors()) {
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserUpdatePageMetadata());
             User userToManage = userService.getUserById(adminUserUpdateReq.getUserId());
             model.addAttribute("userToManage", userToManage);
             List<Role> allRoles = roleService.findAll();
@@ -119,6 +112,7 @@ public class UserController {
             return "admin/pages/user/update";
         }
         try {
+            userService.expireUserSessions(adminUserUpdateReq.getUserId());
             userService.updateUserRoleAndStatusByAdmin(adminUserUpdateReq);
             redirectAttributes.addFlashAttribute("message", "Cập nhật người dùng thành công.");
             redirectAttributes.addFlashAttribute("messageType", "success");

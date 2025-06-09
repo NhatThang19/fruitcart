@@ -14,7 +14,7 @@ import com.vn.fruitcart.entity.dto.request.OriginReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.OriginRepository;
 import com.vn.fruitcart.service.specification.OriginSpecification;
-import com.vn.fruitcart.util.StringUtil;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import groovyjarjarpicocli.CommandLine.DuplicateNameException;
 import jakarta.transaction.Transactional;
@@ -55,7 +55,7 @@ public class OriginService {
 
         Origin origin = new Origin();
         origin.setName(cReq.getName());
-        origin.setSlug(StringUtil.toSlug(cReq.getName()));
+        origin.setSlug(FruitCartUtils.toSlug(cReq.getName()));
         origin.setDescription(cReq.getDescription());
         origin.setStatus(cReq.getStatus());
 
@@ -79,7 +79,7 @@ public class OriginService {
         existingOrigin.setName(req.getName());
         existingOrigin.setDescription(req.getDescription());
         existingOrigin.setStatus(req.getStatus());
-        existingOrigin.setSlug(StringUtil.toSlug(req.getName()));
+        existingOrigin.setSlug(FruitCartUtils.toSlug(req.getName()));
         return originRepository.save(existingOrigin);
     }
 

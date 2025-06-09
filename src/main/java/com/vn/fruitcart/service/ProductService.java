@@ -31,7 +31,7 @@ import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.repository.OriginRepository;
 import com.vn.fruitcart.repository.ProductRepository;
 import com.vn.fruitcart.repository.ProductVariantRepository;
-import com.vn.fruitcart.util.StringUtil;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +62,7 @@ public class ProductService {
 
         Product product = new Product();
         product.setName(productDTO.getName());
-        product.setSlug(StringUtil.toSlug(productDTO.getName()));
+        product.setSlug(FruitCartUtils.toSlug(productDTO.getName()));
         product.setDescription(productDTO.getDescription());
         product.setBasePrice(productDTO.getBasePrice());
         product.setNew(productDTO.isNew());
@@ -81,7 +81,7 @@ public class ProductService {
             }
         } else {
             ProductVariant defaultVariant = new ProductVariant();
-            defaultVariant.setSku(StringUtil.toSlug(product.getName()) + "-default");
+            defaultVariant.setSku(FruitCartUtils.toSlug(product.getName()) + "-default");
             defaultVariant.setPrice(product.getBasePrice());
             defaultVariant.setAttribute("Mặc định");
             product.addVariant(defaultVariant);
@@ -186,6 +186,7 @@ public class ProductService {
         return product;
     }
 
+    @Transactional
     public Product updateProduct(Long productId, ProductUpdateReq productDTO,
             List<MultipartFile> newImages,
             List<Long> imageIdsToDelete) throws Exception {
@@ -200,8 +201,8 @@ public class ProductService {
                 });
 
         product.setName(productDTO.getName());
-        if (!Objects.equals(product.getSlug(), StringUtil.toSlug(productDTO.getName()))) {
-            product.setSlug(StringUtil.toSlug(productDTO.getName())); //
+        if (!Objects.equals(product.getSlug(), FruitCartUtils.toSlug(productDTO.getName()))) {
+            product.setSlug(FruitCartUtils.toSlug(productDTO.getName())); 
         }
         product.setDescription(productDTO.getDescription());
         product.setBasePrice(productDTO.getPrice());
@@ -211,14 +212,14 @@ public class ProductService {
         if (!Objects.equals(product.getCategory().getId(), productDTO.getCategoryId())) {
             Category category = categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Không tìm thấy danh mục với ID: " + productDTO.getCategoryId())); //
+                            "Không tìm thấy danh mục với ID: " + productDTO.getCategoryId()));
             product.setCategory(category);
         }
 
         if (!Objects.equals(product.getOrigin().getId(), productDTO.getOriginId())) {
             Origin origin = originRepository.findById(productDTO.getOriginId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Không tìm thấy nguồn gốc với ID: " + productDTO.getOriginId())); //
+                            "Không tìm thấy nguồn gốc với ID: " + productDTO.getOriginId()));
             product.setOrigin(origin);
         }
 

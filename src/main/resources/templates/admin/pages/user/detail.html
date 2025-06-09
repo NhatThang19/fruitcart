@@ -3,7 +3,7 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title th:text="${pageMetadata.title} ?: 'Chi tiết người dùng'"></title>
+    <title th:text="${pageMetadata.title}"></title>
     <style>
         .detail-label {
             font-weight: bold;
@@ -45,7 +45,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-5 col-md-12 mb-4 mb-lg-0">
-                                <h4 class="mb-4 text-center card-title">Thông tin người dùng</h4>
+                                <h5 class="mb-4 text-center card-title">Thông tin người dùng</h5>
 
                                 <div class="text-center mb-4">
                                     <th:block th:if="${user.avatarUrl != null && !user.avatarUrl.isEmpty()}">
@@ -77,7 +77,7 @@
 
                                     <dt class="col-sm-5 col-md-4 detail-label">Giới tính:</dt>
                                     <dd class="col-sm-7 col-md-8"
-                                        th:text="${user.gender != null ? (user.gender.name() == 'MALE' ? 'Nam' : (user.gender.name() == 'FEMALE' ? 'Nữ' : 'Khác')) : 'N/A'}">
+                                        th:text="${user.gender != null ? (user.gender.name() == 'MALE' ? 'Nam' : (user.gender.name() == 'FEMALE' ? 'Nữ' : 'Khác')) : 'Không tồn tại'}">
                                     </dd>
 
                                     <dt class="col-sm-5 col-md-4 detail-label">Ngày sinh:</dt>

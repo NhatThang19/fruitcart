@@ -20,6 +20,19 @@
         .table td {
             vertical-align: middle;
         }
+
+        .form-filters .form-control,
+        .form-filters .form-select {
+            height: calc(1.5em + .75rem + 2px);
+            font-size: .875rem;
+        }
+
+        .filter-label {
+            font-size: .8rem;
+            font-weight: 500;
+            margin-bottom: .25rem;
+            display: block;
+        }
     </style>
 </head>
 
@@ -28,16 +41,21 @@
         <div th:remove="all">
             <th:block th:fragment="sort_header(field, text)">
                 <a th:href="@{/admin/users(
-                page=${usersPage.number},
-                size=${usersPage.size},
-                sort=${field} + ',' + (${currentSortField} == ${field} ? ${reverseSortDir} : 'asc'),
-                email=${criteria.email},
-                role=${criteria.role},
-                isBlocked=${criteria.isBlocked}
-            )}">
+                    page=${usersPage.number},
+                    size=${usersPage.size},
+                    sort=${field} + ',' + (${currentSortField} == ${field} ? ${reverseSortDir} : 'asc'),
+                    email=${criteria.email},
+                    role=${criteria.role},
+                    isBlocked=${criteria.isBlocked}
+                )}" th:classappend="${currentSortField == field} ? 'text-primary fw-bold' : ''">
+
                     <span th:text="${text}"></span>
+
                     <span th:if="${currentSortField} == ${field}" class="sort-icon"
                         th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
+
+                    <span th:if="${currentSortField != field}"
+                        class="sort-icon text-muted ri-arrow-up-down-line"></span>
                 </a>
             </th:block>
 
@@ -59,32 +77,47 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 fw-semibold">Danh sách người dùng</h6>
+                    </div>
                     <div class="card-body">
-                        <h4 class="header-title" th:text="${pageMetadata.title}"></h4>
-                        <p class="card-subtitle mb-3">Quản lý tất cả người dùng trong hệ thống.</p>
-
-                        <form th:action="@{/admin/users}" method="get" class="mb-3" th:object="${criteria}">
-                            <div class="row g-2">
-                                <div class="col-md-3"><input type="text" class="form-control"
-                                        placeholder="Tìm theo email..." th:field="*{email}"></div>
+                        <form th:action="@{/admin/users}" method="get" class="mb-4 form-filters"
+                            th:object="${criteria}">
+                            <div class="row g-3 align-items-end">
                                 <div class="col-md-3">
-                                    <select class="form-select" th:field="*{role}">
+                                    <label class="filter-label">Tìm theo email</label>
+                                    <input type="text" autocomplete="off" class="form-control form-control-sm"
+                                        id="keyword" name="keyword" th:field="*{email}"
+                                        placeholder="Nhập email người dùng...">
+                                </div>
+                                <div class="col-md-auto">
+                                    <label class="filter-label">Lọc theo vai trò</label>
+                                    <select class="form-select form-select-sm" th:field="*{role}">
                                         <option value="">Tất cả vai trò</option>
                                         <option th:each="r : ${allRoles}" th:value="${r.id}" th:text="${r.name}">
                                         </option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <select class="form-select" th:field="*{isBlocked}">
+                                <div class="col-md-auto">
+                                    <label class="filter-label">Lọc theo trạng thái</label>
+                                    <select class="form-select form-select-sm" th:field="*{isBlocked}">
                                         <option value="">Tất cả trạng thái</option>
                                         <option value="true">Bị khóa</option>
                                         <option value="false">Hoạt động</option>
                                     </select>
                                 </div>
-                                <div class="col-md-auto ms-auto"><button type="submit" class="btn btn-primary"><i
+                                <div class="col-md-auto">
+                                    <label class="filter-label">Số mục hiển thị</label>
+                                    <label for="pageSizeSelect" class="visually-hidden">Số mục</label>
+                                    <select class="form-select form-select-sm" id="pageSizeSelect" name="size">
+                                        <option th:each="s : ${#lists.toList({5, 10, 20, 50})}" th:value="${s}"
+                                            th:text="${s} + ' mục'" th:selected="${s == usersPage.size}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto ms-auto"><button type="submit" class="btn btn-primary btn-sm"><i
                                             class="ri-filter-3-line me-1"></i>Lọc</button></div>
                                 <div class="col-md-auto"><a th:href="@{/admin/users(size=${usersPage.size})}"
-                                        class="btn btn-secondary"><i class="ri-refresh-line me-1"></i>Xóa lọc</a>
+                                        class="btn btn-secondary btn-sm"><i class="ri-refresh-line me-1"></i>Xóa lọc</a>
                                 </div>
                             </div>
                             <input type="hidden" name="sort"
@@ -92,25 +125,24 @@
                         </form>
 
                         <div class="table-responsive">
-                            <table class="table table-hover table-striped table-bordered">
+                            <table class="table table-hover table-bordered">
                                 <thead class="table-light">
                                     <tr>
                                         <th class="sortable-header text-center" style="width: 5%;">
                                             <div th:replace="~{this :: sort_header('id', 'ID')}"></div>
                                         </th>
-                                        <th class="sortable-header" style="width: 20%;">
-                                            <div th:replace="~{this :: sort_header('email', 'Email')}"></div>
+                                        <th style="width: 5%;">Ảnh</th>
+                                        <th class="sortable-header text-center" style="width: 20%;">
+                                            Email
                                         </th>
-                                        <th class="sortable-header" style="width: 20%;">
-                                            <div th:replace="~{this :: sort_header('firstName', 'Họ và Tên')}">
-                                            </div>
+                                        <th class="sortable-header text-center" style="width: 20%;">
+                                            Họ và tên
                                         </th>
-                                        <th style="width: 10%;">Vai trò</th>
+                                        <th class="text-center" style="width: 10%;">Vai trò</th>
                                         <th class="sortable-header text-center" style="width: 10%;">
-                                            <div th:replace="~{this :: sort_header('isBlocked', 'Trạng thái')}">
-                                            </div>
+                                            Trạng thái
                                         </th>
-                                        <th class="sortable-header" style="width: 15%;">
+                                        <th class="sortable-header text-center" style="width: 15%;">
                                             <div th:replace="~{this :: sort_header('lastModifiedDate', 'Cập nhật')}">
                                             </div>
                                         </th>
@@ -120,40 +152,60 @@
                                 <tbody>
                                     <tr th:each="user : ${usersPage.content}">
                                         <td class="text-center" th:text="${user.id}"></td>
+                                        <td class="text-center">
+                                            <th:block
+                                                th:if="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}">
+                                                <img th:src="@{${user.avatarUrl}}" alt="Avatar" class="rounded"
+                                                    width="60" height="60" style="object-fit: cover;">
+                                            </th:block>
+                                            <th:block
+                                                th:unless="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}">
+                                                <img th:src="@{/admin/assets/images/avatars/avatar-1.png}"
+                                                    alt="Default Avatar" class="rounded-circle" width="40">
+                                            </th:block>
+                                        </td>
                                         <td th:text="${user.email}"></td>
                                         <td th:text="${user.getFullName()}"></td>
-                                        <td>
+                                        <td class="text-center">
                                             <th:block th:if="${user.role != null}" th:switch="${user.role.name}">
-                                                <span th:case="'ADMIN'" class="badge bg-danger"
+                                                <span th:case="'Admin'" class="badge rounded-pill text-bg-primary"
                                                     th:text="${user.role.name}"></span>
-                                                <span th:case="'CLIENT'" class="badge bg-primary"
+                                                <span th:case="'User'" class="badge rounded-pill text-bg-success"
                                                     th:text="${user.role.name}"></span>
                                                 <span th:case="*" class="badge bg-secondary"
                                                     th:text="${user.role.name}"></span>
                                             </th:block>
                                         </td>
                                         <td class="text-center">
-                                            <span th:if="${user.isBlocked}" class="badge bg-danger">Bị khóa</span>
-                                            <span th:unless="${user.isBlocked}" class="badge bg-success">Hoạt
+                                            <span th:if="${user.isBlocked}" class="badge rounded-pill bg-danger">Bị
+                                                khóa</span>
+                                            <span th:unless="${user.isBlocked}"
+                                                class="badge rounded-pill bg-success">Hoạt
                                                 động</span>
                                         </td>
-                                        <td
+                                        <td class="text-center"
                                             th:text="${#temporals.format(user.getLastModifiedDate(), 'dd/MM/yyyy HH:mm')}">
                                         </td>
-                                        <td class="d-flex justify-content-center gap-2">
+                                        <td class="text-center">
                                             <a th:href="@{/admin/users/{id}(id=${user.id})}"
                                                 class="btn btn-sm btn-outline-info" title="Xem chi tiết"><i
                                                     class="ri-eye-line"></i></a>
                                             <a th:href="@{/admin/users/update/{id}(id=${user.id})}"
-                                                class="btn btn-sm btn-outline-primary" title="Sửa"><i
+                                                class="btn btn-sm btn-outline-primary m-2" title="Sửa"><i
                                                     class="ri-pencil-line"></i></a>
 
-                                            <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
-                                                style="display:inline;" th:id="${'deleteForm-' + user.id}"></form>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Xoá"
-                                                th:onclick="confirmDelete([[${user.id}]], [[${user.getFullName()}]])">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
+                                            <form th:id="'deleteForm-' + ${user.id}"
+                                                th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
+                                                style="display: inline-block;">
+                                                <button type="button" class="btn btn-sm btn-outline-danger" title="Xoá"
+                                                    th:onclick="showConfirmDialog(
+                                                    'deleteForm-[[${user.id}]]',
+                                                    'Bạn có chắc chắn muốn xóa?',
+                                                    'Người dùng \'[[${user.getFullName()}]]\' sẽ bị xóa vĩnh viễn!',
+                                                    'Vâng, hãy xóa!')">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                     <tr th:if="${usersPage.empty}">
@@ -181,11 +233,11 @@
                                 <th:block
                                     th:replace="~{this :: page_link(${usersPage.totalPages - 1}, 'Cuối', ${usersPage.last}, false)}" />
                             </ul>
-                            <div class="text-center mt-2">
-                                <small
-                                    th:text="'Hiển thị ' + ${usersPage.numberOfElements} + ' trên tổng số ' + ${usersPage.totalElements} + ' người dùng. (Trang ' + (${usersPage.number} + 1) + ' của ' + ${usersPage.totalPages} + ')'"></small>
-                            </div>
                         </nav>
+                        <div class="text-center mt-2">
+                            <small
+                                th:text="'Hiển thị ' + ${usersPage.numberOfElements} + ' trên tổng số ' + ${usersPage.totalElements} + ' người dùng. (Trang ' + (${usersPage.number} + 1) + ' của ' + ${usersPage.totalPages} + ')'"></small>
+                        </div>
 
                     </div>
                 </div>
