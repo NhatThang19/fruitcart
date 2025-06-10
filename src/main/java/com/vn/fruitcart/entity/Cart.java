@@ -35,6 +35,7 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CartItem> items = new ArrayList<>();
+
     @Column(name = "total_price", precision = 10, scale = 2)
     private BigDecimal totalPrice = BigDecimal.ZERO;
 

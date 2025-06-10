@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,14 +65,11 @@ public class CartController {
             model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
 
         } catch (ResourceNotFoundException e) {
-            // Người dùng chưa đăng nhập, @PreAuthorize sẽ chặn, nhưng có thể do token hết
-            // hạn.
-            // Chuyển hướng đến trang đăng nhập với thông báo.
             return "redirect:/client/auth/login?message=cart_login_required";
         } catch (Exception e) {
             log.error("Lỗi khi tải trang giỏ hàng:", e);
             model.addAttribute("errorMessage", "Đã xảy ra lỗi khi tải giỏ hàng của bạn.");
-            return "error/500"; // Trả về trang lỗi chung
+            return "error/500";
         }
         return "client/pages/cart/detail";
     }

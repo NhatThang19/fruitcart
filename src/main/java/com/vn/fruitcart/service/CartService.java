@@ -42,7 +42,7 @@ public class CartService {
             throw new ResourceNotFoundException("Người dùng chưa đăng nhập hoặc phiên làm việc không hợp lệ.");
         }
 
-        String username; // Sẽ là email
+        String username;
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof UserDetailsCustom) {
@@ -79,8 +79,6 @@ public class CartService {
     }
 
     private Integer getStockQuantity(ProductVariant productVariant) {
-        // ProductVariant của bạn không có trực tiếp stockQuantity.
-        // Nó được quản lý qua Inventory.
         Optional<Inventory> inventoryOpt = inventoryRepository.findByProductVariant(productVariant);
         return inventoryOpt.map(Inventory::getQuantity).orElse(0);
     }
@@ -121,10 +119,8 @@ public class CartService {
                         + currentStock + ") của sản phẩm: " + productVariant.getProduct().getName()
                         + (productVariant.getAttribute() != null ? " - " + productVariant.getAttribute() : ""));
             }
-            // Lấy giá từ ProductVariant. Entity ProductVariant của bạn có trường `price`.
-            // Giả sử không có salePrice riêng, dùng luôn price từ ProductVariant.
             BigDecimal price = productVariant.getPrice();
-            if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) { // Giá phải lớn hơn 0
+            if (price == null || price.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new IllegalStateException("Sản phẩm/Biến thể sản phẩm " + productVariant.getProduct().getName()
                         + (productVariant.getAttribute() != null ? " - " + productVariant.getAttribute() : "")
                         + " không có giá hợp lệ.");
@@ -167,7 +163,7 @@ public class CartService {
             }
             cartItem.setQuantity(quantity);
             cartItemRepository.save(cartItem);
-        } else { // quantity == 0, xoá item
+        } else {
             cart.getItems().remove(cartItem);
             cartItemRepository.delete(cartItem);
         }
@@ -196,7 +192,6 @@ public class CartService {
 
     @Transactional
     public Cart clearCart() {
-        User currentUser = getCurrentAuthenticatedUser();
         Cart cart = getOrCreateCartForCurrentUser();
 
         Cart managedCart = cartRepository.findById(cart.getId()).orElse(cart);
