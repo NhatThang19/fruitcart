@@ -131,11 +131,19 @@ public class BreadcrumbService {
         return new PageMetadata("Chi tiết nguồn gốc", breadcrumbList);
     }
 
-        public Object demo() {
+    public Object demo() {
         List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/admin"));
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", null));
         return new PageMetadata("Sản phẩm", breadcrumbList);
+    }
+
+    public Object buildAdminProductCreate() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", "/admin/products"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Tạo sản phẩm", null));
+        return new PageMetadata("Tạo sản phẩm", breadcrumbList);
     }
 
 }

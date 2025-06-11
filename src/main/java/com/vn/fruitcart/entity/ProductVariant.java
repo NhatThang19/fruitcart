@@ -3,8 +3,10 @@ package com.vn.fruitcart.entity;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.vn.fruitcart.entity.base.BaseEntity;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -17,9 +19,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -56,5 +58,20 @@ public class ProductVariant extends BaseEntity {
 
     @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PurchaseOrderItem> purchaseOrdersItems = new ArrayList<>();
+
+    @PrePersist
+    public void generateSku() {
+        if (this.sku == null || this.sku.trim().isEmpty()) {
+            if (this.product != null && this.product.getName() != null) {
+                String productSlug = FruitCartUtils.toSlug(this.product.getName());
+
+                String attributeSLug = FruitCartUtils.toSlug(this.attribute);
+
+                String uniqueId = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+
+                this.sku = String.format("%s-%s-%s", productSlug, attributeSLug, uniqueId).toUpperCase();
+            }
+        }
+    }
 
 }

@@ -23,10 +23,10 @@ import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductImage;
 import com.vn.fruitcart.entity.ProductVariant;
-import com.vn.fruitcart.entity.dto.request.ProductCreateReq;
 import com.vn.fruitcart.entity.dto.request.ProductUpdateReq;
-import com.vn.fruitcart.entity.dto.request.ProductVariantReq;
 import com.vn.fruitcart.entity.dto.request.ProductVariantUpdateReq;
+import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
+import com.vn.fruitcart.entity.dto.request.product.ProductVariantReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.repository.OriginRepository;
@@ -64,6 +64,7 @@ public class ProductService {
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setSlug(FruitCartUtils.toSlug(productDTO.getName()));
+        product.setShortDescription(FruitCartUtils.toSlug(productDTO.getName()));
         product.setDescription(productDTO.getDescription());
         product.setBasePrice(productDTO.getBasePrice());
         product.setNew(productDTO.isNew());
@@ -75,14 +76,12 @@ public class ProductService {
         if (!CollectionUtils.isEmpty(productDTO.getVariants())) {
             for (ProductVariantReq variantDTO : productDTO.getVariants()) {
                 ProductVariant variant = new ProductVariant();
-                variant.setSku(variantDTO.getSku());
                 variant.setPrice(variantDTO.getPrice());
                 variant.setAttribute(variantDTO.getAttribute());
                 product.addVariant(variant);
             }
         } else {
             ProductVariant defaultVariant = new ProductVariant();
-            defaultVariant.setSku(FruitCartUtils.toSlug(product.getName()) + "-default");
             defaultVariant.setPrice(product.getBasePrice());
             defaultVariant.setAttribute("Mặc định");
             product.addVariant(defaultVariant);

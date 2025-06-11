@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
-public class UserController {
+public class AdminUserController {
     private final UserService userService;
     private final RoleService roleService;
     private final BreadcrumbService breadcrumbService;
@@ -131,7 +131,8 @@ public class UserController {
             if (user != null) {
                 userService.expireUserSessions(id);
                 userService.deleteUserById(id);
-                System.out.println("Xoa thanh cong!!!");
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Người dùng " + user.getFullName() + " đã được xóa thành công!");
                 redirectAttributes.addFlashAttribute("message", "Xoá người dùng thành công.");
                 redirectAttributes.addFlashAttribute("messageType", "success");
             } else {
@@ -139,6 +140,7 @@ public class UserController {
                 redirectAttributes.addFlashAttribute("messageType", "error");
             }
         } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Xóa người dùng thất bại: " + e.getMessage());
             redirectAttributes.addFlashAttribute("message", "Xoá người dùng thất bại.");
             redirectAttributes.addFlashAttribute("messageType", "error");
         }

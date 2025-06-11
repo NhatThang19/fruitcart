@@ -23,9 +23,9 @@ import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductImage;
-import com.vn.fruitcart.entity.dto.request.ProductCreateReq;
 import com.vn.fruitcart.entity.dto.request.ProductUpdateReq;
 import com.vn.fruitcart.entity.dto.request.ProductVariantUpdateReq;
+import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.CategoryService;
@@ -46,19 +46,19 @@ public class AdminProductController {
 
     @GetMapping("/create")
     public String showCreateProductForm(Model model) {
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminProductCreate());
         model.addAttribute("productDTO", new ProductCreateReq());
 
         try {
             List<Category> categories = categoryService.findAllActiveCategories();
-            model.addAttribute("categories", categories);
-
             List<Origin> origins = originService.findAllActiveOrigins();
+
+            model.addAttribute("categories", categories);
             model.addAttribute("origins", origins);
         } catch (Exception e) {
             model.addAttribute("pageErrorMessage", "Không thể tải dữ liệu cần thiết cho form (danh mục/nguồn gốc).");
         }
 
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
         return "admin/pages/product/create";
     }
 
@@ -71,6 +71,8 @@ public class AdminProductController {
             RedirectAttributes redirectAttributes,
             Model model) {
 
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminProductCreate());
+
         if (bindingResult.hasErrors()) {
             try {
                 List<Category> categories = categoryService.findAllActiveCategories();
@@ -82,7 +84,6 @@ public class AdminProductController {
                 model.addAttribute("pageErrorMessage", "Lỗi tải lại dữ liệu phụ trợ cho form.");
             }
 
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
             return "admin/pages/product/create";
         }
 
@@ -126,8 +127,6 @@ public class AdminProductController {
                 model.addAttribute("pageErrorMessage", "Lỗi tải lại dữ liệu phụ trợ cho form.");
             }
             model.addAttribute("productDTO", productDTO);
-
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
             return "admin/pages/product/create";
         }
     }
@@ -235,7 +234,7 @@ public class AdminProductController {
 
     @GetMapping
     public String listProducts(
-            @RequestParam(name = "page", defaultValue = "1") int pageParam, 
+            @RequestParam(name = "page", defaultValue = "1") int pageParam,
             @RequestParam(name = "size", defaultValue = "5") int size,
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "categoryId", required = false) Long categoryId,
@@ -246,8 +245,8 @@ public class AdminProductController {
             Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
 
-        Pageable pageable = PageRequest.of(pageParam - 1, size); 
-        Page<Product> productPage; 
+        Pageable pageable = PageRequest.of(pageParam - 1, size);
+        Page<Product> productPage;
 
         List<Category> categories = new ArrayList<>();
         List<Origin> origins = new ArrayList<>();
@@ -256,8 +255,8 @@ public class AdminProductController {
             productPage = productService.findAllAdminProducts(pageable, keyword, categoryId, originId, status,
                     sortField, sortDir);
 
-            categories = categoryService.findAllActiveCategories(); 
-            origins = originService.findAllActiveOrigins(); 
+            categories = categoryService.findAllActiveCategories();
+            origins = originService.findAllActiveOrigins();
 
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
@@ -265,11 +264,9 @@ public class AdminProductController {
 
         }
 
-
         model.addAttribute("productPage", productPage);
         model.addAttribute("categories", categories);
         model.addAttribute("origins", origins);
-
 
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedCategoryId", categoryId);
@@ -279,11 +276,10 @@ public class AdminProductController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", "asc".equals(sortDir) ? "desc" : "asc");
 
-
         int totalPages = productPage.getTotalPages();
         List<Integer> pageNumbers = new ArrayList<>();
         if (totalPages > 0) {
-            int currentPageNumberInView = productPage.getNumber() + 1; 
+            int currentPageNumberInView = productPage.getNumber() + 1;
             int startPage = Math.max(1, currentPageNumberInView - 2);
             int endPage = Math.min(totalPages, currentPageNumberInView + 2);
 
@@ -302,7 +298,7 @@ public class AdminProductController {
         return "admin/pages/product/list";
     }
 
-    @PostMapping("/delete") 
+    @PostMapping("/delete")
     public String deleteProductByForm(
             @RequestParam("productId") Long id,
             RedirectAttributes redirectAttributes) {

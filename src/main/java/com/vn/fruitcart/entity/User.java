@@ -56,6 +56,9 @@ public class User extends BaseEntity {
   @JoinColumn(name = "role_id", nullable = false)
   private Role role;
 
+   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Cart cart;
+
   public String getFullName() {
     String ho = this.firstName != null ? this.firstName.trim() : "";
     String ten = this.lastName != null ? this.lastName.trim() : "";

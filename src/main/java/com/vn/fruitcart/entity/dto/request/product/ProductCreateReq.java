@@ -1,4 +1,4 @@
-package com.vn.fruitcart.entity.dto.request;
+package com.vn.fruitcart.entity.dto.request.product;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +17,8 @@ public class ProductCreateReq {
   @NotBlank(message = "Tên sản phẩm không được để trống")
   @Size(max = 255, message = "Tên sản phẩm không được vượt quá 255 ký tự")
   private String name;
+
+  private String shortDescription;
 
   private String description;
 
