@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{client/layouts/client-layout}">
+
+<head>
+    <title>Thanh toán đơn hàng</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section class="cr-checkout-section padding-tb-100">
+            <div class="container">
+                <div th:if="${errorMessage}" class="alert alert-danger mb-4" role="alert" th:text="${errorMessage}">
+                </div>
+                <div th:if="${successMessage}" class="alert alert-success mb-4" role="alert"
+                    th:text="${successMessage}"></div>
+
+                <form th:action="@{/order/place}" th:object="${checkoutRequest}" method="post" id="checkout-form">
+                    <div class="row">
+                        <div class="cr-checkout-leftside col-lg-8 col-md-12">
+                            <div class="cr-checkout-content">
+                                <div class="cr-checkout-inner">
+                                    <div class="cr-checkout-wrap">
+                                        <div class="cr-checkout-block cr-check-bill">
+                                            <h3 class="cr-checkout-title">Thông tin giao hàng</h3>
+                                            <div class="cr-check-bill-form mb-minus-24">
+
+                                                <span class="cr-bill-wrap">
+                                                    <label>Họ tên người nhận*</label>
+                                                    <input type="text" th:field="*{receiverName}"
+                                                        placeholder="Nhập họ và tên" required>
+                                                    <small class="text-danger"
+                                                        th:if="${#fields.hasErrors('receiverName')}"
+                                                        th:errors="*{receiverName}"></small>
+                                                </span>
+
+                                                <span class="cr-bill-wrap">
+                                                    <label>Địa chỉ giao hàng*</label>
+                                                    <input type="text" th:field="*{shippingAddress}"
+                                                        placeholder="Nhập địa chỉ chi tiết (số nhà, đường, phường/xã...)"
+                                                        required>
+                                                    <small class="text-danger"
+                                                        th:if="${#fields.hasErrors('shippingAddress')}"
+                                                        th:errors="*{shippingAddress}"></small>
+                                                </span>
+
+                                                <span class="cr-bill-wrap">
+                                                    <label>Số điện thoại*</label>
+                                                    <input type="tel" th:field="*{phoneNumber}"
+                                                        placeholder="Nhập số điện thoại" required>
+                                                    <small class="text-danger"
+                                                        th:if="${#fields.hasErrors('phoneNumber')}"
+                                                        th:errors="*{phoneNumber}"></small>
+                                                </span>
+
+                                                <span class="cr-bill-wrap">
+                                                    <label>Ghi chú (tùy chọn)</label>
+                                                    <textarea th:field="*{notes}"
+                                                        placeholder="Ghi chú thêm cho đơn hàng của bạn"></textarea>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cr-checkout-rightside col-lg-4 col-md-12">
+                            <div class="cr-sidebar-wrap">
+                                <div class="cr-sidebar-block">
+                                    <div class="cr-sb-title">
+                                        <h3 class="cr-sidebar-title">Đơn hàng của bạn</h3>
+                                    </div>
+                                    <div class="cr-sb-block-content">
+                                        <div class="cr-checkout-pro">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sản phẩm</th>
+                                                        <th class="text-right">Tạm tính</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="item : ${cartItems}">
+                                                        <td
+                                                            th:text="|${item.productName} (${item.variantAttribute}) × ${item.quantity}|">
+                                                            Tên sản phẩm (Phiên bản) x Số lượng
+                                                        </td>
+                                                        <td class="text-right"
+                                                            th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                                                            Thành tiền
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="font-weight-bold">
+                                                        <th>Tổng cộng</th>
+                                                        <td class="text-right"
+                                                            th:text="${#numbers.formatDecimal(grandTotal, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                                                            Tổng tiền
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+
+                                        <div class="cr-checkout-payment-method mt-4">
+                                            <h4 class="cr-checkout-title"
+                                                style="border-bottom: 0; margin-bottom: 15px;">Phương thức thanh toán
+                                            </h4>
+                                            <div class="cr-pay-option">
+                                                <span>
+                                                    <input type="radio" id="pay1" name="payment-method" value="COD"
+                                                        checked>
+                                                    <label for="pay1">Thanh toán khi nhận hàng (COD)</label>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="cr-check-order-btn mt-4">
+                                            <button class="cr-button w-100" type="submit">Đặt Hàng</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

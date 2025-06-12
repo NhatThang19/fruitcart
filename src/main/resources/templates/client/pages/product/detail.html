@@ -40,15 +40,6 @@
                                 ngắn của sản phẩm...</p>
                         </div>
                         <div class="cr-size-and-weight">
-                            <div class="cr-review-star">
-                                <div class="cr-star">
-                                    <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i
-                                        class="ri-star-fill"></i><i class="ri-star-fill"></i><i
-                                        class="ri-star-half-line"></i>
-                                </div>
-                                <p>(4.5 | 75 Reviews)</p>
-                            </div>
-
                             <div class="list">
                                 <ul>
                                     <li><label>Danh mục <span>:</span></label><span
@@ -65,6 +56,7 @@
                             <div class="cr-product-price">
                                 <span class="new-price"
                                     th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                                </span>
                             </div>
 
                             <form id="add-to-cart-form" onsubmit="return false;">
@@ -131,7 +123,8 @@
                                                 <li th:each="variant : ${product.variants}">
                                                     <label
                                                         th:text="|Phiên bản ${variant.attribute}|"><span>:</span></label>
-                                                    <span th:text="|Số lượng còn lại: ${variant.inventory.quantity}|"></span>
+                                                    <span
+                                                        th:text="|Số lượng còn lại: ${variant.inventory.quantity}|"></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -147,7 +140,89 @@
 
     <th:block layout:fragment="extras-scripts">
         <script>
+
             $(document).ready(function () {
+
+                $('.plus').on('click', function () {
+                    let input = $(this).prev('input.quantity');
+                    let val = parseInt(input.val());
+                    input.val(val + 1).change();
+                });
+                $('.minus').on('click', function () {
+                    let input = $(this).next('input.quantity');
+                    let val = parseInt(input.val());
+                    if (val > 1) {
+                        input.val(val - 1).change();
+                    }
+                });
+
+                $("#variant-options li").on("click", function () {
+                    let selectedVariant = $(this);
+
+                    $('#variant-options li').removeClass('active-color');
+                    selectedVariant.addClass('active-color');
+
+                    const price = selectedVariant.data('price');
+                    const stock = selectedVariant.data('stock');
+                    const variantId = selectedVariant.data('variant-id');
+
+                    const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+                    $('.cr-product-price .new-price').text(formattedPrice);
+
+                    if (stock > 0) {
+                        $('#stock-status').text('Còn hàng (' + stock + ' sản phẩm)');
+                        $('.cr-shopping-bag').prop('disabled', false).text('Thêm vào giỏ hàng');
+                    } else {
+                        $('#stock-status').text('Hết hàng');
+                        $('.cr-shopping-bag').prop('disabled', true).text('Đã hết hàng');
+                    }
+
+                    $('#selected-variant-id').val(variantId);
+
+                });
+
+
+                $('#add-to-cart-form').on('submit', function (event) {
+                    event.preventDefault();
+
+                    console.log("demo")
+
+                    const variantId = $('#selected-variant-id').val();
+                    const quantity = $('#quantity').val();
+
+                    console.log(quantity);
+
+                    const requestData = {
+                        productVariantId: variantId,
+                        quantity: quantity
+                    };
+
+                    fetch('/cart/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData)
+                    })
+                        .then(response => {
+                            if (response.status === 401) {
+                                showErrorAlert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+                                return;
+                            }
+                            if (!response.ok) {
+                                throw new Error('Thêm sản phẩm thất bại.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data) {
+                                showSuccessToast('Đã thêm sản phẩm vào giỏ hàng!');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Lỗi:', error);
+                            showErrorAlert('Có lỗi xảy ra, không thể thêm sản phẩm.');
+                        });
+                });
+
                 // --- KHỞI TẠO CÁC THƯ VIỆN GIAO DIỆN ---
 
                 // 1. Khởi tạo Slick Slider cho gallery ảnh
@@ -170,96 +245,6 @@
 
                 // 2. Khởi tạo Zoom ảnh
                 $('.zoom-image-hover').zoom();
-
-                // --- LOGIC TƯƠNG TÁC CỦA NGƯỜI DÙNG ---
-
-                // 3. Xử lý nút tăng/giảm số lượng
-                $('.plus').on('click', function () {
-                    let input = $(this).prev('input.quantity');
-                    let val = parseInt(input.val());
-                    input.val(val + 1).change();
-                });
-                $('.minus').on('click', function () {
-                    let input = $(this).next('input.quantity');
-                    let val = parseInt(input.val());
-                    if (val > 1) {
-                        input.val(val - 1).change();
-                    }
-                });
-
-                // 4. Xử lý khi người dùng chọn một phiên bản khác
-                $('#variant-options li').on('click', function () {
-                    let selectedVariant = $(this);
-
-                    // Cập nhật giao diện cho lựa chọn active
-                    $('#variant-options li').removeClass('active-color');
-                    selectedVariant.addClass('active-color');
-
-                    // Lấy thông tin từ thuộc tính data-* của thẻ li
-                    const price = selectedVariant.data('price');
-                    const stock = selectedVariant.data('stock');
-                    const variantId = selectedVariant.data('variant-id');
-
-                    // Cập nhật giá hiển thị
-                    const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-                    $('#product-price').text(formattedPrice);
-
-                    // Cập nhật trạng thái tồn kho và nút "Thêm vào giỏ"
-                    if (stock > 0) {
-                        $('#stock-status').text('Còn hàng');
-                        $('.cr-shopping-bag').prop('disabled', false).text('Thêm vào giỏ hàng');
-                    } else {
-                        $('#stock-status').text('Hết hàng');
-                        $('.cr-shopping-bag').prop('disabled', true).text('Đã hết hàng');
-                    }
-
-                    // Cập nhật ID phiên bản vào input ẩn để gửi đi khi submit
-                    $('#selected-variant-id').val(variantId);
-                });
-
-                // 5. Tự động kích hoạt trạng thái ban đầu khi tải trang
-                $('#variant-options li.active-color').trigger('click');
-
-
-                // 6. Xử lý sự kiện "Thêm vào giỏ hàng"
-                $('#add-to-cart-form').on('submit', function (event) {
-                    event.preventDefault(); // Ngăn form gửi đi theo cách thông thường
-
-                    const variantId = $('#selected-variant-id').val();
-                    const quantity = $('#quantity').val();
-
-                    const requestData = {
-                        productVariantId: variantId,
-                        quantity: quantity
-                    };
-
-                    // Gửi yêu cầu AJAX đến CartController
-                    fetch('/cart/add', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => {
-                            if (response.status === 401) { // Lỗi chưa đăng nhập
-                                showErrorAlert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
-                                return;
-                            }
-                            if (!response.ok) {
-                                throw new Error('Thêm sản phẩm thất bại.');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data) {
-                                showSuccessToast('Đã thêm sản phẩm vào giỏ hàng!');
-                                // Bạn có thể thêm logic cập nhật mini-cart ở đây
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Lỗi:', error);
-                            showErrorAlert('Có lỗi xảy ra, không thể thêm sản phẩm.');
-                        });
-                });
             });
         </script>
     </th:block>

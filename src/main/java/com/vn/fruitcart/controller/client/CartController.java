@@ -9,10 +9,12 @@ import com.vn.fruitcart.entity.dto.request.UpdateCartItemRequest;
 import com.vn.fruitcart.entity.dto.response.CartItemDetailDTO;
 import com.vn.fruitcart.entity.dto.response.ProductDTO;
 import com.vn.fruitcart.entity.dto.response.ProductVariantDTO;
+import com.vn.fruitcart.entity.dto.response.cart.SidebarCartReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.CartService;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
@@ -46,33 +48,33 @@ public class CartController {
     /**
      * Hiển thị trang chi tiết giỏ hàng.
      */
-    @GetMapping
-    public String viewCart(Model model) {
-        try {
-            Cart cart = cartService.getOrCreateCartForCurrentUser();
-            model.addAttribute("cart", cart);
+    // @GetMapping
+    // public String viewCart(Model model) {
+    //     try {
+    //         Cart cart = cartService.getOrCreateCartForCurrentUser();
+    //         model.addAttribute("cart", cart);
 
-            List<CartItemDetailDTO> cartItemsDetail = (cart.getItems() != null)
-                    ? cart.getItems().stream()
-                            .filter(item -> item.getProductVariant() != null
-                                    && item.getProductVariant().getProduct() != null)
-                            .map(this::mapCartItemToDetailDTO)
-                            .collect(Collectors.toList())
-                    : Collections.emptyList();
+    //         List<CartItemDetailDTO> cartItemsDetail = (cart.getItems() != null)
+    //                 ? cart.getItems().stream()
+    //                         .filter(item -> item.getProductVariant() != null
+    //                                 && item.getProductVariant().getProduct() != null)
+    //                         .map(this::mapCartItemToDetailDTO)
+    //                         .collect(Collectors.toList())
+    //                 : Collections.emptyList();
 
-            model.addAttribute("cartItemsDetail", cartItemsDetail);
+    //         model.addAttribute("cartItemsDetail", cartItemsDetail);
 
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+    //         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
 
-        } catch (ResourceNotFoundException e) {
-            return "redirect:/client/auth/login?message=cart_login_required";
-        } catch (Exception e) {
-            log.error("Lỗi khi tải trang giỏ hàng:", e);
-            model.addAttribute("errorMessage", "Đã xảy ra lỗi khi tải giỏ hàng của bạn.");
-            return "error/500";
-        }
-        return "client/pages/cart/detail";
-    }
+    //     } catch (ResourceNotFoundException e) {
+    //         return "redirect:/client/auth/login?message=cart_login_required";
+    //     } catch (Exception e) {
+    //         log.error("Lỗi khi tải trang giỏ hàng:", e);
+    //         model.addAttribute("errorMessage", "Đã xảy ra lỗi khi tải giỏ hàng của bạn.");
+    //         return "error/500";
+    //     }
+    //     return "client/pages/cart/detail";
+    // }
 
     /**
      * API: Thêm sản phẩm vào giỏ hàng.
@@ -163,92 +165,10 @@ public class CartController {
         }
     }
 
-    /**
-     * API: Lấy thông tin cơ bản của giỏ hàng (số lượng item, tổng tiền).
-     */
-    @GetMapping("/info")
+    @GetMapping("/summary")
     @ResponseBody
-    public ResponseEntity<?> getCartInfo() {
-        Map<String, Object> cartInfo = new HashMap<>();
-        try {
-            Optional<Cart> cartOpt = cartService.findCartByCurrentUser();
-            if (cartOpt.isPresent()) {
-                Cart cart = cartOpt.get();
-                cartInfo.put("success", true);
-                cartInfo.put("itemCount", cartService.getItemCountInCart());
-                cartInfo.put("totalPrice", cart.getTotalPrice());
-            } else {
-                cartInfo.put("success", true);
-                cartInfo.put("itemCount", 0);
-                cartInfo.put("totalPrice", BigDecimal.ZERO);
-            }
-            return ResponseEntity.ok(cartInfo);
-        } catch (Exception e) {
-            log.warn("Không thể lấy cart info, có thể người dùng chưa đăng nhập: {}", e.getMessage());
-            cartInfo.put("success", true);
-            cartInfo.put("itemCount", 0);
-            cartInfo.put("totalPrice", BigDecimal.ZERO);
-            return ResponseEntity.ok(cartInfo);
-        }
-    }
-
-    /**
-     * API: Lấy danh sách chi tiết các mục trong giỏ hàng (dưới dạng JSON).
-     */
-    @GetMapping("/items-detail-json")
-    @ResponseBody
-    public ResponseEntity<?> getCartItemsDetailJson() {
-        try {
-            Cart cart = cartService.getOrCreateCartForCurrentUser();
-            List<CartItemDetailDTO> cartItemsDetail = (cart.getItems() != null)
-                    ? cart.getItems().stream()
-                            .filter(item -> item.getProductVariant() != null
-                                    && item.getProductVariant().getProduct() != null)
-                            .map(this::mapCartItemToDetailDTO)
-                            .collect(Collectors.toList())
-                    : Collections.emptyList();
-            return ResponseEntity.ok(cartItemsDetail);
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("success", false, "message", "Vui lòng đăng nhập."));
-        } catch (Exception e) {
-            log.error("Lỗi khi lấy chi tiết items trong giỏ (JSON):", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "Lỗi máy chủ."));
-        }
-    }
-
-    /**
-     * Phương thức private helper để chuyển đổi từ CartItem (Entity) sang
-     * CartItemDetailDTO (DTO).
-     */
-    private CartItemDetailDTO mapCartItemToDetailDTO(CartItem item) {
-        ProductVariant pv = item.getProductVariant();
-
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(pv.getProduct().getId());
-        productDTO.setName(pv.getProduct().getName());
-        productDTO.setSlug(pv.getProduct().getSlug());
-
-        ProductVariantDTO variantDTO = new ProductVariantDTO();
-        variantDTO.setId(pv.getId());
-        variantDTO.setAttribute(pv.getAttribute());
-        variantDTO.setPrice(pv.getPrice());
-
-        String imageUrl = pv.getProduct().getImages().stream()
-                .findFirst()
-                .map(ProductImage::getImageUrl)
-                .orElse("/shared/assets/images/default-product.png");
-
-        CartItemDetailDTO dto = new CartItemDetailDTO();
-        dto.setId(item.getId());
-        dto.setQuantity(item.getQuantity());
-        dto.setPriceAtAddition(item.getPriceAtAddition());
-        dto.setSubtotal(item.getSubtotal());
-        dto.setProductImage(imageUrl);
-        dto.setProduct(productDTO);
-        dto.setProductVariant(variantDTO);
-
-        return dto;
+    public ResponseEntity<SidebarCartReq> getCartSummary(HttpSession session) {
+        SidebarCartReq cartSummary = cartService.getSidebarCart(session);
+        return ResponseEntity.ok(cartSummary);
     }
 }

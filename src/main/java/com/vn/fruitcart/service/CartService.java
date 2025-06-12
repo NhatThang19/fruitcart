@@ -1,6 +1,8 @@
 package com.vn.fruitcart.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,8 +15,14 @@ import com.vn.fruitcart.config.UserDetailsCustom;
 import com.vn.fruitcart.entity.Cart;
 import com.vn.fruitcart.entity.CartItem;
 import com.vn.fruitcart.entity.Inventory;
+import com.vn.fruitcart.entity.Product;
+import com.vn.fruitcart.entity.ProductImage;
 import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.User;
+import com.vn.fruitcart.entity.dto.response.CartItemDetailDTO;
+import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
+import com.vn.fruitcart.entity.dto.response.cart.SidebarCartItemReq;
+import com.vn.fruitcart.entity.dto.response.cart.SidebarCartReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CartItemRepository;
 import com.vn.fruitcart.repository.CartRepository;
@@ -22,6 +30,7 @@ import com.vn.fruitcart.repository.InventoryRepository;
 import com.vn.fruitcart.repository.ProductVariantRepository;
 import com.vn.fruitcart.repository.UserRepository;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -240,5 +249,124 @@ public class CartService {
 
     public Cart saveCart(Cart cart) {
         return cartRepository.save(cart);
+    }
+
+    public Cart getCartForSession(HttpSession session) {
+        UserSessionInfo userSessionInfo = (UserSessionInfo) session.getAttribute("loggedInUser");
+
+        Cart cart;
+        if (userSessionInfo != null) {
+            Optional<Cart> userCart = cartRepository.findByUserId(userSessionInfo.getUserId());
+            if (userCart.isPresent()) {
+                cart = userCart.get();
+            } else {
+                User user = userRepository.findById(userSessionInfo.getUserId())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+                cart = new Cart();
+                cart.setUser(user);
+                cart = cartRepository.save(cart);
+            }
+        } else {
+            cart = (Cart) session.getAttribute("cart");
+            if (cart == null) {
+                cart = new Cart();
+                session.setAttribute("cart", cart);
+            }
+        }
+        return cart;
+    }
+
+    public SidebarCartReq getSidebarCart(HttpSession session) {
+        Cart cart = getCartForSession(session);
+        SidebarCartReq summaryDTO = new SidebarCartReq();
+
+        List<SidebarCartItemReq> itemDTOs = new ArrayList<>();
+        int totalItems = 0;
+
+        for (CartItem item : cart.getItems()) {
+            SidebarCartItemReq itemDTO = new SidebarCartItemReq();
+            ProductVariant variant = item.getProductVariant();
+            Product product = variant.getProduct();
+
+            itemDTO.setId(variant.getId());
+            itemDTO.setItemId(item.getId());
+            itemDTO.setName(product.getName());
+            itemDTO.setAttribute(variant.getAttribute());
+            itemDTO.setQuantity(item.getQuantity());
+            itemDTO.setTotalPrice(item.getPriceAtAddition());
+
+            String imageUrl = product.getImages().stream()
+                    .filter(img -> img.isMain())
+                    .findFirst()
+                    .map(ProductImage::getImageUrl)
+                    .orElse(product.getImages().isEmpty() ? "/shared/assets/images/default-product.png"
+                            : product.getImages().get(0).getImageUrl());
+            itemDTO.setImgUrl(imageUrl);
+
+            itemDTOs.add(itemDTO);
+
+            totalItems += item.getQuantity();
+        }
+
+        summaryDTO.setItems(itemDTOs);
+        summaryDTO.setTotalPrice(cart.getTotalPrice());
+        summaryDTO.setTotalItems(totalItems);
+
+        return summaryDTO;
+    }
+
+    public List<CartItemDetailDTO> getCartItemDetails(HttpSession session) {
+        // 1. Lấy giỏ hàng hiện tại từ session
+        Cart cart = getCartForSession(session);
+
+        if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
+            // Nếu giỏ hàng không tồn tại hoặc trống, trả về một danh sách rỗng
+            return Collections.emptyList();
+        }
+
+        // 2. Tạo một danh sách rỗng để chứa kết quả DTO
+        List<CartItemDetailDTO> details = new ArrayList<>();
+
+        // 3. Lặp qua từng sản phẩm (CartItem) trong giỏ hàng
+        for (CartItem item : cart.getItems()) {
+            // 4. Với mỗi sản phẩm, tạo một DTO mới và sao chép dữ liệu
+            CartItemDetailDTO dto = new CartItemDetailDTO();
+            ProductVariant productVariant = item.getProductVariant();
+            Product product = productVariant.getProduct();
+
+            dto.setCartItemId(item.getId());
+            dto.setProductId(product.getId());
+            dto.setProductName(product.getName());
+            dto.setVariantId(productVariant.getId());
+            dto.setVariantAttribute(productVariant.getAttribute());
+            dto.setPrice(productVariant.getPrice());
+            dto.setQuantity(item.getQuantity());
+
+            // Lấy số lượng tồn kho
+            if (productVariant.getInventory() != null) {
+                dto.setStock(productVariant.getInventory().getQuantity());
+            } else {
+                dto.setStock(0);
+            }
+
+            // Tính tổng tiền cho mục này (đơn giá x số lượng)
+            BigDecimal totalPrice = productVariant.getPrice().multiply(new BigDecimal(item.getQuantity()));
+            dto.setTotalPrice(totalPrice);
+
+            // Logic lấy ảnh sản phẩm
+            String imageUrl = product.getImages().stream()
+                    .filter(img -> img.isMain())
+                    .findFirst()
+                    .map(ProductImage::getImageUrl)
+                    .orElse(product.getImages().isEmpty() ? "/shared/assets/images/default-product.png"
+                            : product.getImages().get(0).getImageUrl());
+            dto.setProductImageUrl(imageUrl);
+
+            // 5. Thêm DTO đã hoàn thiện vào danh sách kết quả
+            details.add(dto);
+        }
+
+        // 6. Trả về danh sách chi tiết các sản phẩm
+        return details;
     }
 }

@@ -3,6 +3,8 @@ package com.vn.fruitcart.entity.base;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+
+import java.io.Serializable;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntity {
+public abstract class BaseEntity implements Serializable {
   @CreatedBy
   @Column(name = "created_by", nullable = false, length = 50, updatable = false)
   private String createdBy;
