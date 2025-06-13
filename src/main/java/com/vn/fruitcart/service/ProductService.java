@@ -424,4 +424,8 @@ public class ProductService {
         return productRepository.findAll(spec, pageableWithSort);
     }
 
+    public Page<Product> findPaginatedByCategoryId(Long categoryId, Pageable pageable) {
+        return productRepository.findByCategoryId(categoryId, pageable);
+    }
+
 }

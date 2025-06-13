@@ -1,6 +1,5 @@
-package com.vn.fruitcart.entity.dto.request;
+package com.vn.fruitcart.entity.dto.request.category;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryReq {
-    @NotBlank(message = "Tên danh mục không được để trống")
     @Size(min = 2, max = 255, message = "Tên danh mục phải từ 2 đến 255 ký tự")
     private String name;
 

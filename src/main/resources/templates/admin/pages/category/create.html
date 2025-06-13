@@ -10,11 +10,14 @@
     <div layout:fragment="content">
         <div class="container-fluid">
             <div class="row justify-content-center">
-                <div class="col-lg-7">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title mb-4">Nhập thông tin danh mục</h5>
-
+                <div class="col-lg-7 col-md-9">
+                    <div class="card mb-5">
+                        <div
+                            class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                            <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-edit-2-line me-1"></i>Nhập thông
+                                tin danh mục</h5>
+                        </div>
+                        <div class="card-body mb-3">
                             <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
                                 role="alert">
                                 <i class="mdi mdi-block-helper me-2"></i>
@@ -22,15 +25,21 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"
                                     aria-label="Close"></button>
                             </div>
+                            <div th:if="${param.errorMessage}" class="alert alert-danger alert-dismissible fade show"
+                                role="alert">
+                                <i class="mdi mdi-block-helper me-2"></i>
+                                <span th:text="${param.errorMessage[0]}"></span> <button type="button" class="btn-close"
+                                    data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
 
                             <form th:action="@{/admin/categories/create}" th:object="${categoryReq}" method="post">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Tên danh mục <span
                                             class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="name" th:field="*{name}"
-                                        placeholder="Nhập tên danh mục">
-                                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('name')}"
-                                        th:errors="*{name}"></div>
+                                    <input type="text" autocomplete="off" class="form-control" id="name"
+                                        th:field="*{name}" th:errorclass="is-invalid" placeholder="Nhập tên danh mục">
+                                    <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"
+                                        class="invalid-feedback d-block"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label">Mô tả</label>
@@ -41,16 +50,18 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="status" class="form-label">Trạng thái</label>
-                                    <select class="form-select" id="status" th:field="*{status}">
+                                    <select class="form-control form-select" id="status" th:field="*{status}">
                                         <option th:value="true">Hoạt động</option>
                                         <option th:value="false">Không hoạt động</option>
                                     </select>
                                     <div class="text-danger mt-1" th:if="${#fields.hasErrors('status')}"
                                         th:errors="*{status}"></div>
                                 </div>
-                                <div>
-                                    <button type="submit" class="btn btn-primary w-md">Lưu danh mục</button>
-                                    <a th:href="@{/admin/categories}" class="btn btn-secondary w-md">Hủy</a>
+                                <div class="d-flex float-end gap-2">
+                                    <button type="submit" class="cr-btn default-btn color-primary"><i
+                                            class="ri-save-line me-1"></i>Lưu</button>
+                                    <a th:href="@{/admin/categories}" class="cr-btn default-btn color-light me-2"><i
+                                            class="ri-close-line me-1"></i>Hủy</a>
                                 </div>
                             </form>
                         </div>

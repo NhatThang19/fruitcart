@@ -5,6 +5,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,14 +16,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.vn.fruitcart.entity.Category;
-import com.vn.fruitcart.entity.dto.request.CategoryReq;
+import com.vn.fruitcart.entity.Product;
+import com.vn.fruitcart.entity.dto.request.category.CategoryReq;
+import com.vn.fruitcart.entity.dto.request.category.CategorySearchCriteria;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.CategoryService;
+import com.vn.fruitcart.service.ProductService;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import groovyjarjarpicocli.CommandLine.DuplicateNameException;
 import jakarta.validation.Valid;
@@ -32,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminCategoryController {
     private final CategoryService categoryService;
     private final BreadcrumbService breadcrumbService;
+    private final ProductService productService;
 
     @GetMapping("/create")
     public String showAddCategoryForm(Model model) {
@@ -68,48 +75,15 @@ public class AdminCategoryController {
 
     @GetMapping
     public String listCategories(Model model,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id,asc") String[] sort,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String status) {
+            @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable,
+            @ModelAttribute("criteria") CategorySearchCriteria criteria) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminCategoryPageMetadata());
 
-        String sortField = sort[0];
-        String sortDir = (sort.length > 1 && (sort[1].equalsIgnoreCase("asc") || sort[1].equalsIgnoreCase("desc")))
-                ? sort[1]
-                : "asc";
-        model.addAttribute("sortField", sortField);
-        model.addAttribute("sortDir", sortDir);
-        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        Page<Category> categoryPage = categoryService.findUsersByCriteria(criteria, pageable);
 
-        Boolean statusFilter = null;
-        if (status != null && !status.isEmpty()) {
-            if ("true".equalsIgnoreCase(status)) {
-                statusFilter = true;
-            } else if ("false".equalsIgnoreCase(status)) {
-                statusFilter = false;
-            }
-        }
-        model.addAttribute("selectedStatus", status == null ? "" : status);
+        model.addAttribute("categoryPage", categoryPage);
 
-        Page<Category> categoryPage = categoryService.getAllCategoriesWithFiltersAndPagination(keyword, statusFilter,
-                page, size, sortField, sortDir);
-
-        model.addAttribute("categories", categoryPage.getContent());
-        model.addAttribute("currentPage", categoryPage.getNumber() + 1);
-        model.addAttribute("totalPages", categoryPage.getTotalPages());
-        model.addAttribute("totalItems", categoryPage.getTotalElements());
-        model.addAttribute("pageSize", size);
-
-        if (categoryPage.getTotalPages() > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, categoryPage.getTotalPages())
-                    .boxed()
-                    .collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
-        }
-
-        model.addAttribute("keyword", keyword);
+        FruitCartUtils.addPagingAndSortingAttributes(model, pageable);
 
         return "admin/pages/category/list";
     }
@@ -168,8 +142,8 @@ public class AdminCategoryController {
         }
     }
 
-    @PostMapping("/delete")
-    public String deleteCategory(@RequestParam("categoryId") Long id, RedirectAttributes redirectAttributes) {
+    @PostMapping("/delete/{categoryId}")
+    public String deleteCategory(@PathVariable("categoryId") Long id, RedirectAttributes redirectAttributes) {
         try {
             categoryService.deleteCategory(id);
             redirectAttributes.addFlashAttribute("message", "Xoá danh mục thành công.");
@@ -185,11 +159,15 @@ public class AdminCategoryController {
 
     @GetMapping("/detail/{id}")
     public String showCategoryDetail(@PathVariable("id") Long id, Model model,
+            @PageableDefault(size = 5, sort = "name") Pageable pageable,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminCategoryDetailPageMetadata());
+
         try {
             Category category = categoryService.getCategoryById(id);
             model.addAttribute("category", category);
+            Page<Product> productPage = productService.findPaginatedByCategoryId(id, pageable);
+            model.addAttribute("productPage", productPage);
             return "admin/pages/category/detail";
         } catch (ResourceNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy danh mục: " + e.getMessage());

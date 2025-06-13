@@ -10,7 +10,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.Category;
-import com.vn.fruitcart.entity.dto.request.CategoryReq;
+import com.vn.fruitcart.entity.dto.request.category.CategoryReq;
+import com.vn.fruitcart.entity.dto.request.category.CategorySearchCriteria;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.service.specification.CategorySpecification;
@@ -94,6 +95,20 @@ public class CategoryService {
         Specification<Category> spec = CategorySpecification.hasStatus(true);
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
         return categoryRepository.findAll(spec, sort);
+    }
+
+    public Page<Category> findUsersByCriteria(CategorySearchCriteria criteria, Pageable pageable) {
+        Specification<Category> spec = Specification.where(null);
+
+        if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+            spec = spec.and(CategorySpecification.hasName(criteria.getKeyword()));
+        }
+
+        if (criteria.getStatus() != null) {
+            spec = spec.and(CategorySpecification.hasStatus(criteria.getStatus()));
+        }
+
+        return categoryRepository.findAll(spec, pageable);
     }
 
 }
