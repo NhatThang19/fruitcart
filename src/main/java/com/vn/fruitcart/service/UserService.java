@@ -1,5 +1,6 @@
 package com.vn.fruitcart.service;
 
+import com.vn.fruitcart.entity.Order;
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.profile.UserPasswordChangeReq;
@@ -7,13 +8,23 @@ import com.vn.fruitcart.entity.dto.request.profile.UserProfileUpdateReq;
 import com.vn.fruitcart.entity.dto.request.user.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.user.UserSearchCriteriaReq;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
+import com.vn.fruitcart.entity.dto.response.user.AdminUserDetailRes;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
+import com.vn.fruitcart.repository.OrderRepository;
 import com.vn.fruitcart.repository.UserRepository;
 import com.vn.fruitcart.service.specification.UserSpecification;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +45,7 @@ public class UserService {
   private final FileStorageService fileStorageService;
   private final HttpSession session;
   private final SessionRegistry sessionRegistry;
+  private final OrderRepository orderRepository;
 
   public User getUserByEmail(String email) {
     return userRepository.findByEmail(email)
@@ -187,6 +199,43 @@ public class UserService {
         }
       }
     });
+  }
+
+  public AdminUserDetailRes getAdminUserDetail(Long userId) {
+    // 1. Lấy thông tin người dùng
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với ID: " + userId));
+
+    // 2. Lấy lịch sử đơn hàng
+    List<Order> orderHistory = user.getOrders();
+
+    orderHistory.sort(Comparator.comparing(Order::getCreatedDate).reversed());
+
+    // 3. Tính toán các chỉ số mua hàng
+    long totalOrders = orderHistory.size();
+
+    BigDecimal totalSpending = orderRepository.findTotalSpendingByUser(user).orElse(BigDecimal.ZERO);
+
+    BigDecimal averageOrderValue = (totalOrders > 0)
+        ? totalSpending.divide(BigDecimal.valueOf(totalOrders), 2, RoundingMode.HALF_UP)
+        : BigDecimal.ZERO;
+
+    Instant ninetyDaysAgo = Instant.now().minus(90, ChronoUnit.DAYS);
+    long purchaseFrequencyLast90Days = orderRepository.countByUserAndCreatedDateAfter(user, ninetyDaysAgo);
+
+    Long daysSinceLastPurchase = orderRepository.findMostRecentOrderDateByUser(user)
+        .map(lastPurchaseDate -> Duration.between(lastPurchaseDate, Instant.now()).toDays())
+        .orElse(null);
+
+    // 4. Tạo và trả về DTO
+    return new AdminUserDetailRes(
+        user,
+        orderHistory,
+        totalOrders,
+        totalSpending,
+        averageOrderValue,
+        purchaseFrequencyLast90Days,
+        daysSinceLastPurchase);
   }
 
 }

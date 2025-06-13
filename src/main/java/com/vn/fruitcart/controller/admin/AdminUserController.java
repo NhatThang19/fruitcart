@@ -20,6 +20,7 @@ import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.user.AdminUserUpdateReq;
 import com.vn.fruitcart.entity.dto.request.user.UserSearchCriteriaReq;
+import com.vn.fruitcart.entity.dto.response.user.AdminUserDetailRes;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.RoleService;
@@ -40,7 +41,7 @@ public class AdminUserController {
     @GetMapping
     public String getUsersPage(
             Model model,
-            @PageableDefault(size = 10, sort = "id", direction = Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable,
             @ModelAttribute("criteria") UserSearchCriteriaReq criteria) {
 
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserLisPageMetadata());
@@ -60,11 +61,13 @@ public class AdminUserController {
     @GetMapping("/{id}")
     public String getUserDetailPage(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
+            AdminUserDetailRes userDetailDTO = userService.getAdminUserDetail(id);
+
+            model.addAttribute("userDetail", userDetailDTO);
             User user = userService.getUserById(id);
             model.addAttribute("user", user);
             model.addAttribute("pageMetadata", breadcrumbService.buildAdminUserDetailPageMetadata());
             return "admin/pages/user/detail";
-
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy người dùng với ID: " + id);
             return "redirect:/admin/users";

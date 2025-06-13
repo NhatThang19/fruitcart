@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -56,8 +58,12 @@ public class User extends BaseEntity {
   @JoinColumn(name = "role_id", nullable = false)
   private Role role;
 
-   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Cart cart;
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Cart cart;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @Builder.Default
+  private List<Order> orders = new ArrayList<>();
 
   public String getFullName() {
     String ho = this.firstName != null ? this.firstName.trim() : "";
