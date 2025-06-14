@@ -191,6 +191,7 @@
                                     <tr>
                                         <th class="text-center">Thuộc tính</th>
                                         <th class="text-center">SKU</th>
+                                        <th class="text-center">Số lượng</th>
                                         <th class="text-center">Giá (VNĐ)</th>
                                     </tr>
                                 </thead>
@@ -198,6 +199,7 @@
                                     <tr th:each="variant : ${product.variants}">
                                         <td class="text-color-gray" th:text="${variant.attribute}"></td>
                                         <td class="text-color-gray" th:text="${variant.sku}"></td>
+                                        <td class="text-center text-color-gray">[[${variant.inventory?.quantity ?: 0}]]</td>
                                         <td class="text-center text-color-gray"
                                             th:text="${#numbers.formatDecimal(variant.price, 0, 'COMMA', 0, 'POINT')}">
                                         </td>

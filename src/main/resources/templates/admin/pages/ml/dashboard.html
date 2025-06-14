@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}"></title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="ri-robot-line me-1"></i>Bảng điều khiển Machine Learning</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="ri-check-double-line me-2"></i>
+                    <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="ri-error-warning-line me-2"></i>
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h5 class="card-title">Phân cụm khách hàng</h5>
+                        <p class="card-text text-muted">
+                            Chức năng này sẽ phân tích toàn bộ dữ liệu mua hàng của khách hàng (tổng chi tiêu, tần suất,
+                            lần mua cuối...)
+                            để tự động nhóm họ vào các cụm có hành vi tương tự nhau như "Khách Hàng Vàng", "Khách Hàng
+                            Mới", "Khách Hàng có nguy cơ rời bỏ"...
+                        </p>
+                        <p class="card-text">
+                            Lần cập nhật cuối cùng:
+                            <strong th:if="${lastRunDate}"
+                                th:text="${#temporals.format(lastRunDate, 'HH:mm:ss ''ngày'' dd/MM/yyyy')}"></strong>
+                            <em th:unless="${lastRunDate}" class="text-muted">Chưa chạy lần nào.</em>
+                        </p>
+
+                        <form th:action="@{/admin/ml/run-clustering}" method="post" class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-play-circle-line me-1"></i> Bắt đầu Huấn luyện & Phân cụm ngay
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                Tác vụ sẽ chạy ngầm và không ảnh hưởng đến hiệu năng của trang web. Bạn có thể kiểm tra kết quả trong
+                trang Chi tiết người dùng sau vài phút.
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

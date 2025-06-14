@@ -2,7 +2,6 @@ package com.vn.fruitcart.controller.admin;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Sort;
 
 import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.PurchaseOrder;
-import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.PurchaseOrderCreateReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.ProductVariantRepository;
@@ -102,7 +100,7 @@ public class AdminPurchaseOrderController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Tạo đơn nhập hàng #" + createdOrder.getId() + " thành công!");
             return "redirect:/admin/purchase-orders";
-        } catch (ResourceNotFoundException e) { 
+        } catch (ResourceNotFoundException e) {
             List<ProductVariant> productVariants = productVariantRepository.findAll();
             model.addAttribute("productVariants", productVariants);
             model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());

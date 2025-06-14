@@ -91,21 +91,17 @@
 
     <script>
         $(document).ready(function () {
-
-            // Hàm để tải và hiển thị dữ liệu giỏ hàng
             function loadAndRenderSidebarCart() {
                 fetch('/cart/summary')
                     .then(response => response.json())
                     .then(data => {
                         const itemsList = $('#sidebar-cart-items-list');
                         const grandTotalEl = $('#sidebar-cart-grand-total');
-                        // Giả sử bạn có một thẻ span ở header để đếm số lượng
                         const cartCountBadge = $('#header-cart-count');
 
-                        itemsList.empty(); // Xóa các mục cũ
+                        itemsList.empty();
 
                         if (data && data.items && data.items.length > 0) {
-                            // Nếu có sản phẩm
                             data.items.forEach(item => {
                                 const itemHtml = `
                                     <li>
@@ -131,7 +127,6 @@
                             if (cartCountBadge.length) cartCountBadge.text(data.totalItems);
 
                         } else {
-                            // Nếu giỏ hàng trống
                             itemsList.html('<li><p class="text-center p-3">Giỏ hàng của bạn đang trống.</p></li>');
                             grandTotalEl.text('0 VND');
                             if (cartCountBadge.length) cartCountBadge.text('0');
@@ -142,7 +137,8 @@
                     });
             }
 
-            // Lắng nghe sự kiện để làm mới giỏ hàng từ bất kỳ đâu
+            
+
             $(document).on('refreshCart', function () {
                 loadAndRenderSidebarCart();
             });
@@ -150,10 +146,8 @@
             $('#sidebar-cart-items-list').on('click', '.remove-from-cart', function (event) {
                 event.preventDefault();
 
-                // Lấy ra thẻ <li> cha để xóa khỏi giao diện nếu thành công
                 const cartItemElement = $(this).closest('li');
 
-                // Lấy cartItemId từ thuộc tính data-
                 const cartItemId = $(this).data('cart-item-id');
 
                 console.log(cartItemId);
@@ -163,35 +157,27 @@
                     return;
                 }
 
-                // Sử dụng jQuery AJAX để gọi API của bạn
                 $.ajax({
-                    url: 'cart/remove/' + cartItemId, // Xây dựng URL với cartItemId
-                    type: 'POST', // Phương thức khớp với @PostMapping ở backend
+                    url: 'cart/remove/' + cartItemId,
+                    type: 'POST',
                     success: function (response) {
-                        // Hàm này sẽ chạy khi API trả về status 200 OK
                         if (response.success) {
-                            // Hiển thị thông báo thành công
                             if (typeof showSuccessToast === 'function') {
                                 showSuccessToast(response.message);
                             } else {
                                 alert(response.message);
                             }
 
-                            // Cập nhật giao diện mà không cần tải lại toàn bộ giỏ hàng
-                            // 1. Xóa dòng sản phẩm khỏi danh sách
                             cartItemElement.remove();
 
-                            // 2. Cập nhật tổng tiền và số lượng từ response của API
                             $('#sidebar-cart-grand-total').text(new Intl.NumberFormat('vi-VN').format(response.totalPrice) + ' VND');
-                            $('#header-cart-count').text(response.itemCount); // Giả sử id của badge đếm là header-cart-count
+                            $('#header-cart-count').text(response.itemCount);
 
-                            // Kiểm tra nếu giỏ hàng trống thì hiển thị thông báo
                             if (response.itemCount === 0) {
                                 $('#sidebar-cart-items-list').html('<li><p class="text-center p-3">Giỏ hàng của bạn đang trống.</p></li>');
                             }
 
                         } else {
-                            // Xử lý lỗi logic từ server (ví dụ: sản phẩm không tồn tại)
                             if (typeof showErrorAlert === 'function') {
                                 showErrorAlert(response.message);
                             } else {
@@ -200,11 +186,9 @@
                         }
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        // Hàm này sẽ chạy khi có lỗi mạng hoặc server trả về lỗi (403, 404, 500)
                         console.error("Lỗi AJAX:", textStatus, errorThrown);
                         let errorMessage = 'Có lỗi xảy ra khi xóa sản phẩm.';
 
-                        // Cố gắng lấy message lỗi từ server nếu có
                         if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                             errorMessage = jqXHR.responseJSON.message;
                         }
@@ -218,9 +202,6 @@
                 });
             });
 
-
-
-            // Tải giỏ hàng ngay khi trang được mở
             loadAndRenderSidebarCart();
         });
     </script>

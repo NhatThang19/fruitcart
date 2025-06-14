@@ -23,6 +23,7 @@ import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.ProductVariantRepository;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.InventoryAuditService;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -56,20 +57,9 @@ public class InventoryAuditController {
         model.addAttribute("currentDateFromFilter", dateFromFilter);
         model.addAttribute("currentDateToFilter", dateToFilter);
 
-        String currentSortField = "";
-        String currentSortDirection = "";
-        if (pageable.getSort().isSorted()) {
-            Sort.Order order = pageable.getSort().iterator().next();
-            currentSortField = order.getProperty();
-            currentSortDirection = order.getDirection().name();
-        }
-        model.addAttribute("currentSortField", currentSortField);
-        model.addAttribute("currentSortDirection", currentSortDirection);
-        model.addAttribute("currentSortParam", pageable.getSort().get()
-                .map(order -> order.getProperty() + "," + order.getDirection().name().toLowerCase())
-                .collect(Collectors.joining()));
+        FruitCartUtils.addPagingAndSortingAttributes(model, pageable);
 
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminInventory());
         return "admin/pages/inventory/audit_list";
     }
 

@@ -86,11 +86,9 @@ public class OrderController {
                     "Đặt hàng thành công! Mã đơn hàng của bạn là #" + newOrder.getId());
             return "redirect:/order/success/" + newOrder.getId();
         } catch (IllegalStateException | SecurityException e) {
-            // Bắt các lỗi nghiệp vụ (hết hàng, chưa đăng nhập...)
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/cart"; // Quay về giỏ hàng để người dùng xem lại
+            return "redirect:/cart";
         } catch (Exception e) {
-            // Bắt các lỗi hệ thống khác
             log.error("Lỗi nghiêm trọng khi đặt hàng: ", e);
             redirectAttributes.addFlashAttribute("errorMessage", "Đã có lỗi hệ thống xảy ra. Vui lòng thử lại sau.");
             return "redirect:/order/checkout";
@@ -105,6 +103,6 @@ public class OrderController {
 
         model.addAttribute("order", order);
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
-        return "client/pages/order/success"; // Trỏ tới file view xác nhận
+        return "client/pages/order/success"; 
     }
 }

@@ -3,6 +3,7 @@ package com.vn.fruitcart.service;
 import com.vn.fruitcart.entity.Order;
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
+import com.vn.fruitcart.entity.dto.request.UserClusteringData;
 import com.vn.fruitcart.entity.dto.request.profile.UserPasswordChangeReq;
 import com.vn.fruitcart.entity.dto.request.profile.UserProfileUpdateReq;
 import com.vn.fruitcart.entity.dto.request.user.AdminUserUpdateReq;
@@ -23,6 +24,7 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -236,6 +238,39 @@ public class UserService {
         averageOrderValue,
         purchaseFrequencyLast90Days,
         daysSinceLastPurchase);
+  }
+
+  public List<UserClusteringData> getAllUsersClusteringData() {
+    List<User> users = userRepository.findAll(); // Lấy tất cả user
+    List<UserClusteringData> clusteringDataList = new ArrayList<>();
+
+    for (User user : users) {
+      long totalOrders = user.getOrders().size();
+
+      // Nếu user không có đơn hàng nào, bỏ qua
+      if (totalOrders == 0) {
+        continue;
+      }
+
+      BigDecimal totalSpending = orderRepository.findTotalSpendingByUser(user).orElse(BigDecimal.ZERO);
+      BigDecimal averageOrderValue = totalSpending.divide(BigDecimal.valueOf(totalOrders), 2, RoundingMode.HALF_UP);
+      Instant ninetyDaysAgo = Instant.now().minus(90, ChronoUnit.DAYS);
+      long purchaseFrequencyLast90Days = orderRepository.countByUserAndCreatedDateAfter(user, ninetyDaysAgo);
+      Long daysSinceLastPurchase = orderRepository.findMostRecentOrderDateByUser(user)
+          .map(lastDate -> Duration.between(lastDate, Instant.now()).toDays())
+          .orElse(null);
+
+      clusteringDataList.add(new UserClusteringData(
+          user,
+          totalSpending,
+          totalOrders,
+          averageOrderValue,
+          purchaseFrequencyLast90Days,
+          daysSinceLastPurchase,
+          -1 // Cluster ban đầu là -1 (chưa gán)
+      ));
+    }
+    return clusteringDataList;
   }
 
 }

@@ -75,6 +75,13 @@ public class ProductVariant extends BaseEntity {
                 this.sku = String.format("%s-%s-%s", productSlug, attributeSLug, uniqueId).toUpperCase();
             }
         }
+
+        if (this.inventory == null) {
+            Inventory newInventory = new Inventory();
+            newInventory.setQuantity(0);
+            newInventory.setProductVariant(this);
+            this.setInventory(newInventory);
+        }
     }
 
 }

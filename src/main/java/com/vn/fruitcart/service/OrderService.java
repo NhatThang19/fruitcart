@@ -54,7 +54,7 @@ public class OrderService {
 
         // Set thông tin chung cho đơn hàng
         order.setUser(user);
-        order.setStatus(OrderStatusEnum.PENDING);
+        order.setStatus(OrderStatusEnum.DELIVERED);
         order.setReceiverName(checkoutRequest.getReceiverName());
         order.setShippingAddress(checkoutRequest.getShippingAddress());
         order.setPhoneNumber(checkoutRequest.getPhoneNumber());

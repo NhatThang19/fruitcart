@@ -184,4 +184,11 @@ public class BreadcrumbService {
         return new PageMetadata("Chi tiết đơn nhập hàng", breadcrumbList);
     }
 
+    public Object buildAdminInventory() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Kiểm kho", null));
+        return new PageMetadata("Kiểm kho", breadcrumbList);
+    }
+
 }
