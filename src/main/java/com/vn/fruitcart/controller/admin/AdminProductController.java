@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,11 +27,13 @@ import com.vn.fruitcart.entity.ProductImage;
 import com.vn.fruitcart.entity.dto.request.ProductUpdateReq;
 import com.vn.fruitcart.entity.dto.request.ProductVariantUpdateReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
+import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteriaReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.CategoryService;
 import com.vn.fruitcart.service.OriginService;
 import com.vn.fruitcart.service.ProductService;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -233,74 +236,29 @@ public class AdminProductController {
     }
 
     @GetMapping
-    public String listProducts(
-            @RequestParam(name = "page", defaultValue = "1") int pageParam,
-            @RequestParam(name = "size", defaultValue = "5") int size,
-            @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "categoryId", required = false) Long categoryId,
-            @RequestParam(name = "originId", required = false) Long originId,
-            @RequestParam(name = "status", required = false) Boolean status,
-            @RequestParam(name = "sortField", defaultValue = "id") String sortField,
-            @RequestParam(name = "sortDir", defaultValue = "desc") String sortDir,
-            Model model) {
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+    public String listProducts(Model model,
+            @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable,
+            @ModelAttribute("criteria") ProductSearchCriteriaReq criteria) {
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminProduct());
 
-        Pageable pageable = PageRequest.of(pageParam - 1, size);
-        Page<Product> productPage;
+        List<Category> categories = categoryService.getAllCategories();
+        List<Origin> origins = originService.getAllOrigins();
 
-        List<Category> categories = new ArrayList<>();
-        List<Origin> origins = new ArrayList<>();
-
-        try {
-            productPage = productService.findAllAdminProducts(pageable, keyword, categoryId, originId, status,
-                    sortField, sortDir);
-
-            categories = categoryService.findAllActiveCategories();
-            origins = originService.findAllActiveOrigins();
-
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.");
-            productPage = Page.empty(pageable);
-
-        }
-
-        model.addAttribute("productPage", productPage);
         model.addAttribute("categories", categories);
         model.addAttribute("origins", origins);
 
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("selectedCategoryId", categoryId);
-        model.addAttribute("selectedOriginId", originId);
-        model.addAttribute("selectedStatus", status);
-        model.addAttribute("sortField", sortField);
-        model.addAttribute("sortDir", sortDir);
-        model.addAttribute("reverseSortDir", "asc".equals(sortDir) ? "desc" : "asc");
+        Page<Product> productsPage = productService.findProductsByCriteria(criteria, pageable);
 
-        int totalPages = productPage.getTotalPages();
-        List<Integer> pageNumbers = new ArrayList<>();
-        if (totalPages > 0) {
-            int currentPageNumberInView = productPage.getNumber() + 1;
-            int startPage = Math.max(1, currentPageNumberInView - 2);
-            int endPage = Math.min(totalPages, currentPageNumberInView + 2);
+        model.addAttribute("productsPage", productsPage);
 
-            if (currentPageNumberInView <= 3) {
-                endPage = Math.min(totalPages, 5);
-            }
-            if (currentPageNumberInView >= totalPages - 2) {
-                startPage = Math.max(1, totalPages - 4);
-            }
+        FruitCartUtils.addPagingAndSortingAttributes(model, pageable);
 
-            for (int i = startPage; i <= endPage; i++) {
-                pageNumbers.add(i);
-            }
-        }
-        model.addAttribute("pageNumbers", pageNumbers);
         return "admin/pages/product/list";
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/delete/{productId}")
     public String deleteProductByForm(
-            @RequestParam("productId") Long id,
+            @PathVariable("productId") Long id,
             RedirectAttributes redirectAttributes) {
         try {
             productService.deleteProduct(id);
@@ -319,7 +277,7 @@ public class AdminProductController {
             Product product = productService.getProductById(id);
             model.addAttribute("product", product);
 
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+            model.addAttribute("pageMetadata", breadcrumbService.buildAdminDetailProduct());
 
             return "admin/pages/product/detail";
 

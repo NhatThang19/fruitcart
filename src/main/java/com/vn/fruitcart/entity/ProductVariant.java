@@ -57,6 +57,9 @@ public class ProductVariant extends BaseEntity {
     private List<InventoryAudit> inventoryAudits = new ArrayList<>();
 
     @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PurchaseOrderItem> purchaseOrdersItems = new ArrayList<>();
 
     @PrePersist

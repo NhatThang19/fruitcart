@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -86,6 +87,18 @@ public class Product extends BaseEntity {
     public void removeImage(ProductImage image) {
         images.remove(image);
         image.setProduct(null);
+    }
+
+    @Transient // Annotation này báo cho JPA không cố gắng map phương thức này vào cột DB
+    public ProductImage getMainImage() {
+        if (this.images == null || this.images.isEmpty()) {
+            return null;
+        }
+
+        return this.images.stream()
+                .filter(ProductImage::isMain) // Tìm ảnh có isMain = true
+                .findFirst()
+                .orElse(this.images.get(0)); // Nếu không có thì lấy ảnh đầu tiên
     }
 
 }

@@ -23,14 +23,17 @@ import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductImage;
 import com.vn.fruitcart.entity.ProductVariant;
+import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.ProductUpdateReq;
 import com.vn.fruitcart.entity.dto.request.ProductVariantUpdateReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
+import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteriaReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductVariantReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.repository.OriginRepository;
 import com.vn.fruitcart.repository.ProductRepository;
+import com.vn.fruitcart.service.specification.UserSpecification;
 import com.vn.fruitcart.util.FruitCartUtils;
 
 import jakarta.transaction.Transactional;
@@ -332,30 +335,6 @@ public class ProductService {
     }
 
     @Transactional
-    public Page<Product> findAllAdminProducts(Pageable pageable, String keyword, Long categoryId, Long originId,
-            Boolean status, String sortField, String sortDir) {
-
-        Sort sort = Sort.unsorted();
-        if (StringUtils.hasText(sortField) && StringUtils.hasText(sortDir)) {
-            Sort.Direction direction = "desc".equalsIgnoreCase(sortDir) ? Sort.Direction.DESC : Sort.Direction.ASC;
-            sort = Sort.by(direction, sortField);
-        } else if (StringUtils.hasText(sortField)) {
-            sort = Sort.by(Sort.Direction.ASC, sortField);
-        } else {
-            sort = Sort.by(Sort.Direction.DESC, "id");
-        }
-
-        pageable = org.springframework.data.domain.PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
-                sort);
-
-        Specification<Product> spec = ProductSpecification.searchProducts(keyword, categoryId, originId, status);
-
-        Page<Product> productPage = productRepository.findAll(spec, pageable);
-
-        return productPage;
-    }
-
-    @Transactional
     public void deleteProduct(Long productId) throws Exception {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> {
@@ -428,6 +407,12 @@ public class ProductService {
 
     public Page<Product> findPaginatedByOriginId(Long originId, Pageable pageable) {
         return productRepository.findByOriginId(originId, pageable);
+    }
+
+    public Page<Product> findProductsByCriteria(ProductSearchCriteriaReq criteria, Pageable pageable) {
+        Specification<Product> spec = ProductSpecification.searchProducts(criteria);
+
+        return productRepository.findAll(spec, pageable);
     }
 
 }

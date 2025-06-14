@@ -109,15 +109,16 @@
                             <div class="col-md-6">
                                 <label for="name" class="form-label">Tên sản phẩm <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control" autocomplete="off" id="name" th:field="*{name}">
+                                <input type="text" class="form-control" th:errorclass="is-invalid" autocomplete="off"
+                                    id="name" th:field="*{name}">
                                 <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}"
                                     th:errors="*{name}"></div>
                             </div>
                             <div class="col-md-6">
                                 <label for="basePrice" class="form-label">Giá cơ bản (VNĐ) <span
                                         class="text-danger">*</span></label>
-                                <input type="number" step="1000" min="0" class="form-control" id="basePrice"
-                                    th:field="*{basePrice}">
+                                <input type="number" step="1000" min="0" class="form-control" th:errorclass="is-invalid"
+                                    id="basePrice" th:field="*{basePrice}">
                                 <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('basePrice')}"
                                     th:errors="*{basePrice}"></div>
                             </div>
@@ -127,7 +128,8 @@
                             <div class="col-md-6">
                                 <label for="category" class="form-label">Danh mục <span
                                         class="text-danger">*</span></label>
-                                <select class="form-control form-select" id="category" th:field="*{categoryId}">
+                                <select class="form-control form-select" id="category" th:errorclass="is-invalid"
+                                    th:field="*{categoryId}">
                                     <option value="">Chọn danh mục</option>
                                     <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">
                                     </option>
@@ -138,7 +140,8 @@
                             <div class="col-md-6">
                                 <label for="origin" class="form-label">Nguồn gốc <span
                                         class="text-danger">*</span></label>
-                                <select class="form-control form-select" id="origin" th:field="*{originId}">
+                                <select th:errorclass="is-invalid" class="form-control form-select" id="origin"
+                                    th:field="*{originId}">
                                     <option value="">Chọn nguồn gốc</option>
                                     <option th:each="ori : ${origins}" th:value="${ori.id}" th:text="${ori.name}">
                                     </option>
@@ -204,7 +207,8 @@
                                                     <label th:for="|variantAttribute${iterStat.index}|"
                                                         class="form-label">Thuộc
                                                         tính <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control form-control-sm"
+                                                    <input th:errorclass="is-invalid" type="text"
+                                                        class="form-control form-control-sm"
                                                         th:id="|variantAttribute${iterStat.index}|"
                                                         th:field="*{variants[__${iterStat.index}__].attribute}">
                                                     <div class="invalid-feedback d-block"
@@ -215,7 +219,7 @@
                                                     <label th:for="|variantPrice${iterStat.index}|"
                                                         class="form-label">Giá (VNĐ)
                                                         <span class="text-danger">*</span></label>
-                                                    <input type="number" step="1000" min="0"
+                                                    <input th:errorclass="is-invalid" type="number" step="1000" min="0"
                                                         class="form-control form-control-sm"
                                                         th:id="|variantPrice${iterStat.index}|"
                                                         th:field="*{variants[__${iterStat.index}__].price}">
@@ -250,11 +254,11 @@
                             </div>
                         </div>
                         <hr class="my-4">
-                        <div class="d-flex justify-content-end">
-                            <a th:href="@{/admin/products}" class="btn btn-outline-secondary me-2">Hủy</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ri-save-line"></i> Lưu sản phẩm
-                            </button>
+                        <div class="d-flex float-end gap-2">
+                            <button type="submit" class="cr-btn default-btn color-primary"><i
+                                    class="ri-save-line me-1"></i>Lưu</button>
+                            <a href="/admin/products" class="cr-btn default-btn color-light me-2"><i
+                                    class="ri-close-line me-1"></i>Hủy</a>
                         </div>
                     </form>
                 </div>

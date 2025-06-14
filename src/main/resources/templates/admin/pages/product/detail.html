@@ -3,238 +3,234 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title th:text="${pageTitle ?: 'Chi tiết sản phẩm'}">Chi tiết sản phẩm</title>
+    <title th:text="'Chi tiết: ' + ${product.name}"></title>
     <style>
-        .product-detail-card .card-body {
-            font-size: 0.95rem;
+        .main-product-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
         }
 
-        .product-detail-card dt {
+        .main-image-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #ccc;
+            border: 3px solid #eee;
+        }
+
+        .detail-card-header {
+            background-color: #f8f9fa;
+        }
+
+        .detail-dl dt {
             font-weight: 500;
             color: #555;
         }
 
-        .product-detail-card dd {
-            margin-bottom: 0.75rem;
-        }
-
-        .product-images-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .product-image-item {
-            border: 1px solid #eee;
-            padding: 0.5rem;
-            border-radius: 4px;
-            background-color: #fdfdfd;
-            text-align: center;
-        }
-
-        .product-image-item img {
-            max-width: 150px;
-            max-height: 150px;
-            object-fit: cover;
-            border-radius: 3px;
-        }
-
-        .product-image-item .main-image-badge {
-            font-size: 0.75rem;
-            margin-top: 0.5rem;
+        .detail-dl dd {
+            margin-bottom: 0.8rem;
         }
 
         .variants-table th {
             background-color: #f8f9fa;
         }
 
-        .variants-table td,
-        .variants-table th {
-            vertical-align: middle;
+        .product-images-gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .section-title {
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            color: #333;
-            border-bottom: 2px solid #0d6efd;
-            /* Primary color */
-            padding-bottom: 0.5rem;
+        .product-image-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            text-align: center;
         }
 
-        .audit-info {
-            font-size: 0.8rem;
-            color: #777;
+        .product-image-item img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+
+        .main-image-ribbon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 110px;
+            height: 25px;
+            line-height: 25px;
+            text-align: center;
+            color: white;
+            font-weight: 500;
+            font-size: 0.7rem;
+            background-color: #0d6efd;
+            /* Màu xanh Primary của Bootstrap */
+            transform: translateX(-30%) translateY(10%) rotate(-45deg);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 
 <body>
-
     <div layout:fragment="content">
-        <div class="container-fluid">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${successMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${errorMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <div th:if="${product != null}" class="row">
+            <div class="col-lg-5 col-md-12">
+                <div class="card mb-3">
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-information-line me-1"></i>Thông tin
+                            chính</h5>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/admin/products/edit/{id}(id=${product.id})}"
+                                class="cr-btn outline-btn color-warning">
+                                <i class="ri-edit-2-line me-1"></i> Sửa
+                            </a>
+                            <a th:href="@{/admin/products}" class="cr-btn outline-btn color-light">
+                                <i class="ri-arrow-go-back-line me-1"></i> Quay lại
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <th:block th:with="mainImage=${product.getMainImage()}">
+                                <div th:if="${mainImage != null}">
+                                    <img th:src="@{${mainImage.imageUrl}}" alt="Main Image"
+                                        class="main-product-image shadow-sm" />
+                                </div>
+                                <div th:if="${mainImage == null}" class="main-image-placeholder">
+                                    <i class="ri-image-off-line"></i>
+                                </div>
+                            </th:block>
+                        </div>
 
-            <div th:if="${product != null}" class="card shadow mb-4 product-detail-card">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h5 class="m-0 font-weight-bold text-primary" th:text="'Chi tiết: ' + ${product.name}">Chi tiết sản
-                        phẩm</h5>
-                    <div>
-                        <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-warning btn-sm me-2">
-                            <i class="ri-pencil-line"></i> Sửa sản phẩm
-                        </a>
-                        <a th:href="@{/admin/products}" class="btn btn-outline-secondary btn-sm">
-                            <i class="ri-arrow-left-line"></i> Quay lại danh sách
-                        </a>
+                        <dl class="row detail-dl">
+                            <dt class="col-md-5">Tên sản phẩm:</dt>
+                            <dd class="col-md-7 fw-bold fs-6" th:text="${product.name}"></dd>
+
+                            <dt class="col-md-5">Giá cơ bản:</dt>
+                            <dd class="col-md-7 text-danger fw-bold"
+                                th:text="${#numbers.formatDecimal(product.basePrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                            </dd>
+
+                            <dt class="col-md-5">Danh mục:</dt>
+                            <dd class="col-md-7" th:text="${product.category?.name ?: 'N/A'}"></dd>
+
+                            <dt class="col-md-5">Nguồn gốc:</dt>
+                            <dd class="col-md-7" th:text="${product.origin?.name ?: 'N/A'}"></dd>
+
+                            <dt class="col-md-5">Trạng thái:</dt>
+                            <dd class="col-md-7">
+                                <span th:if="${product.status}" class="badge rounded-pill text-bg-success">Kích
+                                    hoạt</span>
+                                <span th:unless="${product.status}" class="badge rounded-pill text-bg-danger">Vô hiệu
+                                    hóa</span>
+                            </dd>
+
+                            <dt class="col-md-5">Là sản phẩm mới:</dt>
+                            <dd class="col-md-7">
+                                <span th:if="${product.isNew}" class="badge rounded-pill text-bg-success">Có</span>
+                                <span th:unless="${product.isNew}"
+                                    class="badge rounded-pill text-bg-danger">Không</span>
+                            </dd>
+                        </dl>
+                        <hr>
+                        <div class="text-muted" style="font-size: 0.8rem;">
+                            <p class="mb-1"><strong>Tạo bởi:</strong> <span
+                                    th:text="${product.createdBy ?: 'N/A'}"></span>, lúc <span
+                                    th:text="${#temporals.format(product.createdDate, 'HH:mm, dd/MM/yyyy')}"></span></p>
+                            <p class="mb-0"><strong>Sửa bởi:</strong> <span
+                                    th:text="${product.lastModifiedBy ?: 'N/A'}"></span>, lúc <span
+                                    th:text="${#temporals.format(product.lastModifiedDate, 'HH:mm, dd/MM/yyyy')}"></span>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-7">
-                            <h5 class="section-title">Thông tin chung</h5>
-                            <dl class="row">
-                                <dt class="col-sm-4">ID Sản phẩm:</dt>
-                                <dd class="col-sm-8" th:text="${product.id}"></dd>
+            </div>
 
-                                <dt class="col-sm-4">Tên sản phẩm:</dt>
-                                <dd class="col-sm-8" th:text="${product.name}"></dd>
-
-                                <dt class="col-sm-4">Slug:</dt>
-                                <dd class="col-sm-8" th:text="${product.slug ?: 'N/A'}"></dd>
-
-                                <dt class="col-sm-4">Giá cơ bản:</dt>
-                                <dd class="col-sm-8 text-danger fw-bold"
-                                    th:text="${#numbers.formatDecimal(product.basePrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
-                                </dd>
-
-                                <dt class="col-sm-4">Danh mục:</dt>
-                                <dd class="col-sm-8" th:text="${product.category?.name ?: 'N/A'}"></dd>
-
-                                <dt class="col-sm-4">Nguồn gốc:</dt>
-                                <dd class="col-sm-8" th:text="${product.origin?.name ?: 'N/A'}"></dd>
-
-                                <dt class="col-sm-4">Trạng thái:</dt>
-                                <dd class="col-sm-8">
-                                    <span th:if="${product.status}"
-                                        class="badge bg-success-subtle text-success-emphasis rounded-pill">Kích
-                                        hoạt</span>
-                                    <span th:unless="${product.status}"
-                                        class="badge bg-danger-subtle text-danger-emphasis rounded-pill">Vô hiệu
-                                        hóa</span>
-                                </dd>
-
-                                <dt class="col-sm-4">Sản phẩm mới:</dt>
-                                <dd class="col-sm-8">
-                                    <span th:if="${product.new}"
-                                        class="badge bg-info-subtle text-info-emphasis rounded-pill">Có</span>
-                                    <span th:unless="${product.new}"
-                                        class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">Không</span>
-                                </dd>
-
-                                <dt class="col-sm-4">Mô tả:</dt>
-                                <dd class="col-sm-8">
-                                    <div th:if="${product.description != null && !product.description.trim().isEmpty()}"
-                                         th:utext="${#strings.replace(product.description, '\n', '<br/>')}">
-                                    </div>
-                                    <span th:if="${product.description == null || product.description.trim().isEmpty()}"
-                                        class="text-muted">Không có mô tả.</span>
-                                </dd>
-                            </dl>
-                            <hr class="my-3">
-                            <div class="audit-info">
-                                <p class="mb-1">
-                                    <strong>Người tạo:</strong> <span th:text="${product.createdBy ?: 'N/A'}"></span>
-                                    - <strong>Ngày tạo:</strong> <span
-                                        th:text="${product.createdDate != null ? #temporals.format(product.createdDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}"></span>
-                                </p>
-                                <p class="mb-0">
-                                    <strong>Người sửa cuối:</strong> <span
-                                        th:text="${product.lastModifiedBy ?: 'N/A'}"></span>
-                                    - <strong>Ngày sửa cuối:</strong> <span
-                                        th:text="${product.lastModifiedDate != null ? #temporals.format(product.lastModifiedDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}"></span>
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="col-md-5" th:if="${product.images != null && !product.images.empty}">
-                            <h5 class="section-title">Hình ảnh sản phẩm</h5>
-                            <div class="product-images-gallery">
-                                <div th:each="image : ${product.images}" class="product-image-item">
-                                    <a th:href="@{${image.imageUrl}}" data-bs-toggle="tooltip"
-                                        th:title="'Xem ảnh gốc: ' + ${image.imageUrl.substring(image.imageUrl.lastIndexOf('/')+1)}"
-                                        target="_blank">
-                                        <img th:src="@{${image.imageUrl}}"
-                                            class="img-thumbnail mb-2"
-                                            onerror="this.onerror=null; this.src='/shared/assets/images/default-product.png';">
-                                    </a>
-                                    <span th:if="${image.isMain}" class="badge bg-primary main-image-badge">Ảnh
-                                        chính</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-5 text-muted" th:if="${product.images == null || product.images.empty}">
-                            <h5 class="section-title">Hình ảnh sản phẩm</h5>
-                            <p><i class="ri-image-off-line"></i> Sản phẩm này chưa có hình ảnh.</p>
-                        </div>
+            <div class="col-lg-7 col-md-12">
+                <div class="card mb-3">
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-list-3-line me-1"></i>Mô tả &
+                            Biến thể</h5>
                     </div>
+                    <div class="card-body">
+                        <h6>Mô tả sản phẩm</h6>
+                        <div th:if="${product.description != null && !product.description.trim().isEmpty()}"
+                            th:utext="${#strings.replace(product.description, '\n', '<br/>')}" class="text-muted mb-4">
+                        </div>
+                        <p th:if="${product.description == null || product.description.trim().isEmpty()}"
+                            class="text-muted fst-italic mb-4">Sản phẩm này chưa có mô tả.</p>
 
-                    <div th:if="${product.variants != null && !product.variants.empty()}" class="mt-4">
-                        <h5 class="section-title">Các biến thể sản phẩm</h5>
-                        <div class="table-responsive">
+                        <hr>
+
+                        <h6>Các biến thể sản phẩm</h6>
+                        <div th:if="${product.variants != null && !product.variants.empty()}" class="table-responsive">
                             <table class="table table-sm table-bordered table-hover variants-table">
                                 <thead>
                                     <tr>
-                                        <th class="text-center" style="width:10%;">ID Biến thể</th>
-                                        <th style="width:30%;">Thuộc tính</th>
-                                        <th style="width:30%;">SKU</th>
-                                        <th class="text-end" style="width:30%;">Giá biến thể (VNĐ)</th>
+                                        <th class="text-center">Thuộc tính</th>
+                                        <th class="text-center">SKU</th>
+                                        <th class="text-center">Giá (VNĐ)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr th:each="variant : ${product.variants}">
-                                        <td class="text-center" th:text="${variant.id}"></td>
-                                        <td th:text="${variant.attribute}"></td>
-                                        <td th:text="${variant.sku}"></td>
-                                        <td class="text-end fw-semibold"
+                                        <td class="text-color-gray" th:text="${variant.attribute}"></td>
+                                        <td class="text-color-gray" th:text="${variant.sku}"></td>
+                                        <td class="text-center text-color-gray"
                                             th:text="${#numbers.formatDecimal(variant.price, 0, 'COMMA', 0, 'POINT')}">
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
+                        <p th:if="${product.variants == null || product.variants.empty()}"
+                            class="text-muted fst-italic">Sản phẩm không có biến thể (sử dụng giá cơ bản).</p>
                     </div>
-                    <div th:if="${product.variants == null || product.variants.empty()}" class="mt-4">
-                        <h5 class="section-title">Các biến thể sản phẩm</h5>
-                        <p class="text-muted"><i class="ri-list-check-2"></i> Sản phẩm này không có biến thể nào được
-                            định nghĩa (sử dụng giá cơ bản).</p>
+                </div>
+                <div class="card mb-3">
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-gallery-line me-1"></i>Thư viện hình
+                            ảnh</h5>
                     </div>
-
+                    <div class="card-body">
+                        <div th:if="${product.images != null && !product.images.empty}" class="product-images-gallery">
+                            <div th:each="image : ${product.images}" class="product-image-item">
+                                <a th:href="@{${image.imageUrl}}" target="_blank">
+                                    <img th:src="@{${image.imageUrl}}" class="img-thumbnail">
+                                </a>
+                                <div th:if="${image.isMain}" class="main-image-ribbon">main</div>
+                            </div>
+                        </div>
+                        <p th:if="${product.images == null || product.images.empty}" class="text-muted fst-italic">Sản
+                            phẩm này chưa có hình ảnh.</p>
+                    </div>
                 </div>
             </div>
-            <div th:if="${product == null}" class="alert alert-warning" role="alert">
-                Không tìm thấy thông tin sản phẩm.
-            </div>
-
         </div>
     </div>
-    <th:block layout:fragment="scripts">
-        <script>
-            // Kích hoạt tooltip của Bootstrap (nếu có)
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
-        </script>
-    </th:block>
 
 </body>
 

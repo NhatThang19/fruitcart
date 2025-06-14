@@ -14,8 +14,6 @@ import lombok.Setter;
 public class ProductVariantUpdateReq {
     private Long id;
 
-    @NotBlank(message = "SKU không được để trống")
-    @Size(max = 100, message = "SKU không được vượt quá 100 ký tự")
     private String sku;
 
     @NotNull(message = "Giá biến thể không được để trống")

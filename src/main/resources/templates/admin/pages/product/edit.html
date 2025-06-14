@@ -24,7 +24,6 @@
             flex-direction: column;
             align-items: center;
             width: 150px;
-            /* Chiều rộng của mỗi item ảnh */
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
@@ -32,7 +31,6 @@
         .image-preview-item img,
         .existing-image-item img {
             max-width: 120px;
-            /* Kích thước ảnh preview */
             max-height: 120px;
             display: block;
             margin-bottom: 8px;
@@ -41,12 +39,10 @@
 
         .remove-image-btn,
         .delete-existing-image-btn {
-            /* Nút xóa cho ảnh mới (JS) và cũ (checkbox) */
             position: absolute;
             top: -10px;
             right: -10px;
             background: #dc3545;
-            /* Màu đỏ của Bootstrap */
             color: white;
             border: none;
             border-radius: 50%;
@@ -62,37 +58,30 @@
         .remove-image-btn:hover,
         .delete-existing-image-btn:hover {
             background: #c82333;
-            /* Màu đỏ đậm hơn khi hover */
         }
 
         .variant-item {
             background-color: #f8f9fa;
-            /* Màu nền nhẹ cho variant */
             border: 1px solid #dee2e6;
-            /* Đường viền Bootstrap */
             padding: 1rem;
             margin-bottom: 1rem;
             border-radius: .25rem;
-            /* Bo góc Bootstrap */
         }
 
         .main-image-label {
             font-size: 0.8rem;
-            /* Cỡ chữ nhỏ hơn cho label "Ảnh chính" */
             margin-left: 0.25rem;
         }
 
         .form-check-input[type="checkbox"],
         .form-check-input[type="radio"] {
             width: 1.2em;
-            /* Kích thước checkbox/radio lớn hơn một chút */
             height: 1.2em;
         }
 
         .delete-image-checkbox-label {
             font-size: 0.8rem;
             color: #dc3545;
-            /* Màu đỏ cho label "Xóa ảnh này" */
         }
     </style>
 </head>
@@ -336,10 +325,6 @@
                             <div class="col-md-4 mb-2">
                                 <label for="variants${newIndex}.attribute" class="form-label">Thuộc tính <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-sm" id="variants${newIndex}.attribute" name="variants[${newIndex}].attribute" required>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <label for="variants${newIndex}.sku" class="form-label">SKU <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="variants${newIndex}.sku" name="variants[${newIndex}].sku" required>
                             </div>
                             <div class="col-md-3 mb-2">
                                 <label for="variants${newIndex}.price" class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>

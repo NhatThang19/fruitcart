@@ -11,6 +11,7 @@ import com.vn.fruitcart.entity.Inventory;
 import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductVariant;
+import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteriaReq;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -21,27 +22,26 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 
 public class ProductSpecification {
-    public static Specification<Product> searchProducts(String keyword, Long categoryId, Long originId,
-            Boolean status) {
+    public static Specification<Product> searchProducts(ProductSearchCriteriaReq criteria) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (StringUtils.hasText(keyword)) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+            if (StringUtils.hasText(criteria.getKeyword())) {
+                predicates.add(cb.like(cb.lower(root.get("name")), "%" + criteria.getKeyword().toLowerCase() + "%"));
             }
 
-            if (categoryId != null && categoryId > 0) {
+            if (criteria.getCategoryId() != null && criteria.getCategoryId() > 0) {
                 Join<Product, Category> categoryJoin = root.join("category", JoinType.INNER);
-                predicates.add(cb.equal(categoryJoin.get("id"), categoryId));
+                predicates.add(cb.equal(categoryJoin.get("id"), criteria.getCategoryId()));
             }
 
-            if (originId != null && originId > 0) {
+            if (criteria.getOriginId() != null && criteria.getOriginId() > 0) {
                 Join<Product, Origin> originJoin = root.join("origin", JoinType.INNER);
-                predicates.add(cb.equal(originJoin.get("id"), originId));
+                predicates.add(cb.equal(originJoin.get("id"), criteria.getOriginId()));
             }
 
-            if (status != null) {
-                predicates.add(cb.equal(root.get("status"), status));
+            if (criteria.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), criteria.getStatus()));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

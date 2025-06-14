@@ -146,4 +146,19 @@ public class BreadcrumbService {
         return new PageMetadata("Tạo sản phẩm", breadcrumbList);
     }
 
+    public Object buildAdminProduct() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", null));
+        return new PageMetadata("Sản phẩm", breadcrumbList);
+    }
+
+    public Object buildAdminDetailProduct() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", "/admin/products"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết sản phẩm", null));
+        return new PageMetadata("Chi tiết sản phẩm", breadcrumbList);
+    }
+
 }
