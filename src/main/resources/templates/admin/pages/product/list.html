@@ -53,7 +53,7 @@
                     th:classappend="${disabledCondition} ? 'disabled' : '' + (${isActive} ? ' active' : '')">
                     <a class="page-link" th:href="@{/admin/products(
                     page=${page},
-                    size=${usersPage.size},
+                    size=${productsPage.size},
                     sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
                     keyword=${criteria.keyword},
                     categoryId=${criteria.categoryId},

@@ -14,22 +14,25 @@ import com.vn.fruitcart.service.ProductService;
 import lombok.RequiredArgsConstructor;
 
 @Controller
-@RequestMapping("/products")
+@RequestMapping("/san-pham")
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductService productService;
     private final BreadcrumbService breadcrumbService;
 
-    @GetMapping("/{id}")
-    public String getProductDetailPage(@PathVariable Long id, Model model) {
+    @GetMapping("/{slug}")
+    public String getProductDetailPage(@PathVariable String slug, Model model) {
         try {
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
-            Product product = productService.getProductById(id);
+            model.addAttribute("pageMetadata", breadcrumbService.buildClientProductDetail());
+            Product product = productService.getProductBySlug(slug); 
             model.addAttribute("product", product);
+            model.addAttribute("pageTitle", product.getName()); 
+
 
             return "client/pages/product/detail";
+
         } catch (ResourceNotFoundException e) {
-            return "error/404"; 
+            return "error/404";
         }
     }
 }

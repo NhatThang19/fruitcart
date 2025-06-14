@@ -415,4 +415,9 @@ public class ProductService {
         return productRepository.findAll(spec, pageable);
     }
 
+    public Product getProductBySlug(String slug) {
+        return productRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với slug: " + slug));
+    }
+
 }

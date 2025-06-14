@@ -45,7 +45,7 @@ public class HomeController {
             @RequestParam(name = "sortBy", defaultValue = "createdDate") String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = "desc") String sortOrder,
             @RequestParam(name = "page", defaultValue = "1") int page,
-            @RequestParam(name = "size", defaultValue = "12") int pageSize) {
+            @RequestParam(name = "size", defaultValue = "6") int pageSize) {
 
         Pageable pageable = PageRequest.of(page - 1, pageSize);
 

@@ -205,4 +205,11 @@ public class BreadcrumbService {
         return new PageMetadata("Phân cụm", breadcrumbList);
     }
 
+    public Object buildClientProductDetail() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết sản phẩm", null));
+        return new PageMetadata("Chi tiết sản phẩm", breadcrumbList);
+    }
+
 }

@@ -10,22 +10,6 @@
     <div layout:fragment="content">
         <section class="section-shop padding-tb-100">
             <div class="container">
-                <div class="row d-none">
-                    <div class="col-lg-12">
-                        <div class="mb-30 aos-init aos-animate" data-aos="fade-up" data-aos-duration="2000"
-                            data-aos-delay="400">
-                            <div class="cr-banner">
-                                <h2>Categories</h2>
-                            </div>
-                            <div class="cr-banner-sub-title">
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                    incididunt
-                                    ut labore lacus vel facilisis. </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <form th:action="@{/products}" method="get" id="filterSortForm">
                     <input type="hidden" name="page" th:value="${param.page != null ? param.page : '1'}">
                     <input type="hidden" name="size" th:value="${pageSize}">
