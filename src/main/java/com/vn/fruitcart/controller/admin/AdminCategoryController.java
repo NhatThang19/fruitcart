@@ -1,9 +1,5 @@
 package com.vn.fruitcart.controller.admin;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -79,7 +75,7 @@ public class AdminCategoryController {
             @ModelAttribute("criteria") CategorySearchCriteria criteria) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminCategoryPageMetadata());
 
-        Page<Category> categoryPage = categoryService.findUsersByCriteria(criteria, pageable);
+        Page<Category> categoryPage = categoryService.findCategoriesByCriteria(criteria, pageable);
 
         model.addAttribute("categoryPage", categoryPage);
 

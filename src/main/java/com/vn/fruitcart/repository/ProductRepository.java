@@ -11,4 +11,6 @@ import com.vn.fruitcart.entity.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
+
+    Page<Product> findByOriginId(Long originId, Pageable pageable);
 }

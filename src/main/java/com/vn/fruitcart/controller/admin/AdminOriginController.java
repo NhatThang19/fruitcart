@@ -1,10 +1,9 @@
 package com.vn.fruitcart.controller.admin;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,14 +12,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.vn.fruitcart.entity.Origin;
+import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.dto.request.OriginReq;
+import com.vn.fruitcart.entity.dto.request.category.OriginSearchCriteria;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.OriginService;
+import com.vn.fruitcart.service.ProductService;
+import com.vn.fruitcart.util.FruitCartUtils;
 
 import groovyjarjarpicocli.CommandLine.DuplicateNameException;
 import jakarta.validation.Valid;
@@ -31,52 +33,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminOriginController {
     private final OriginService originService;
+    private final ProductService productService;
     private final BreadcrumbService breadcrumbService;
 
     @GetMapping
     public String listOrigins(Model model,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id,asc") String[] sort,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String status) {
+            @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable,
+            @ModelAttribute("criteria") OriginSearchCriteria criteria) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginPageMetadata());
 
-        String sortField = sort[0];
-        String sortDir = (sort.length > 1 && (sort[1].equalsIgnoreCase("asc") || sort[1].equalsIgnoreCase("desc")))
-                ? sort[1]
-                : "asc";
-        model.addAttribute("sortField", sortField);
-        model.addAttribute("sortDir", sortDir);
-        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        Page<Origin> originPage = originService.findOriginsByCriteria(criteria, pageable);
 
-        Boolean statusFilter = null;
-        if (status != null && !status.isEmpty()) {
-            if ("true".equalsIgnoreCase(status)) {
-                statusFilter = true;
-            } else if ("false".equalsIgnoreCase(status)) {
-                statusFilter = false;
-            }
-        }
-        model.addAttribute("selectedStatus", status == null ? "" : status);
+        model.addAttribute("originPage", originPage);
 
-        Page<Origin> originPage = originService.getAllOriginsWithFiltersAndPagination(keyword, statusFilter,
-                page, size, sortField, sortDir);
-
-        model.addAttribute("origins", originPage.getContent());
-        model.addAttribute("currentPage", originPage.getNumber() + 1);
-        model.addAttribute("totalPages", originPage.getTotalPages());
-        model.addAttribute("totalItems", originPage.getTotalElements());
-        model.addAttribute("pageSize", size);
-
-        if (originPage.getTotalPages() > 0) {
-            List<Integer> pageNumbers = IntStream.rangeClosed(1, originPage.getTotalPages())
-                    .boxed()
-                    .collect(Collectors.toList());
-            model.addAttribute("pageNumbers", pageNumbers);
-        }
-
-        model.addAttribute("keyword", keyword);
+        FruitCartUtils.addPagingAndSortingAttributes(model, pageable);
 
         return "admin/pages/origin/list";
     }
@@ -168,8 +138,8 @@ public class AdminOriginController {
         }
     }
 
-    @PostMapping("/delete")
-    public String deleteOrigin(@RequestParam("originId") Long id, RedirectAttributes redirectAttributes) {
+    @PostMapping("/delete/{originId}")
+    public String deleteOrigin(@PathVariable("originId") Long id, RedirectAttributes redirectAttributes) {
         try {
             originService.deleteOrigin(id);
             redirectAttributes.addFlashAttribute("message", "Xoá nguồn gốc thành công.");
@@ -185,11 +155,15 @@ public class AdminOriginController {
 
     @GetMapping("/detail/{id}")
     public String showOriginDetail(@PathVariable("id") Long id, Model model,
+            @PageableDefault(size = 5, sort = "name") Pageable pageable,
             RedirectAttributes redirectAttributes) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+
         try {
             Origin origin = originService.getOriginById(id);
             model.addAttribute("origin", origin);
+            Page<Product> productPage = productService.findPaginatedByOriginId(id, pageable);
+            model.addAttribute("productPage", productPage);
             return "admin/pages/origin/detail";
         } catch (ResourceNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy nguồn gốc: " + e.getMessage());

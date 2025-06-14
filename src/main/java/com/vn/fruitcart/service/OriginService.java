@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.dto.request.OriginReq;
+import com.vn.fruitcart.entity.dto.request.category.OriginSearchCriteria;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.OriginRepository;
 import com.vn.fruitcart.service.specification.OriginSpecification;
@@ -94,5 +95,19 @@ public class OriginService {
         Specification<Origin> spec = OriginSpecification.hasStatus(true);
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
         return originRepository.findAll(spec, sort);
+    }
+
+    public Page<Origin> findOriginsByCriteria(OriginSearchCriteria criteria, Pageable pageable) {
+        Specification<Origin> spec = Specification.where(null);
+
+        if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+            spec = spec.and(OriginSpecification.hasName(criteria.getKeyword()));
+        }
+
+        if (criteria.getStatus() != null) {
+            spec = spec.and(OriginSpecification.hasStatus(criteria.getStatus()));
+        }
+
+        return originRepository.findAll(spec, pageable);
     }
 }

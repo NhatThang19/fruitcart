@@ -3,180 +3,153 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title th:text="pageMetadata.title"></title>
-    <style>
-        .detail-label {
-            font-weight: 600;
-            width: 200px;
-            color: #495057;
-        }
-
-        .detail-value {
-            word-break: break-word;
-        }
-
-        .product-list-container {
-            padding: 1rem;
-            border: 1px solid #e9ecef;
-            border-radius: .25rem;
-            background-color: #f8f9fa;
-            height: 100%;
-        }
-
-        .product-list {
-            max-height: 350px;
-            overflow-y: auto;
-        }
-
-        .product-list .list-group-item {
-            border-left: none;
-            border-right: none;
-            padding-left: 0;
-            padding-right: 0;
-            background-color: transparent;
-        }
-
-        .product-list .list-group-item:first-child {
-            border-top: none;
-        }
-
-        .product-list .list-group-item:last-child {
-            border-bottom: none;
-        }
-
-        .table-borderless td {
-            padding-top: .5rem;
-            padding-bottom: .5rem;
-        }
-    </style>
+    <title th:text="${pageMetadata.title}"></title>
 </head>
 
 <body>
     <div layout:fragment="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div th:if="${origin != null}">
-                                <h5 class="card-title mb-4">
-                                    Thông tin nguồn gốc: <span class="text-primary" th:text="${origin.name}"></span>
-                                </h5>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card mb-5">
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-user-line me-1"></i>Thông tin
+                            nguồn gốc</h5>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/admin/origins/update/{id}(id=${origin.id})}"
+                                class="cr-btn outline-btn color-warning">
+                                <i class="ri-edit-2-line me-1"></i> Sửa
+                            </a>
+                            <a th:href="@{/admin/origins}" class="cr-btn outline-btn color-light">
+                                <i class="ri-arrow-go-back-line me-1"></i> Quay lại
+                            </a>
+                        </div>
+                    </div>
+                    <div class="mt-3 mx-3">
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show"
+                            role="alert">
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
+                            role="alert">
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="card-body row">
+                        <dl class="row col-md-6 text-color-gray border-end">
+                            <h6 class="fs-6 text-color-primary"><i class="mdi mdi-information-outline me-1"></i>Thông
+                                tin chung</h6>
+                            <dt class="col-md-6">ID Nguồn gốc:</dt>
+                            <dd class="col-md-6" th:text="${origin.id}">
+                            </dd>
 
-                                <div class="row">
-                                    <div class="col-lg-7 mb-4 mb-lg-0">
-                                        <h6><i class="mdi mdi-information-outline me-1"></i>Thông tin chung</h6>
-                                        <div class="table-responsive">
-                                            <table class="table table-borderless mb-0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="detail-label">ID Nguồn gốc:</td>
-                                                        <td class="detail-value" th:text="${origin.id}"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="detail-label">Tên Nguồn gốc:</td>
-                                                        <td class="detail-value" th:text="${origin.name}"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="detail-label">Slug:</td>
-                                                        <td class="detail-value" th:text="${origin.slug}"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="detail-label">Mô tả:</td>
-                                                        <td class="detail-value"
-                                                            th:text="${origin.description} ?: '(Không có mô tả)'">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="detail-label">Trạng thái:</td>
-                                                        <td class="detail-value">
-                                                            <span th:if="${origin.status}"
-                                                                class="badge bg-success-subtle text-success font-size-12 py-1 px-2">Hoạt
-                                                                động</span>
-                                                            <span th:unless="${origin.status}"
-                                                                class="badge bg-danger-subtle text-danger font-size-12 py-1 px-2">Không
-                                                                hoạt động</span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                            <dt class="col-md-6">Tên Nguồn gốc:</dt>
+                            <dd class="col-md-6" th:text="${origin.name}"></dd>
 
-                                        <h6 class="mt-4"><i class="mdi mdi-history me-1"></i>Thông tin Audit</h6>
-                                        <div class="table-responsive">
-                                            <table class="table table-borderless mb-0">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="detail-label">Ngày tạo:</td>
-                                                        <td class="detail-value"
-                                                            th:text="${origin.createdDate != null ? #temporals.format(origin.createdDate, 'HH:mm:ss, dd-MM-yyyy') : 'N/A'}">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="detail-label">Người tạo:</td>
-                                                        <td class="detail-value"
-                                                            th:text="${origin.createdBy} ?: 'N/A'"></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="detail-label">Ngày cập nhật cuối:</td>
-                                                        <td class="detail-value"
-                                                            th:text="${origin.lastModifiedDate != null ? #temporals.format(origin.lastModifiedDate, 'HH:mm:ss, dd-MM-yyyy') : 'N/A'}">
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="detail-label">Người cập nhật cuối:</td>
-                                                        <td class="detail-value"
-                                                            th:text="${origin.lastModifiedBy} ?: 'N/A'">
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-5">
-                                        <div class="product-list-container">
-                                            <h5 class="font-size-16 mb-3"><i
-                                                    class="mdi mdi-package-variant-closed me-1"></i>Sản phẩm thuộc nguồn gốc</h5>
-                                            <div th:if="${origin.products != null && !#lists.isEmpty(origin.products)}"
-                                                class="product-list">
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item"
-                                                        th:each="product : ${origin.products}">
-                                                        <span th:text="${product.name}"></span>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div
-                                                th:if="${origin.products == null || #lists.isEmpty(origin.products)}">
-                                                <p class="text-muted mb-0">Hiện chưa có sản phẩm nào trong nguồn gốc này.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div th:unless="${origin != null}">
-                                <div class="alert alert-warning" role="alert">
-                                    Không tìm thấy thông tin chi tiết cho nguồn gốc này.
-                                </div>
-                            </div>
+                            <dt class="col-md-6">Slug:</dt>
+                            <dd class="col-md-6" th:text="${origin.slug}"></dd>
 
-                            <div class="mt-4 pt-3 border-top">
-                                <a th:href="@{/admin/origins}" class="btn btn-secondary waves-effect">
-                                    <i class="ri-arrow-left-line align-middle me-1"></i> Quay lại Danh sách
-                                </a>
-                                <a th:if="${origin != null && origin.status}"
-                                    th:href="@{/admin/origins/update/{id}(id=${origin.id})}"
-                                    class="btn btn-primary waves-effect waves-light ms-2">
-                                    <i class="ri-pencil-line align-middle me-1"></i> Chỉnh sửa
-                                </a>
-                            </div>
+                            <dt class="col-md-6">Mô tả:</dt>
+                            <dd class="col-md-6" th:text="${origin.description ?: 'N/A'}">
+                            </dd>
 
+                            <dt class="col-md-6">Trạng thái:</dt>
+                            <dd class="col-md-6">
+                                <span th:if="${origin.status}" class="badge rounded-pill bg-success">Hoạt
+                                    động</span>
+                                <span th:unless="${origin.status}" class="badge rounded-pill bg-danger">Không
+                                    hoạt động</span>
+                            </dd>
+                        </dl>
+                        <dl class="row col-md-6 text-color-gray ms-2">
+                            <h6 class="fs-6 text-color-primary"><i class="mdi mdi-history me-1"></i>Thông tin Audit</h6>
+                            <dt class="col-md-6">Ngày tạo:</dt>
+                            <dd class="col-md-6"
+                                th:text="${origin.createdDate != null ? #temporals.format(origin.createdDate, 'HH:mm:ss, dd-MM-yyyy') : 'N/A'}">
+                            </dd>
+
+                            <dt class="col-md-6">Người tạo:</dt>
+                            <dd class="col-md-6" th:text="${origin.createdBy} ?: 'N/A'"></dd>
+
+                            <dt class="col-md-6">Cập nhật cuối:</dt>
+                            <dd class="col-md-6"
+                                th:text="${origin.lastModifiedDate != null ? #temporals.format(origin.lastModifiedDate, 'HH:mm:ss, dd-MM-yyyy') : 'N/A'}">
+                            </dd>
+
+                            <dt class="col-md-6">Người cập nhật cuối:</dt>
+                            <dd class="col-md-6" th:text="${origin.lastModifiedBy} ?: 'N/A'">
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card mb-5">
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-list-line me-1"></i>Sản phẩm
+                            thuộc nguồn gốc
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-md-4 fw-medium">Tổng số sản phẩm:</dt>
+                            <dd class="col-md-8" th:text="${productPage.totalElements}">0</dd>
+                        </dl>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="product : ${productPage.content}">
+                                        <td th:text="${product.id}"></td>
+                                        <td th:text="${product.name}"></td>
+                                        <td class="text-end">
+                                            <a th:href="@{/admin/products/detail/{id}(id=${product.id})}"
+                                                class="btn btn-sm outline-btn color-info">
+                                                <i class="ri-eye-line"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${productPage.empty}">
+                                        <td colspan="3" class="text-center fst-italic py-3">Chưa có sản phẩm nào trong
+                                            nguồn gốc này.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <nav th:if="${productPage.totalPages > 0}" aria-label="Page navigation" class="mt-3">
+                                <ul class="pagination pagination-sm justify-content-end mb-0">
+                                    <li class="page-item" th:classappend="${productPage.first} ? 'disabled'">
+                                        <a class="page-link"
+                                            th:href="@{/admin/origins/detail/{id}(id=${origin.id}, page=${productPage.number - 1}, size=${productPage.size})}">&lsaquo;</a>
+                                    </li>
+                                    <li class="page-item"
+                                        th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+                                        th:classappend="${i == productPage.number} ? 'active'">
+                                        <a class="page-link"
+                                            th:href="@{/admin/origins/detail/{id}(id=${origin.id}, page=${i}, size=${productPage.size})}"
+                                            th:text="${i + 1}"></a>
+                                    </li>
+                                    <li class="page-item" th:classappend="${productPage.last} ? 'disabled'">
+                                        <a class="page-link"
+                                            th:href="@{/admin/origins/detail/{id}(id=${origin.id}, page=${productPage.number + 1}, size=${productPage.size})}">&rsaquo;</a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </body>
 

@@ -31,7 +31,6 @@ import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.repository.OriginRepository;
 import com.vn.fruitcart.repository.ProductRepository;
-import com.vn.fruitcart.repository.ProductVariantRepository;
 import com.vn.fruitcart.util.FruitCartUtils;
 
 import jakarta.transaction.Transactional;
@@ -41,7 +40,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-    private final ProductVariantRepository productVariantRepository;
     private final CategoryRepository categoryRepository;
     private final OriginRepository originRepository;
     private final FileStorageService fileStorageService;
@@ -426,6 +424,10 @@ public class ProductService {
 
     public Page<Product> findPaginatedByCategoryId(Long categoryId, Pageable pageable) {
         return productRepository.findByCategoryId(categoryId, pageable);
+    }
+
+    public Page<Product> findPaginatedByOriginId(Long originId, Pageable pageable) {
+        return productRepository.findByOriginId(originId, pageable);
     }
 
 }
