@@ -65,9 +65,6 @@ public class PurchaseOrderService {
 
     public Page<PurchaseOrder> listPurchaseOrders(PurchaseOrderStatusEnum statusFilter, Pageable pageable) {
         if (statusFilter != null) {
-            // PurchaseOrderRepository đã có phương thức
-            // findByStatus(PurchaseOrderStatusEnum status, Pageable pageable)
-            // Nếu chưa có, bạn cần thêm vào PurchaseOrderRepository
             return purchaseOrderRepository.findByStatus(statusFilter, pageable);
         }
         return purchaseOrderRepository.findAll(pageable);

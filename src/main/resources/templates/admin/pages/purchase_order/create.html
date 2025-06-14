@@ -3,7 +3,7 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title th:text="${pageTitle ?: 'Tạo Đơn Nhập Hàng Mới'}">Tạo Đơn Nhập Hàng Mới</title>
+    <title th:text="${pageMetadata.title}"></title>
     <style>
         .order-item-row {
             padding: 1rem;
@@ -18,11 +18,6 @@
             margin-bottom: .25rem;
             color: #495057;
         }
-
-        .remove-item-btn {
-            margin-top: 30px;
-            /* Align with input fields that have labels */
-        }
     </style>
 </head>
 
@@ -31,9 +26,12 @@
         <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-edit-2-line me-1"></i>Nhập thông tin
+                            đơn nhập hàng</h5>
+                    </div>
                     <div class="card-body">
-                        <h4 class="card-title">Thông tin Đơn Nhập Hàng</h4>
-
                         <form th:action="@{/admin/purchase-orders/create}" th:object="${purchaseOrderCreateRequestDTO}"
                             method="post" class="forms-sample">
 
@@ -72,9 +70,9 @@
                             <hr class="my-4">
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5>Chi tiết sản phẩm</h5>
-                                <button type="button" id="addOrderItemBtn" class="btn btn-sm btn-outline-success">
-                                    <i class="mdi mdi-plus-circle-outline"></i> Thêm sản phẩm
+                                <h6 class="text-color-primary">Chi tiết sản phẩm</h6>
+                                <button type="button" id="addOrderItemBtn" class="cr-btn outline-btn color-success">
+                                    <i class="mdi mdi-plus-circle-outline"></i> Thêm
                                 </button>
                             </div>
 
@@ -129,8 +127,7 @@
                                                 th:id="'itemNote-' + ${itemStat.index}" placeholder="Ghi chú item" />
                                         </div>
                                         <div class="col-md-1 d-flex align-items-center">
-                                            <button type="button" class="btn btn-danger btn-sm remove-item-btn w-100"
-                                                style="margin-top: 20px;" title="Xóa mục này">
+                                            <button type="button" class="btn btn-danger btn-sm remove-item-btn w-100">
                                                 <i class="mdi mdi-delete-outline"></i>
                                             </button>
                                         </div>
@@ -138,13 +135,11 @@
                                 </div>
                             </div>
 
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary me-2">
-                                    <i class="mdi mdi-content-save-outline"></i> Tạo đơn hàng
-                                </button>
-                                <a th:href="@{/admin/purchase-orders}" class="btn btn-light">
-                                    <i class="mdi mdi-cancel"></i> Hủy
-                                </a>
+                            <div class="d-flex float-end gap-2">
+                                <button type="submit" class="cr-btn default-btn color-primary"><i
+                                        class="ri-save-line me-1"></i>Lưu</button>
+                                <a href="/admin/purchase-orders" class="cr-btn default-btn color-light me-2"><i
+                                        class="ri-close-line me-1"></i>Hủy</a>
                             </div>
                         </form>
                     </div>
@@ -158,7 +153,7 @@
                     <div class="col-md-4 mb-3">
                         <label for="productVariantId-INDEX" class="form-label">Sản phẩm<span
                                 class="text-danger">*</span></label>
-                        <select class="form-select product-variant-select" name="items[INDEX].productVariantId"
+                        <select class="form-control form-select product-variant-select" name="items[INDEX].productVariantId"
                             id="productVariantId-INDEX" required>
                             <option value="">-- Chọn biến thể sản phẩm --</option>
                             <option th:each="pv : ${productVariants}" th:value="${pv.id}"
@@ -185,8 +180,7 @@
                             placeholder="Ghi chú item" />
                     </div>
                     <div class="col-md-1 d-flex align-items-center">
-                        <button type="button" class="btn btn-danger btn-sm remove-item-btn w-100"
-                            style="margin-top: 20px;" title="Xóa mục này">
+                        <button type="button" class="btn btn-danger btn-sm remove-item-btn" style="margin-top: 20px;">
                             <i class="mdi mdi-delete-outline"></i>
                         </button>
                     </div>

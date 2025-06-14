@@ -161,4 +161,27 @@ public class BreadcrumbService {
         return new PageMetadata("Chi tiết sản phẩm", breadcrumbList);
     }
 
+    public Object buildAdminPurchaseOrder() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Nhập hàng", "/admin/purchase-orders"));
+        return new PageMetadata("Nhập hàng", breadcrumbList);
+    }
+
+    public Object buildAdminPurchaseOrderCreate() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Nhập hàng", "/admin/purchase-orders"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Tạo đơn nhập hàng", null));
+        return new PageMetadata("Tạo đơn nhập hàng", breadcrumbList);
+    }
+
+    public Object buildAdminPurchaseOrderDetail() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Nhập hàng", "/admin/purchase-orders"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết đơn nhập hàng", null));
+        return new PageMetadata("Chi tiết đơn nhập hàng", breadcrumbList);
+    }
+
 }

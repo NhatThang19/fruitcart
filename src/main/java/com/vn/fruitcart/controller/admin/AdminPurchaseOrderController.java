@@ -21,11 +21,13 @@ import org.springframework.data.domain.Sort;
 
 import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.PurchaseOrder;
+import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.PurchaseOrderCreateReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.ProductVariantRepository;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.PurchaseOrderService;
+import com.vn.fruitcart.util.FruitCartUtils;
 import com.vn.fruitcart.util.constant.PurchaseOrderStatusEnum;
 
 import jakarta.validation.Valid;
@@ -41,8 +43,12 @@ public class AdminPurchaseOrderController {
 
     @GetMapping
     public String listPurchaseOrders(Model model,
-            @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
+            @PageableDefault(size = 5, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(name = "status", required = false) String statusFilterString) {
+
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminPurchaseOrder());
+
+        model.addAttribute("statusEnumValues", Arrays.asList(PurchaseOrderStatusEnum.values()));
 
         PurchaseOrderStatusEnum statusFilter = null;
         if (statusFilterString != null && !statusFilterString.isEmpty()
@@ -54,28 +60,14 @@ public class AdminPurchaseOrderController {
             }
         }
 
-        Page<PurchaseOrder> purchaseOrdersPage = purchaseOrderService.listPurchaseOrders(statusFilter, pageable);
+        Page<PurchaseOrder> purchaseOrderPage = purchaseOrderService.listPurchaseOrders(statusFilter, pageable);
 
-        model.addAttribute("purchaseOrdersPage", purchaseOrdersPage);
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+        model.addAttribute("purchaseOrdersPage", purchaseOrderPage);
 
-        model.addAttribute("statusEnumValues", Arrays.asList(PurchaseOrderStatusEnum.values()));
         model.addAttribute("currentStatusFilter",
                 statusFilterString != null ? statusFilterString.toUpperCase() : "ALL");
 
-        String currentSortField = "";
-        String currentSortDirection = "";
-        if (pageable.getSort().isSorted()) {
-            Sort.Order order = pageable.getSort().iterator().next();
-            currentSortField = order.getProperty();
-            currentSortDirection = order.getDirection().name();
-        }
-        model.addAttribute("currentSortField", currentSortField);
-        model.addAttribute("currentSortDirection", currentSortDirection);
-        model.addAttribute("currentSortParam",
-                pageable.getSort().get()
-                        .map(order -> order.getProperty() + "," + order.getDirection().name().toLowerCase())
-                        .collect(Collectors.joining()));
+        FruitCartUtils.addPagingAndSortingAttributes(model, pageable);
 
         return "admin/pages/purchase_order/list";
     }
@@ -87,7 +79,7 @@ public class AdminPurchaseOrderController {
         }
         List<ProductVariant> productVariants = productVariantRepository.findAll();
         model.addAttribute("productVariants", productVariants);
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminPurchaseOrderCreate());
 
         return "admin/pages/purchase_order/create";
     }
@@ -110,7 +102,7 @@ public class AdminPurchaseOrderController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Tạo đơn nhập hàng #" + createdOrder.getId() + " thành công!");
             return "redirect:/admin/purchase-orders";
-        } catch (ResourceNotFoundException e) { //
+        } catch (ResourceNotFoundException e) { 
             List<ProductVariant> productVariants = productVariantRepository.findAll();
             model.addAttribute("productVariants", productVariants);
             model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
@@ -130,7 +122,7 @@ public class AdminPurchaseOrderController {
         try {
             PurchaseOrder purchaseOrder = purchaseOrderService.getPurchaseOrderById(orderId);
             model.addAttribute("purchaseOrder", purchaseOrder);
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+            model.addAttribute("pageMetadata", breadcrumbService.buildAdminPurchaseOrderDetail());
             model.addAttribute("statusEnum", PurchaseOrderStatusEnum.class);
             return "admin/pages/purchase_order/detail";
         } catch (ResourceNotFoundException e) {

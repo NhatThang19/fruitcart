@@ -43,15 +43,17 @@
         <div class="row">
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="card-title mb-0" th:text="'Thông tin Đơn Nhập Hàng #' + ${purchaseOrder.id}">
-                            </h4>
-                            <a th:href="@{/admin/purchase-orders}" class="btn btn-outline-secondary btn-sm">
-                                <i class="mdi mdi-arrow-left"></i> Quay lại danh sách
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary"
+                            th:text="'Thông tin Đơn Nhập Hàng #' + ${purchaseOrder.id}"></i></h5>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/admin/purchase-orders}" class="cr-btn outline-btn color-light">
+                                <i class="ri-arrow-go-back-line me-1"></i> Quay lại
                             </a>
                         </div>
-
+                    </div>
+                    <div class="card-body">
                         <div class="detail-section">
                             <div class="row">
                                 <div class="col-md-6">
@@ -68,11 +70,12 @@
                                     </p>
                                     <p><strong>Trạng thái:</strong>
                                         <th:block th:switch="${purchaseOrder.status?.name()}">
-                                            <span th:case="'PENDING'" class="badge text-bg-secondary">Pending</span>
+                                            <span th:case="'PENDING'"
+                                                class="badge rounded-pill text-bg-secondary">Pending</span>
                                             <span th:case="'RECEIVED'"
-                                                class="badge badge-gradient-success">Received</span>
+                                                class="badge rounded-pill text-bg-primary">Received</span>
                                             <span th:case="'CANCELLED'"
-                                                class="badge badge-gradient-danger">Cancelled</span>
+                                                class="badge rounded-pill text-bg-danger">Cancelled</span>
                                             <span th:case="*" class="badge text-bg-secondary">Unknown</span>
                                         </th:block>
                                     </p>
@@ -101,28 +104,29 @@
                             <table class="table table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>#</th>
-                                        <th>SKU</th>
-                                        <th>Tên sản phẩm</th>
-                                        <th>Thuộc tính</th>
-                                        <th class="text-end">Số lượng</th>
-                                        <th class="text-end">Đơn giá</th>
-                                        <th class="text-end">Thành tiền</th>
-                                        <th>Ghi chú Item</th>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">SKU</th>
+                                        <th class="text-center">Tên sản phẩm</th>
+                                        <th class="text-center">Thuộc tính</th>
+                                        <th class="text-center">Số lượng</th>
+                                        <th class="text-center">Đơn giá</th>
+                                        <th class="text-center">Thành tiền</th>
+                                        <th class="text-center">Ghi chú Item</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr th:each="item, iterStat : ${purchaseOrder.purchaseOrderItems}">
-                                        <td th:text="${iterStat.count}"></td>
-                                        <td th:text="${item.productVariant?.sku}"></td>
-                                        <td th:text="${item.productVariant?.product?.name}"></td>
-                                        <td th:text="${item.productVariant?.attribute}"></td>
-                                        <td class="text-end" th:text="${item.quantity}"></td>
-                                        <td class="text-end"
-                                            th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 2, 'POINT')} + ' đ'">
+                                        <td class="text-center text-color-gray" th:text="${iterStat.count}"></td>
+                                        <td class="text-color-gray" th:text="${item.productVariant?.sku}"></td>
+                                        <td class="text-color-gray" th:text="${item.productVariant?.product?.name}">
                                         </td>
-                                        <td class="text-end"
-                                            th:text="${#numbers.formatDecimal(item.unitPrice.multiply(new java.math.BigDecimal(item.quantity)), 0, 'COMMA', 2, 'POINT')} + ' đ'">
+                                        <td class="text-color-gray" th:text="${item.productVariant?.attribute}"></td>
+                                        <td class="text-center text-color-gray" th:text="${item.quantity}"></td>
+                                        <td class="text-center text-color-gray"
+                                            th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                        </td>
+                                        <td class="text-center text-color-gray"
+                                            th:text="${#numbers.formatDecimal(item.unitPrice.multiply(new java.math.BigDecimal(item.quantity)), 0, 'COMMA', 0, 'POINT')} + ' đ'">
                                         </td>
                                         <td th:text="${item.note}"></td>
                                     </tr>
@@ -142,16 +146,16 @@
                             </table>
                         </div>
 
-                        <div class="mt-4 action-buttons" th:if="${purchaseOrder.status.name() == 'PENDING'}">
+                        <div class="mt-4 action-buttons float-end" th:if="${purchaseOrder.status.name() == 'PENDING'}">
                             <form th:action="@{/admin/purchase-orders/{id}/receive(id=${purchaseOrder.id})}"
                                 method="post">
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="cr-btn default-btn color-primary">
                                     <i class="mdi mdi-check-circle-outline"></i> Xác nhận nhận hàng
                                 </button>
                             </form>
                             <form th:action="@{/admin/purchase-orders/{id}/cancel(id=${purchaseOrder.id})}"
                                 method="post">
-                                <button type="submit" class="btn btn-danger">
+                                <button type="submit" class="cr-btn default-btn color-danger">
                                     <i class="mdi mdi-cancel"></i> Hủy đơn hàng
                                 </button>
                             </form>
@@ -159,7 +163,7 @@
                         <div class="mt-4" th:if="${purchaseOrder.status.name() == 'RECEIVED'}">
                             <p class="text-success"><i class="mdi mdi-check-all"></i> Đơn hàng này đã được nhận.</p>
                         </div>
-                        <div class="mt-4" th:if="${purchaseOrder.status.name() == CANCELLED}">
+                        <div class="mt-4" th:if="${purchaseOrder.status.name() == 'CANCELLED'}">
                             <p class="text-danger"><i class="mdi mdi-close-octagon-outline"></i> Đơn hàng này đã bị hủy.
                             </p>
                         </div>

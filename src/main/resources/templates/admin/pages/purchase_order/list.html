@@ -6,165 +6,190 @@
     <title th:text="${pageMetadata.title}"></title>
     <style>
         .sortable-header a {
-            color: inherit;
+            display: block;
             text-decoration: none;
+            color: #64b496;
         }
 
-        .sortable-header a:hover {
-            color: #007bff;
-            /* Hoặc màu primary của bạn */
-        }
-
-        .sortable-header .mdi {
+        .sortable-header .sort-icon {
             margin-left: 5px;
+            font-size: 0.8em;
+            color: #64b496 !important;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
         }
     </style>
 </head>
 
 <body>
-    <section layout:fragment="content">
-        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <span th:text="${successMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <span th:text="${errorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${filterErrorMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
-            <span th:text="${filterErrorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+    <div layout:fragment="content">
+        <div th:remove="all">
+            <th:block th:fragment="sort_header(field, text)">
+                <a th:href="@{/admin/purchase-orders(
+                    page=${purchaseOrdersPage.number},
+                    size=${purchaseOrdersPage.size},
+                    sort=${field} + ',' + (${currentSortField} == ${field} ? ${reverseSortDir} : 'asc'),
+                    currentStatusFilter=${currentStatusFilter},
+                )}" th:classappend="${currentSortField == field} ? 'text-color-primary fw-bold' : ''">
 
+                    <span th:text="${text}"></span>
+
+                    <span th:if="${currentSortField} == ${field}" class="sort-icon"
+                        th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
+
+                    <span th:if="${currentSortField != field}"
+                        class="sort-icon text-muted ri-arrow-up-down-line"></span>
+                </a>
+            </th:block>
+
+            <th:block th:fragment="page_link(page, text, disabledCondition, isActive)">
+                <li class="page-item"
+                    th:classappend="${disabledCondition} ? 'disabled' : '' + (${isActive} ? ' active' : '')">
+                    <a class="page-link" th:href="@{/admin/purchase-orders(
+                    page=${page},
+                    size=${purchaseOrdersPage.size},
+                    sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
+                    currentStatusFilter=${currentStatusFilter}
+                )}" th:text="${text}"></a>
+                </li>
+            </th:block>
+        </div>
 
         <div class="row">
-            <div class="col-lg-12 grid-margin stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                            <h4 class="card-title mb-0">Danh sách đơn nhập hàng</h4>
-                            <a th:href="@{/admin/purchase-orders/new}" class="btn btn-primary btn-fw mt-2 mt-md-0">
-                                <i class="mdi mdi-plus-circle-outline"></i> Tạo đơn mới
-                            </a>
+            <div class="col-12">
+                <div class="card mb-5">
+                    <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                        <h5 class="m-0 fw-semibold text-color-primary">Danh sách đơn nhập hàng</h5>
+                        <a th:href="@{/admin/purchase-orders/new}" class="cr-btn outline-btn color-success"><i
+                                class="ri-add-line me-1"></i>Thêm</a>
+                    </div>
+                    <div class="mt-3 mx-3">
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show"
+                            role="alert">
+                            <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-
-                        <form th:action="@{/admin/purchase-orders}" method="get"
-                            class="row g-3 align-items-center my-3">
-                            <div class="col-md-3">
-                                <label for="statusFilter" class="form-label">Lọc theo trạng thái:</label>
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
+                            role="alert">
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/purchase-orders}" method="get" class="mb-4 form-filters">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-2">
+                                    <label>Lọc theo vai trò</label>
+                                    <select id="statusFilter" name="status" class="form-control form-select">
+                                        <option value="ALL" th:selected="${currentStatusFilter == 'ALL'}">-- Tất cả
+                                            trạng
+                                            thái --</option>
+                                        <option th:each="statusVal : ${statusEnumValues}" th:value="${statusVal.name()}"
+                                            th:text="${statusVal.name()}"
+                                            th:selected="${currentStatusFilter == statusVal.name()}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>Số mục hiển thị</label>
+                                    <label for="pageSizeSelect" class="visually-hidden">Số mục</label>
+                                    <select class="form-control form-select form-select-sm" id="pageSizeSelect"
+                                        name="size">
+                                        <option th:each="s : ${#lists.toList({5, 10, 20, 50})}" th:value="${s}"
+                                            th:text="${s} + ' mục'" th:selected="${s == purchaseOrdersPage.size}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto ms-auto"><button type="submit"
+                                        class="cr-btn default-btn color-primary"><i
+                                            class="ri-filter-3-line me-1"></i>Lọc</button></div>
+                                <div class="col-md-auto"><a
+                                        th:href="@{/admin/purchase-orders(size=${purchaseOrdersPage.size})}"
+                                        class="cr-btn default-btn color-light"><i class="ri-refresh-line me-1"></i>Xóa
+                                        lọc</a>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <select id="statusFilter" name="status" class="form-select"
-                                    onchange="this.form.submit()">
-                                    <option value="ALL" th:selected="${currentStatusFilter == 'ALL'}">-- Tất cả trạng
-                                        thái --</option>
-                                    <option th:each="statusVal : ${statusEnumValues}" th:value="${statusVal.name()}"
-                                        th:text="${statusVal.name()}"
-                                        th:selected="${currentStatusFilter == statusVal.name()}"></option>
-                                </select>
-                            </div>
-                            <input type="hidden" name="size" th:value="${purchaseOrdersPage.size}" />
-                            <input type="hidden" name="sort" th:value="${currentSortParam}"
-                                th:if="${currentSortParam != ''}" />
                         </form>
-
-
                         <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
+                            <table class="table table-hover table-bordered">
+                                <thead class="table-light">
                                     <tr>
-                                        <th class="sortable-header">
-                                            <a
-                                                th:href="@{/admin/purchase-orders(page=${purchaseOrdersPage.number}, size=${purchaseOrdersPage.size}, status=${currentStatusFilter != 'ALL' ? currentStatusFilter : ''}, sort='id,' + (${currentSortField == 'id' && currentSortDirection == 'ASC'} ? 'desc' : 'asc'))}">
-                                                ID
-                                                <i th:if="${currentSortField == 'id'}"
-                                                    th:class="${currentSortDirection == 'ASC' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending'}"></i>
-                                            </a>
+                                        <th class="sortable-header text-center" style="width: 5%;">
+                                            <div th:replace="~{this :: sort_header('id', 'ID')}"></div>
                                         </th>
-                                        <th class="sortable-header">
-                                            <a
-                                                th:href="@{/admin/purchase-orders(page=${purchaseOrdersPage.number}, size=${purchaseOrdersPage.size}, status=${currentStatusFilter != 'ALL' ? currentStatusFilter : ''}, sort='createdDate,' + (${currentSortField == 'createdDate' && currentSortDirection == 'ASC'} ? 'desc' : 'asc'))}">
-                                                Ngày tạo
-                                                <i th:if="${currentSortField == 'createdDate'}"
-                                                    th:class="${currentSortDirection == 'ASC' ? 'mdi mdi-sort-ascending' : 'mdi mdi-sort-descending'}"></i>
-                                            </a>
+                                        <th class="sortable-header text-center" style="width: 20%;">
+                                            <div th:replace="~{this :: sort_header('createdDate', 'Ngày tạo')}"></div>
                                         </th>
-                                        <th>Người tạo</th>
-                                        <th class="text-end">Tổng tiền</th>
-                                        <th>Trạng thái</th>
-                                        <th class="text-center">Hành động</th>
+                                        <th class="text-center">Người tạo</th>
+                                        <th class="sortable-header text-center">
+                                            <div th:replace="~{this :: sort_header('totalAmount', 'Tổng tiền')}"></div>
+                                        </th>
+                                        <th class="text-center" style="width: 10%;">Trạng thái</th>
+                                        <th class="text-center" style="width: 8%;">Hành động</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="order : ${purchaseOrdersPage.content}">
-                                        <td th:text="${order.id}"></td>
-                                        <td th:text="${#temporals.format(order.createdDate, 'dd/MM/yyyy HH:mm')}"></td>
-                                        <td th:text="${order.createdBy}"></td>
-                                        <td class="text-end"
-                                            th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 2, 'POINT')} + ' đ'">
+                                    <tr th:each="purchaseOrder : ${purchaseOrdersPage.content}">
+                                        <td class="text-center text-color-gray" th:text="${purchaseOrder.id}"></td>
+                                        <td class="text-center text-color-gray"
+                                            th:text="${#temporals.format(purchaseOrder.createdDate, 'dd/MM/yyyy HH:mm')}">
                                         </td>
-                                        <td>
-                                            <th:block th:switch="${order.status?.name()}">
-                                                <span th:case="'PENDING'"
-                                                    class="badge text-bg-secondary">Pending</span>
+                                        <td class="text-center text-color-gray" th:text="${purchaseOrder.createdBy}">
+                                        </td>
+                                        <td class="text-center text-color-gray"
+                                            th:text="${#numbers.formatDecimal(purchaseOrder.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                        </td>
+                                        <td class="text-center">
+                                            <th:block th:switch="${purchaseOrder.status?.name()}">
+                                                <span th:case="'PENDING'" class="badge rounded-pill text-bg-secondary">Pending</span>
                                                 <span th:case="'RECEIVED'"
-                                                    class="badge badge-gradient-success">Received</span>
+                                                    class="badge rounded-pill text-bg-primary">Received</span>
                                                 <span th:case="'CANCELLED'"
-                                                    class="badge badge-gradient-danger">Cancelled</span>
-                                                <span th:case="*" class="badge text-bg-secondary">Unknown</span>
+                                                    class="badge rounded-pill text-bg-danger">Cancelled</span>
+                                                <span th:case="*" class="badge rounded-pill text-bg-secondary">Unknown</span>
                                             </th:block>
                                         </td>
                                         <td class="text-center">
-                                            <a th:href="@{/admin/purchase-orders/{id}(id=${order.id})}"
-                                                class="btn btn-info btn-sm" title="Xem chi tiết">
+                                            <a th:href="@{/admin/purchase-orders/{id}(id=${purchaseOrder.id})}"
+                                                class="btn btn-sm outline-btn color-info">
                                                 <i class="mdi mdi-eye"></i>
                                             </a>
                                         </td>
                                     </tr>
-                                    <tr th:if="${purchaseOrdersPage.empty}">
-                                        <td colspan="6" class="text-center">Không có đơn nhập hàng nào phù hợp.</td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-
-                        <nav th:if="${purchaseOrdersPage.totalPages > 0}" aria-label="Page navigation" class="mt-4">
+                        <nav aria-label="Page navigation" th:if="${purchaseOrdersPage.totalPages > 1}">
                             <ul class="pagination justify-content-center">
-                                <li class="page-item" th:classappend="${purchaseOrdersPage.first ? 'disabled' : ''}">
-                                    <a class="page-link"
-                                        th:href="@{/admin/purchase-orders(page=0, size=${purchaseOrdersPage.size}, status=${currentStatusFilter != 'ALL' ? currentStatusFilter : ''}, sort=${currentSortParam})}">Đầu</a>
-                                </li>
-                                <li class="page-item" th:classappend="${purchaseOrdersPage.first ? 'disabled' : ''}">
-                                    <a class="page-link"
-                                        th:href="@{/admin/purchase-orders(page=${purchaseOrdersPage.number - 1}, size=${purchaseOrdersPage.size}, status=${currentStatusFilter != 'ALL' ? currentStatusFilter : ''}, sort=${currentSortParam})}">Trước</a>
-                                </li>
-                                <li class="page-item"
-                                    th:each="i : ${#numbers.sequence(0, purchaseOrdersPage.totalPages - 1)}"
-                                    th:classappend="${i == purchaseOrdersPage.number ? 'active' : ''}">
-                                    <a class="page-link"
-                                        th:href="@{/admin/purchase-orders(page=${i}, size=${purchaseOrdersPage.size}, status=${currentStatusFilter != 'ALL' ? currentStatusFilter : ''}, sort=${currentSortParam})}"
-                                        th:text="${i + 1}"></a>
-                                </li>
-                                <li class="page-item" th:classappend="${purchaseOrdersPage.last ? 'disabled' : ''}">
-                                    <a class="page-link"
-                                        th:href="@{/admin/purchase-orders(page=${purchaseOrdersPage.number + 1}, size=${purchaseOrdersPage.size}, status=${currentStatusFilter != 'ALL' ? currentStatusFilter : ''}, sort=${currentSortParam})}">Sau</a>
-                                </li>
-                                <li class="page-item" th:classappend="${purchaseOrdersPage.last ? 'disabled' : ''}">
-                                    <a class="page-link"
-                                        th:href="@{/admin/purchase-orders(page=${purchaseOrdersPage.totalPages - 1}, size=${purchaseOrdersPage.size}, status=${currentStatusFilter != 'ALL' ? currentStatusFilter : ''}, sort=${currentSortParam})}">Cuối</a>
-                                </li>
-                            </ul>
-                            <div class="text-center mt-2">
-                                <small
-                                    th:text="'Hiển thị ' + ${purchaseOrdersPage.numberOfElements} + ' trên tổng số ' + ${purchaseOrdersPage.totalElements} + ' đơn hàng. (Trang ' + (${purchaseOrdersPage.number} + 1) + ' của ' + ${purchaseOrdersPage.totalPages} + ')'"></small>
-                            </div>
-                        </nav>
+                                <th:block
+                                    th:replace="~{this :: page_link(0, 'Đầu', ${purchaseOrdersPage.first}, false)}" />
+                                <th:block
+                                    th:replace="~{this :: page_link(${purchaseOrdersPage.number - 1}, 'Trước', ${!purchaseOrdersPage.hasPrevious()}, false)}" />
 
+                                <th:block th:each="i : ${#numbers.sequence(0, purchaseOrdersPage.totalPages - 1)}">
+                                    <th:block
+                                        th:replace="~{this :: page_link(${i}, ${i + 1}, false, ${i == purchaseOrdersPage.number})}" />
+                                </th:block>
+
+                                <th:block
+                                    th:replace="~{this :: page_link(${purchaseOrdersPage.number + 1}, 'Sau', ${!purchaseOrdersPage.hasNext()}, false)}" />
+                                <th:block
+                                    th:replace="~{this :: page_link(${purchaseOrdersPage.totalPages - 1}, 'Cuối', ${purchaseOrdersPage.last}, false)}" />
+                            </ul>
+                        </nav>
+                        <div class="text-center mt-2">
+                            <small class="text-color-gray"
+                                th:text="'Hiển thị ' + ${purchaseOrdersPage.numberOfElements} + ' trên tổng số ' + ${purchaseOrdersPage.totalElements} + ' Đơn hàng. (Trang ' + (${purchaseOrdersPage.number} + 1) + ' của ' + ${purchaseOrdersPage.totalPages} + ')'"></small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+
 </body>
 
 </html>

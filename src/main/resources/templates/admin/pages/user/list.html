@@ -32,7 +32,7 @@
                     page=${usersPage.number},
                     size=${usersPage.size},
                     sort=${field} + ',' + (${currentSortField} == ${field} ? ${reverseSortDir} : 'asc'),
-                    email=${criteria.email},
+                    email=${statusFilterString},
                     role=${criteria.role},
                     isBlocked=${criteria.isBlocked}
                 )}" th:classappend="${currentSortField == field} ? 'text-color-primary fw-bold' : ''">
