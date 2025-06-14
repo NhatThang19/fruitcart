@@ -107,6 +107,21 @@
                                         <option value="false">Hoạt động</option>
                                     </select>
                                 </div>
+                                <div class="col-md-2">
+                                    <label for="clusterNumber" class="form-label">Phân loại KH</label>
+                                    <select class="form-control form-select form-select-sm" id="clusterNumber"
+                                        th:field="*{clusterNumber}">
+                                        <option value="">-- Tất cả --</option>
+
+                                        <th:block
+                                            th:each="enumValue : ${T(com.vn.fruitcart.util.constant.CustomerClusterEnum).values()}">
+                                            <option th:if="${enumValue.clusterNumber != -1}"
+                                                th:value="${enumValue.clusterNumber}"
+                                                th:text="${enumValue.clusterName}">
+                                            </option>
+                                        </th:block>
+                                    </select>
+                                </div>
                                 <div class="col-md-1">
                                     <label>Số mục hiển thị</label>
                                     <label for="pageSizeSelect" class="visually-hidden">Số mục</label>
@@ -150,6 +165,9 @@
                                             <div th:replace="~{this :: sort_header('lastModifiedDate', 'Cập nhật')}">
                                             </div>
                                         </th>
+                                        <th class="text-center">
+                                            Cụm người dùng
+                                        </th>
                                         <th class="text-center" style="width: 10%;">Hành động</th>
                                     </tr>
                                 </thead>
@@ -191,6 +209,12 @@
                                             th:text="${#temporals.format(user.getLastModifiedDate(), 'dd/MM/yyyy HH:mm')}">
                                         </td>
                                         <td class="text-center">
+                                            <span class="badge rounded-pill text-white"
+                                                th:text="${user.getClusterName()}"
+                                                th:classappend="${user.getClusterBadgeClass()}">
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
                                             <a th:href="@{/admin/users/{id}(id=${user.id})}"
                                                 class="btn btn-sm outline-btn color-info"><i
                                                     class="ri-eye-line"></i></a>
@@ -213,7 +237,7 @@
                                         </td>
                                     </tr>
                                     <tr th:if="${usersPage.empty}">
-                                        <td colspan="7" class="text-center fst-italic py-3">Không tìm thấy người
+                                        <td colspan="8" class="text-center fst-italic py-3">Không tìm thấy người
                                             dùng
                                             nào.</td>
                                     </tr>

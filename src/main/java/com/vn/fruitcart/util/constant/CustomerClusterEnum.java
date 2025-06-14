@@ -1,6 +1,5 @@
 package com.vn.fruitcart.util.constant;
 
-import jakarta.persistence.Transient;
 import lombok.Getter;
 
 @Getter
@@ -28,36 +27,5 @@ public enum CustomerClusterEnum {
             }
         }
         return UNKNOWN;
-    }
-
-    /**
-     * Lấy ra đối tượng Enum tương ứng với clusterNumber.
-     * 
-     * @Transient để JPA không map trường này vào DB.
-     * @return CustomerClusterEnum
-     */
-    @Transient
-    public CustomerClusterEnum getClusterEnum() {
-        return CustomerClusterEnum.fromClusterNumber(this.clusterNumber);
-    }
-
-    /**
-     * Lấy ra tên cụm để hiển thị trực quan.
-     * 
-     * @return String tên cụm
-     */
-    @Transient
-    public String getClusterName() {
-        return getClusterEnum().getClusterName();
-    }
-
-    /**
-     * Lấy ra mô tả chi tiết của cụm.
-     * 
-     * @return String mô tả
-     */
-    @Transient
-    public String getClusterDescription() {
-        return getClusterEnum().getDescription();
     }
 }

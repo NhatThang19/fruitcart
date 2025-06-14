@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import com.vn.fruitcart.entity.CustomerCluster;
 import com.vn.fruitcart.entity.Role;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.user.UserSearchCriteriaReq;
@@ -33,6 +34,14 @@ public class UserSpecification {
             Boolean isBlocked = criteria.getIsBlocked();
             if (isBlocked != null) {
                 predicates.add(criteriaBuilder.equal(root.get("isBlocked"), isBlocked));
+            }
+
+            Integer clusterNumber = criteria.getClusterNumber();
+            if (clusterNumber != null) {
+
+                Join<User, CustomerCluster> clusterJoin = root.join("customerCluster");
+
+                predicates.add(criteriaBuilder.equal(clusterJoin.get("clusterNumber"), clusterNumber));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

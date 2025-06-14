@@ -1,6 +1,7 @@
 package com.vn.fruitcart.entity;
 
 import com.vn.fruitcart.entity.base.BaseEntity;
+import com.vn.fruitcart.util.constant.CustomerClusterEnum;
 import com.vn.fruitcart.util.constant.GenderEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -65,6 +66,9 @@ public class User extends BaseEntity {
   @Builder.Default
   private List<Order> orders = new ArrayList<>();
 
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+  private CustomerCluster customerCluster;
+
   public String getFullName() {
     String ho = this.firstName != null ? this.firstName.trim() : "";
     String ten = this.lastName != null ? this.lastName.trim() : "";
@@ -80,5 +84,35 @@ public class User extends BaseEntity {
     }
 
     return ho + " " + ten;
+  }
+
+  @Transient
+  public String getClusterName() {
+    if (customerCluster == null) {
+      return CustomerClusterEnum.UNKNOWN.getClusterName();
+    }
+    return customerCluster.getClusterName();
+  }
+
+  @Transient
+  public String getClusterDescription() {
+    if (customerCluster == null) {
+      return CustomerClusterEnum.UNKNOWN.getDescription();
+    }
+    return customerCluster.getClusterDescription();
+  }
+
+  @Transient
+  public String getClusterBadgeClass() {
+    if (customerCluster == null) {
+      return "text-bg-secondary";
+    }
+    return switch (customerCluster.getClusterEnum()) {
+      case GOLD_CORE -> "text-bg-warning";
+      case DEVELOPING -> "text-bg-success";
+      case NEW_OR_THRIFTY -> "text-bg-info";
+      case INFREQUENT_VISITOR -> "text-bg-secondary";
+      default -> "text-bg-dark";
+    };
   }
 }

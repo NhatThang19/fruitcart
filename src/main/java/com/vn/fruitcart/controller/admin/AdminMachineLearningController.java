@@ -35,7 +35,7 @@ public class AdminMachineLearningController {
 
         lastRunDate.ifPresent(date -> model.addAttribute("lastRunDate", date));
 
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminDetailProduct());
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminML());
         return "admin/pages/ml/dashboard";
     }
 

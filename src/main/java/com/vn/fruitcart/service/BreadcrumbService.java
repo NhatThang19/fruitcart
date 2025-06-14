@@ -198,4 +198,11 @@ public class BreadcrumbService {
         return new PageMetadata("Đơn hàng", breadcrumbList);
     }
 
+    public Object buildAdminML() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Phân cụm", null));
+        return new PageMetadata("Phân cụm", breadcrumbList);
+    }
+
 }

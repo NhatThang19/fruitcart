@@ -9,4 +9,5 @@ public class UserSearchCriteriaReq {
     private String email;
     private Integer role;
     private Boolean isBlocked;
+    private Integer clusterNumber;
 }

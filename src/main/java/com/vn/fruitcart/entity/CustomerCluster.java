@@ -4,6 +4,8 @@ import java.time.Instant;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.vn.fruitcart.util.constant.CustomerClusterEnum;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -41,5 +44,30 @@ public class CustomerCluster {
     public CustomerCluster(User user, int clusterNumber) {
         this.user = user;
         this.clusterNumber = clusterNumber;
+    }
+
+    @Transient
+    public CustomerClusterEnum getClusterEnum() {
+        return CustomerClusterEnum.fromClusterNumber(this.clusterNumber);
+    }
+
+    /**
+     * Lấy ra tên cụm để hiển thị trực quan.
+     * 
+     * @return String tên cụm
+     */
+    @Transient
+    public String getClusterName() {
+        return getClusterEnum().getClusterName();
+    }
+
+    /**
+     * Lấy ra mô tả chi tiết của cụm.
+     * 
+     * @return String mô tả
+     */
+    @Transient
+    public String getClusterDescription() {
+        return getClusterEnum().getDescription();
     }
 }

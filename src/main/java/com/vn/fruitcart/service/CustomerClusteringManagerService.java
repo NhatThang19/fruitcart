@@ -50,6 +50,8 @@ public class CustomerClusteringManagerService {
                 cluster.setClusterNumber(data.getAssignedCluster());
                 cluster.setAssignedDate(Instant.now());
 
+                data.getUser().setCustomerCluster(cluster);
+
                 customerClusterRepository.save(cluster);
             }
             log.info("Đã cập nhật kết quả phân cụm cho {} khách hàng vào database.", clusteredData.size());
