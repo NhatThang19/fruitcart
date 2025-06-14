@@ -7,21 +7,28 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.Cart;
 import com.vn.fruitcart.entity.CartItem;
 import com.vn.fruitcart.entity.Order;
 import com.vn.fruitcart.entity.OrderItem;
+import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.OrderCheckoutRequest;
+import com.vn.fruitcart.entity.dto.request.OrderSearchCriteria;
 import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
 import com.vn.fruitcart.entity.dto.response.user.AdminUserDetailRes;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.OrderRepository;
 import com.vn.fruitcart.repository.ProductVariantRepository;
 import com.vn.fruitcart.repository.UserRepository;
+import com.vn.fruitcart.service.specification.OrderSpecification;
+import com.vn.fruitcart.service.specification.OriginSpecification;
 import com.vn.fruitcart.util.constant.OrderStatusEnum;
 
 import jakarta.servlet.http.HttpSession;
@@ -91,5 +98,19 @@ public class OrderService {
         cartService.clearCart();
 
         return savedOrder;
+    }
+
+    public Page<Order> findOrdersByCriteria(OrderSearchCriteria criteria, Pageable pageable) {
+        Specification<Order> spec = Specification.where(null);
+
+        if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+            spec = spec.and(OrderSpecification.hasName(criteria.getKeyword()));
+        }
+
+        if (criteria.getStatus() != null) {
+            spec = spec.and(OrderSpecification.hasStatus(criteria.getStatus()));
+        }
+
+        return orderRepository.findAll(spec, pageable);
     }
 }

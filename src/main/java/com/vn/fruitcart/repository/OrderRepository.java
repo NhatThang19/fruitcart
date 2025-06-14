@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,5 +25,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByUserAndCreatedDateAfter(@Param("user") User user, @Param("startDate") Instant startDate); 
 
     @Query("SELECT MAX(o.createdDate) FROM Order o WHERE o.user = :user")
-    Optional<Instant> findMostRecentOrderDateByUser(@Param("user") User user); 
+    Optional<Instant> findMostRecentOrderDateByUser(@Param("user") User user);
+
+    Page<Order> findAll(Specification<Order> spec, Pageable pageable); 
 }
