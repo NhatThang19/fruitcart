@@ -1,5 +1,6 @@
 package com.vn.fruitcart.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfiguration {
 
   private final CustomSuccessHandler customSuccessHandler;
+
+  private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -72,14 +75,14 @@ public class SecurityConfiguration {
             .anyRequest().authenticated())
         .formLogin(formLogin -> formLogin
             .loginPage("/login")
-            .failureUrl("/login?error=true")
             .usernameParameter("email")
             .passwordParameter("password")
             .successHandler(customSuccessHandler)
+            .failureHandler(customAuthenticationFailureHandler)
             .permitAll())
         .logout(logout -> logout
             .logoutUrl("/logout")
-            .logoutSuccessUrl("/login?logout=true")
+            .logoutSuccessUrl("/login?logout")
             .invalidateHttpSession(true)
             .deleteCookies("JSESSIONID", "remember-me")
             .permitAll())
@@ -92,9 +95,7 @@ public class SecurityConfiguration {
             .sessionFixation().migrateSession()
             .maximumSessions(1)
             .sessionRegistry(sessionRegistry())
-            .expiredUrl("/login?sessionExpired=true"))
-        .exceptionHandling(exceptionHandling -> exceptionHandling
-            .accessDeniedPage("/error/403"));
+            .expiredUrl("/login?sessionExpired"));
 
     return http.build();
   }

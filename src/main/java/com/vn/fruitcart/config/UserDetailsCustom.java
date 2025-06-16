@@ -32,7 +32,7 @@ public class UserDetailsCustom implements UserDetailsService {
     }
 
     if (user.getIsBlocked() != null && user.getIsBlocked()) {
-      throw new LockedException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+      throw new LockedException("Tài khoản bị khoá.");
     }
 
     return new org.springframework.security.core.userdetails.User(

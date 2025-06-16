@@ -81,7 +81,7 @@ public class AuthController {
     try {
       authService.register(registerReq);
       redirectAttributes.addFlashAttribute("successMessage", "Đăng ký tài khoản thành công! Vui lòng đăng nhập.");
-      return "redirect:/login";
+      return "redirect:/login?register";
     } catch (IllegalArgumentException e) {
       redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
       redirectAttributes.addFlashAttribute("registerReq", registerReq);

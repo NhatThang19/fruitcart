@@ -58,6 +58,12 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
       throw new RuntimeException(e.getMessage());
     }
 
+    if (targetUrl.contains("?")) {
+      targetUrl += "&login_success=true";
+    } else {
+      targetUrl += "?login_success=true";
+    }
+
     redirectStrategy.sendRedirect(request, response, targetUrl);
   }
 
@@ -65,14 +71,8 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     String targetUrl;
 
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-    boolean isAdmin = false;
-
-    for (GrantedAuthority grantedAuthority : authorities) {
-      if (grantedAuthority.getAuthority().equals("Role_Admin")) {
-        isAdmin = true;
-        break;
-      }
-    }
+    boolean isAdmin = authorities.stream()
+        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_Admin"));
 
     if (isAdmin) {
       targetUrl = "/admin";

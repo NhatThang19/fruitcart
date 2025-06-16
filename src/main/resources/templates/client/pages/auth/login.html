@@ -17,34 +17,46 @@
                             <div class="form-logo">
                                 <img th:src="@{/client/assets/img/logo/logo.png}" alt="logo">
                             </div>
-
-                            <div th:if="${param.error != null}" class="alert alert-danger" role="alert">
-                                Email hoặc mật khẩu không đúng. Vui lòng thử lại.
+                            <div th:if="${param.locked}" class="alert alert-danger alert-dismissible fade show"
+                                role="alert">
+                                <span><i class="ri-lock-line me-1"></i>Tài khoản của bạn đã bị khoá.</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
-
-                            <div th:if="${param.logout != null}" class="alert alert-success" role="alert">
-                                Bạn đã đăng xuất thành công.
+                            <div th:if="${param.logout}" class="alert alert-success alert-dismissible fade show"
+                                role="alert">
+                                <span><i class="ri-check-double-line me-1"></i>Bạn đã đăng xuất thành công.</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
-
-                            <div th:if="${param.sessionExpired != null}" class="alert alert-warning" role="alert">
-                                Phiên làm việc của bạn đã hết hạn hoặc bạn đã đăng nhập từ nơi khác. Vui lòng đăng nhập
-                                lại.
+                            <div th:if="${param.register}" class="alert alert-success alert-dismissible fade show"
+                                role="alert">
+                                <span><i class="ri-check-double-line me-1"></i>Bạn đã đăng ký thành công.</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
-
-                            <div th:if="${successMessage}" class="alert alert-success" role="alert">
-                                <p th:text="${successMessage}"></p>
+                            <div th:if="${param.sessionExpired != null}"
+                                class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <span><i class="ri-information-line me-1"></i>Phiên làm việc của bạn đã hết hạn.</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
                             </div>
 
                             <form class="cr-content-form" th:action="@{/login}" method="post">
                                 <div class="form-group mb-3">
-                                    <label for="email">Email*</label>
-                                    <input type="email" id="email" name="email" placeholder="Nhập địa chỉ email của bạn"
-                                        class="cr-form-control" autocomplete="off" required>
+                                    <label for="email">Email<span class="text-danger">*</span></label>
+                                    <input class="form-control" type="email" placeholder="Nhập địa chỉ Email của bạn"
+                                        name="email" autocomplete="off"
+                                        th:classappend="${param.error} ? 'is-invalid' : ''">
+                                    <div th:if="${param.error}" class="invalid-feedback">
+                                        Tên đăng nhập hoặc mật khẩu không chính xác.
+                                    </div>
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="password">Mật khẩu*</label>
+                                    <label for="password">Mật khẩu<span class="text-danger">*</span></label>
                                     <input type="password" id="password" name="password"
-                                        placeholder="Nhập mật khẩu của bạn" class="cr-form-control" required>
+                                        placeholder="Nhập mật khẩu của bạn" class="form-control"
+                                        th:classappend="${param.error} ? 'is-invalid' : ''">
                                 </div>
                                 <div class="form-group mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -68,5 +80,6 @@
         </section>
     </div>
 </body>
+
 
 </html>
