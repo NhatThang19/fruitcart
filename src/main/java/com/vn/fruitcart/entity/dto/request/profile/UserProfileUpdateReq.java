@@ -35,7 +35,17 @@ public class UserProfileUpdateReq {
 
     private GenderEnum gender;
 
-    private String address;
+    @NotBlank(message = "Tỉnh/Thành phố không được để trống")
+    private String province;
+
+    @NotBlank(message = "Quận/Huyện không được để trống")
+    private String district;
+
+    @NotBlank(message = "Phường/Xã không được để trống")
+    private String ward;
+
+    @NotBlank(message = "Chi tiết địa chỉ không được để trống")
+    private String addressDetail;
 
     @Past(message = "Ngày sinh phải là một ngày trong quá khứ")
     private LocalDate birthDate;

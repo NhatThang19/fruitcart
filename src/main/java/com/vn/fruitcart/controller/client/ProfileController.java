@@ -51,7 +51,9 @@ public class ProfileController {
         }
 
         UserProfileUpdateReq userProfileUpdateReq = UserProfileUpdateReq.builder().firstName(currentUser.getFirstName())
-                .lastName(currentUser.getLastName()).gender(currentUser.getGender()).address(currentUser.getAddress())
+                .lastName(currentUser.getLastName()).gender(currentUser.getGender()).province(currentUser.getProvince())
+                .district(currentUser.getDistrict()).ward(currentUser.getWard())
+                .addressDetail(currentUser.getAddressDetail())
                 .birthDate(currentUser.getBirthDate()).currentAvatar(currentUser.getAvatarUrl())
                 .phone(currentUser.getPhone()).email(currentUser.getEmail()).build();
 

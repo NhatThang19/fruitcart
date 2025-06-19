@@ -160,9 +160,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="description" class="form-label">Mô tả</label>
-                            <textarea class="form-control" id="description" th:field="*{description}"
-                                rows="3"></textarea>
+                            <label for="description" class="form-label">Mô tả sản phẩm</label>
+
+                            <div id="quill-editor" style="min-height: 250px;">
+                                <th:block th:utext="*{description}"></th:block>
+                            </div>
+
+                            <textarea id="description" th:field="*{description}" style="display:none;"></textarea>
+
                             <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('description')}"
                                 th:errors="*{description}"></div>
                         </div>
@@ -398,6 +403,54 @@
                         renderImagePreviewsAndUpdateFormInputs();
                     }
                 });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                // Kiểm tra xem có phần tử #quill-editor trên trang không
+                if ($("#quill-editor").length) {
+
+                    // --- 1. Khởi tạo Quill (Giữ nguyên) ---
+                    const toolbarOptions = [
+                        [{ 'header': [1, 2, 3, 4, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'align': [] }],
+                        ['link', 'video'],
+                        ['clean']
+                    ];
+
+                    var quill = new Quill('#quill-editor', {
+                        modules: {
+                            toolbar: toolbarOptions
+                        },
+                        theme: 'snow'
+                    });
+
+
+                    // --- 2. Đồng bộ dữ liệu - PHIÊN BẢN CẢI TIẾN ---
+                    $("#createProductForm").on('submit', function () {
+                        // Lấy thẻ textarea ẩn bằng name hoặc id
+                        var $descriptionTextarea = $('textarea[name=description]');
+
+                        // Kiểm tra xem người dùng có thực sự nhập gì không
+                        // Quill sẽ có length > 1 nếu có nội dung
+                        if (quill.getLength() > 1) {
+                            // Lấy nội dung HTML từ trình soạn thảo Quill
+                            var quillHtml = quill.root.innerHTML;
+                            // Gán nội dung đó vào textarea ẩn
+                            $descriptionTextarea.val(quillHtml);
+                        } else {
+                            // Nếu không có nội dung, đảm bảo giá trị là rỗng
+                            $descriptionTextarea.val("");
+                        }
+
+                        // return true để form tiếp tục được submit bình thường
+                        return true;
+                    });
+                }
             });
         </script>
     </th:block>

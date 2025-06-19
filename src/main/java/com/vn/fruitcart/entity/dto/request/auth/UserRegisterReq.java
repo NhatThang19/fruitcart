@@ -22,8 +22,17 @@ public class UserRegisterReq {
     @Pattern(regexp = "^(\\+84|0)\\d{9,10}$", message = "Số điện thoại không hợp lệ")
     private String phone;
 
-    @NotBlank(message = "Địa chỉ không được để trống")
-    private String address;
+    @NotBlank(message = "Tỉnh/Thành phố không được để trống")
+    private String province;
+
+    @NotBlank(message = "Quận/Huyện không được để trống")
+    private String district;
+
+    @NotBlank(message = "Phường/Xã không được để trống")
+    private String ward;
+
+    @NotBlank(message = "Chi tiết địa chỉ không được để trống")
+    private String addressDetail;
 
     @Size(min = 6, max = 20, message = "Mật khẩu phải có từ 6 đến 20 ký tự")
     private String password;

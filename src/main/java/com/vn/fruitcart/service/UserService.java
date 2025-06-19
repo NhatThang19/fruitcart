@@ -78,9 +78,13 @@ public class UserService {
     userToUpdate.setFirstName(req.getFirstName());
     userToUpdate.setLastName(req.getLastName());
     userToUpdate.setPhone(req.getPhone());
-    userToUpdate.setAddress(req.getAddress());
     userToUpdate.setGender(req.getGender());
     userToUpdate.setBirthDate(req.getBirthDate());
+    userToUpdate.setAddressDetail(req.getAddressDetail());
+    userToUpdate.setDistrict(req.getDistrict());
+    userToUpdate.setProvince(req.getProvince());
+    userToUpdate.setWard(req.getWard());
+    userToUpdate.setAddressDetail(req.getAddressDetail());
 
     MultipartFile avatarFile = req.getAvatarFile();
     if (avatarFile != null && !avatarFile.isEmpty()) {

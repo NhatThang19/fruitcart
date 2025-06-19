@@ -256,12 +256,13 @@
                                     <div th:if="${#fields.hasErrors('avatarFile')}"
                                         class="alert alert-danger text-center p-2 mb-3" th:errors="*{avatarFile}"></div>
 
-
                                     <div class="form-group-custom profile-details">
                                         <div class="mb-3 row">
-                                            <div class="col-md-4"><i class="ri-user-line field-icon"></i>Họ:</div>
+                                            <span class="col-md-4 fw-semibold">Họ<span
+                                                    class="text-danger">*</span>:</span>
                                             <div class="col-md-8">
-                                                <input type="text" class="form-control" id="firstName"
+                                                <input autocomplete="off" type="text" class="form-control"
+                                                    id="firstName"
                                                     th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
                                                     th:field="*{firstName}" />
                                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
@@ -270,7 +271,7 @@
                                         </div>
 
                                         <div class="mb-3 row">
-                                            <div class="col-md-4"><i class="ri-user-line field-icon"></i>Tên:</div>
+                                            <strong class="col-md-4">Tên<span class="text-danger">*</span>:</strong>
                                             <div class="col-md-8">
                                                 <input type="text" class="form-control" id="lastName"
                                                     th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
@@ -281,8 +282,8 @@
                                         </div>
 
                                         <div class="mb-3 row">
-                                            <div class="col-md-4"><i class="ri-phone-line field-icon"></i>Số điện thoại:
-                                            </div>
+                                            <span class="col-md-4 fw-semibold">Số điện thoại:
+                                            </span>
                                             <div class="col-md-8">
                                                 <input type="text" class="form-control" id="phone"
                                                     th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid' : ''"
@@ -291,25 +292,13 @@
                                                     th:errors="*{phone}"></div>
                                             </div>
                                         </div>
-
                                         <div class="mb-3 row">
-                                            <div class="col-md-4"><i class="ri-map-pin-line field-icon"></i>Địa chỉ:
-                                            </div>
+                                            <span class="col-md-4 fw-semibold">
+                                                Giới tính:
+                                            </span>
                                             <div class="col-md-8">
-                                                <textarea class="form-control" id="address" th:field="*{address}"
-                                                    th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''"
-                                                    rows="3"></textarea>
-                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}"
-                                                    th:errors="*{address}"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-3 row">
-                                            <div class="col-md-4">
-                                                <i class="ri-user-settings-line field-icon"></i>Giới tính:
-                                            </div>
-                                            <div class="col-md-8">
-                                                <select class="form-select" id="gender" th:field="*{gender}"
+                                                <select class="form-control form-select" id="gender"
+                                                    th:field="*{gender}"
                                                     th:classappend="${#fields.hasErrors('gender')} ? 'is-invalid' : ''">
                                                     <option value="">-- Chọn giới tính --</option>
                                                     <option
@@ -321,11 +310,58 @@
                                                     th:errors="*{gender}"></div>
                                             </div>
                                         </div>
-
                                         <div class="mb-3 row">
-                                            <div class="col-md-4">
-                                                <i class="ri-calendar-event-line field-icon"></i>Ngày sinh:
+                                            <span class="col-md-4 fw-semibold">Tỉnh/Thành phố<span
+                                                    class="text-danger">*</span>:
+                                            </span>
+                                            <div class="col-md-8">
+                                                <select class="form-control form-select" id="province"
+                                                    th:classappend="${#fields.hasErrors('province')} ? 'is-invalid' : ''">
+                                                </select>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('province')}"
+                                                    th:errors="*{province}"></div>
                                             </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <span class="col-md-4 fw-semibold">Quận/Huyện<span
+                                                    class="text-danger">*</span>:</span>
+                                            <div class="col-md-8">
+                                                <select class="form-control form-select" id="district"
+                                                    th:classappend="${#fields.hasErrors('district')} ? 'is-invalid' : ''">
+                                                </select>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('district')}"
+                                                    th:errors="*{district}"></div>
+                                            </div>
+                                        </div>
+                                        <strong class="mb-3 row">
+                                            <span class="col-md-4 fw-semibold">Phường/Xã<span
+                                                    class="text-danger">*</span>:</span>
+                                            <div class="col-md-8">
+                                                <select class="form-control form-select" id="ward"
+                                                    th:classappend="${#fields.hasErrors('ward')} ? 'is-invalid' : ''">
+                                                </select>
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('ward')}"
+                                                    th:errors="*{ward}"></div>
+                                            </div>
+                                        </strong>
+                                        <div class="mb-3 row">
+                                            <span class="col-md-4 fw-semibold">Địa chỉ chi tiết<span
+                                                    class="text-danger">*</span>:
+                                            </span>
+                                            <div class="col-md-8">
+                                                <input autocomplete="off" type="text" id="addressDetail"
+                                                    placeholder="Nhập chi tiết địa chỉ" class="form-control"
+                                                    th:field="*{addressDetail}"
+                                                    th:classappend="${#fields.hasErrors('addressDetail')} ? 'is-invalid' : ''">
+                                                <div class="invalid-feedback"
+                                                    th:if="${#fields.hasErrors('addressDetail')}"
+                                                    th:errors="*{addressDetail}"></div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 row">
+                                            <span class="col-md-4 fw-semibold">
+                                                Ngày sinh:
+                                            </span>
                                             <div class="col-md-8">
                                                 <input type="date" class="form-control" id="birthDate"
                                                     th:field="*{birthDate}"
@@ -334,16 +370,16 @@
                                                     th:errors="*{birthDate}"></div>
                                             </div>
                                         </div>
-
                                     </div>
-
+                                    <input type="hidden" th:field="*{province}" name="province" id="provinceName">
+                                    <input type="hidden" th:field="*{district}" name="district" id="districtName">
+                                    <input type="hidden" th:field="*{ward}" name="ward" id="wardName">
                                     <div class="profile-actions">
-                                        <button type="submit" class="btn btn-primary" onclick="showConfirm(event,
-                                 'Xác nhận lưu thay đổi',
-                                 'Bạn có chắc chắn muốn cập nhật thông tin hồ sơ của mình không?',
-                                 'updateProfileForm',  
-                                 null
-                                )">
+                                        <button type="button" class="btn btn-primary" th:onclick="showConfirmDialog(
+                                                    'updateProfileForm',
+                                                    'Bạn có chắc chắn muốn sửa?',
+                                                    'Người dùng sẽ bị thay đổi!',
+                                                    'Vâng, hãy sửa!')">
                                             <i class="ri-save-line me-1"></i>Lưu thay đổi
                                         </button>
                                         <a th:href="@{/profile}" class="btn btn-outline-secondary">
@@ -377,6 +413,20 @@
                 const avatarUploadInput = document.getElementById('avatarUploadInput');
                 if (avatarUploadInput) {
                     avatarUploadInput.addEventListener('change', previewAvatar);
+                }
+            });
+        </script>
+
+        <script th:inline="javascript">
+            const savedAddress = {
+                provinceName: /*[[${userProfileUpdateReq.province}]]*/ null,
+                districtName: /*[[${userProfileUpdateReq.district}]]*/ null,
+                wardName:     /*[[${userProfileUpdateReq.ward}]]*/ null
+            };
+
+            $(document).ready(function () {
+                if ($("#province").length) {
+                    FruitCart.AddressSelector.init(savedAddress);
                 }
             });
         </script>
