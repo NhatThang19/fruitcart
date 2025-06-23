@@ -49,88 +49,80 @@ public class AdminProductController {
 
     @GetMapping("/create")
     public String showCreateProductForm(Model model) {
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminProductCreate());
-        model.addAttribute("productDTO", new ProductCreateReq());
-
         try {
+            model.addAttribute("pageMetadata", breadcrumbService.buildAdminProductCreate());
+            model.addAttribute("productCreateReq", new ProductCreateReq());
+
             List<Category> categories = categoryService.findAllActiveCategories();
             List<Origin> origins = originService.findAllActiveOrigins();
 
             model.addAttribute("categories", categories);
             model.addAttribute("origins", origins);
         } catch (Exception e) {
-            model.addAttribute("pageErrorMessage", "Không thể tải dữ liệu cần thiết cho form (danh mục/nguồn gốc).");
+            model.addAttribute("pageErrorMessage", "Có lỗ xảy ra khi chuẩn bị dữ liệu.");
         }
 
         return "admin/pages/product/create";
     }
 
     @PostMapping("/create")
-    public String createProduct(
-            @Valid @ModelAttribute("productDTO") ProductCreateReq productDTO,
-            BindingResult bindingResult,
-            @RequestParam(name = "images", required = false) List<MultipartFile> images,
-            @RequestParam(name = "isMainImage", required = false) List<String> mainImageFlags,
-            RedirectAttributes redirectAttributes,
-            Model model) {
-
+    public String createProduct(@Valid @ModelAttribute("productCreateReq") ProductCreateReq productCreateReq,
+                                BindingResult bindingResult,
+                                @RequestParam(name = "images", required = false) List<MultipartFile> images,
+                                @RequestParam(name = "isMainImage", required = false) List<String> mainImageFlags,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminProductCreate());
 
         if (bindingResult.hasErrors()) {
-            try {
-                List<Category> categories = categoryService.findAllActiveCategories();
-                model.addAttribute("categories", categories);
-
-                List<Origin> origins = originService.findAllActiveOrigins();
-                model.addAttribute("origins", origins);
-            } catch (Exception e) {
-                model.addAttribute("pageErrorMessage", "Lỗi tải lại dữ liệu phụ trợ cho form.");
-            }
-
+            loadFormAuxiliaryData(model);
+            model.addAttribute("productCreateReq", productCreateReq);
             return "admin/pages/product/create";
-        }
-
-        List<Boolean> isMainImages = new ArrayList<>();
-        if (images != null && !images.isEmpty() && mainImageFlags != null && mainImageFlags.size() == images.size()) {
-
-            for (String flag : mainImageFlags) {
-                isMainImages.add("true".equalsIgnoreCase(flag));
-            }
-        } else if (images != null && !images.isEmpty()) {
-            for (int i = 0; i < images.size(); i++) {
-                isMainImages.add(false);
-            }
-
         }
 
         try {
-            List<MultipartFile> actualImages = images != null ? images.stream()
-                    .filter(img -> img != null && !img.isEmpty())
-                    .collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<MultipartFile> actualImages = new ArrayList<>();
+            List<Boolean> actualMainImageFlags = new ArrayList<>();
 
-            Product createdProduct = productService.createProduct(productDTO, actualImages, isMainImages);
+            boolean noFilesUploaded = images == null || images.isEmpty() || (images.size() == 1 && images.get(0).isEmpty());
 
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Sản phẩm '" + createdProduct.getName() + "' đã được tạo thành công!");
+            if (!noFilesUploaded) {
+                if (mainImageFlags == null || images.size() != mainImageFlags.size()) {
+                    throw new IllegalArgumentException("Dữ liệu hình ảnh và cờ ảnh chính không đồng bộ.");
+                }
+
+                for (int i = 0; i < images.size(); i++) {
+                    MultipartFile image = images.get(i);
+                    if (image != null && !image.isEmpty()) {
+                        actualImages.add(image);
+                        actualMainImageFlags.add("true".equalsIgnoreCase(mainImageFlags.get(i)));
+                    }
+                }
+            }
+
+            Product createdProduct = productService.createProduct(productCreateReq, actualImages, actualMainImageFlags);
+            redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm '" + createdProduct.getName() + "' đã được tạo thành công!");
 
             return "redirect:/admin/products";
+
         } catch (Exception e) {
+            model.addAttribute("errorMessage", "Đã có lỗi xảy ra trong quá trình tạo sản phẩm.");
+            loadFormAuxiliaryData(model);
+            model.addAttribute("productCreateReq", productCreateReq);
 
-            model.addAttribute("errorMessage", "Tạo sản phẩm thất bại: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", "Tạo sản phẩm thất bại: " + e.getMessage());
-            try {
-                List<Category> categories = categoryService.findAllActiveCategories();
-                model.addAttribute("categories", categories);
-
-                List<Origin> origins = originService.findAllActiveOrigins();
-                model.addAttribute("origins", origins);
-            } catch (Exception loadEx) {
-
-                model.addAttribute("pageErrorMessage", "Lỗi tải lại dữ liệu phụ trợ cho form.");
-            }
-            model.addAttribute("productDTO", productDTO);
             return "admin/pages/product/create";
+        }
+    }
+
+    private void loadFormAuxiliaryData(Model model) {
+        try {
+            List<Category> categories = categoryService.findAllActiveCategories();
+            model.addAttribute("categories", categories);
+
+            List<Origin> origins = originService.findAllActiveOrigins();
+            model.addAttribute("origins", origins);
+        } catch (Exception e) {
+            model.addAttribute("pageErrorMessage", "Không thể tải dữ liệu cần thiết cho form.");
         }
     }
 
@@ -154,22 +146,18 @@ public class AdminProductController {
             productDTO.setStatus(product.isStatus());
 
             if (product.getVariants() != null) {
-                List<ProductVariantUpdateReq> variantDTOs = product.getVariants().stream()
-                        .map(v -> {
-                            ProductVariantUpdateReq vd = new ProductVariantUpdateReq();
-                            vd.setId(v.getId());
-                            vd.setAttribute(v.getAttribute());
-                            vd.setSku(v.getSku());
-                            vd.setPrice(v.getPrice());
-                            return vd;
-                        }).collect(Collectors.toList());
+                List<ProductVariantUpdateReq> variantDTOs = product.getVariants().stream().map(v -> {
+                    ProductVariantUpdateReq vd = new ProductVariantUpdateReq();
+                    vd.setId(v.getId());
+                    vd.setAttribute(v.getAttribute());
+                    vd.setSku(v.getSku());
+                    vd.setPrice(v.getPrice());
+                    return vd;
+                }).collect(Collectors.toList());
                 productDTO.setVariants(variantDTOs);
             }
 
-            product.getImages().stream()
-                    .filter(ProductImage::isMain)
-                    .findFirst()
-                    .ifPresent(mainImg -> productDTO.setMainImageId(mainImg.getId()));
+            product.getImages().stream().filter(ProductImage::isMain).findFirst().ifPresent(mainImg -> productDTO.setMainImageId(mainImg.getId()));
 
             model.addAttribute("productDTO", productDTO);
             model.addAttribute("existingImages", product.getImages());
@@ -190,14 +178,7 @@ public class AdminProductController {
     }
 
     @PostMapping("/edit/{id}")
-    public String updateProduct(
-            @PathVariable("id") Long id,
-            @Valid @ModelAttribute("productDTO") ProductUpdateReq productDTO,
-            BindingResult bindingResult,
-            @RequestParam(name = "newImages", required = false) List<MultipartFile> newImages,
-            @RequestParam(name = "imageIdsToDelete", required = false) List<Long> imageIdsToDelete,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+    public String updateProduct(@PathVariable("id") Long id, @Valid @ModelAttribute("productDTO") ProductUpdateReq productDTO, BindingResult bindingResult, @RequestParam(name = "newImages", required = false) List<MultipartFile> newImages, @RequestParam(name = "imageIdsToDelete", required = false) List<Long> imageIdsToDelete, RedirectAttributes redirectAttributes, Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
 
         productDTO.setId(id);
@@ -218,15 +199,11 @@ public class AdminProductController {
         }
 
         try {
-            List<MultipartFile> actualNewImages = newImages != null ? newImages.stream()
-                    .filter(img -> img != null && !img.isEmpty())
-                    .collect(Collectors.toList())
-                    : new ArrayList<>();
+            List<MultipartFile> actualNewImages = newImages != null ? newImages.stream().filter(img -> img != null && !img.isEmpty()).collect(Collectors.toList()) : new ArrayList<>();
 
             Product updatedProduct = productService.updateProduct(id, productDTO, actualNewImages, imageIdsToDelete);
 
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Sản phẩm '" + updatedProduct.getName() + "' đã được cập nhật thành công!");
+            redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm '" + updatedProduct.getName() + "' đã được cập nhật thành công!");
 
             return "redirect:/admin/products";
         } catch (Exception e) {
@@ -236,9 +213,7 @@ public class AdminProductController {
     }
 
     @GetMapping
-    public String listProducts(Model model,
-            @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable,
-            @ModelAttribute("criteria") ProductSearchCriteriaReq criteria) {
+    public String listProducts(Model model, @PageableDefault(size = 5, sort = "id", direction = Direction.DESC) Pageable pageable, @ModelAttribute("criteria") ProductSearchCriteriaReq criteria) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminProduct());
 
         List<Category> categories = categoryService.getAllCategories();
@@ -257,9 +232,7 @@ public class AdminProductController {
     }
 
     @PostMapping("/delete/{productId}")
-    public String deleteProductByForm(
-            @PathVariable("productId") Long id,
-            RedirectAttributes redirectAttributes) {
+    public String deleteProductByForm(@PathVariable("productId") Long id, RedirectAttributes redirectAttributes) {
         try {
             productService.deleteProduct(id);
             redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm ID " + id + " đã được xóa thành công!");

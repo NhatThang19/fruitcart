@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{admin/layouts/admin-layout}">
+      layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
     <title th:text="${pageMetadata.title}"></title>
@@ -80,217 +80,223 @@
 
 <body>
 
-    <div layout:fragment="content">
-        <div class="container-fluid">
+<div layout:fragment="content">
+    <div class="container-fluid">
 
-            <div class="card mb-4">
-                <div class="card-header py-3" style="background-color: #e4f2ed;">
-                    <h5 class="m-0 fw-semibold" style="color: #64b496;">Nhập thông tin sản phẩm</h5>
+        <div class="card mb-4">
+            <div class="card-header py-3 background-color-primary">
+                <h5 class="m-0 fw-semibold text-color-primary   ">Nhập thông tin sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                        <span th:text="${successMessage}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <span th:text="${errorMessage}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <div th:if="${pageErrorMessage}" class="alert alert-warning alert-dismissible fade show"
-                        role="alert">
-                        <span th:text="${pageErrorMessage}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${pageErrorMessage}" class="alert alert-warning alert-dismissible fade show"
+                     role="alert">
+                    <span th:text="${pageErrorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
 
-                    <form th:action="@{/admin/products/create}" th:object="${productDTO}" method="post"
-                        enctype="multipart/form-data" id="createProductForm">
-                        <h6 class="mb-3" style="color: #64b496;">Thông tin cơ bản</h6>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label">Tên sản phẩm <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" th:errorclass="is-invalid" autocomplete="off"
-                                    id="name" th:field="*{name}">
-                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}"
-                                    th:errors="*{name}"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="basePrice" class="form-label">Giá cơ bản (VNĐ) <span
-                                        class="text-danger">*</span></label>
-                                <input type="number" step="1000" min="0" class="form-control" th:errorclass="is-invalid"
-                                    id="basePrice" th:field="*{basePrice}">
+                <form th:action="@{/admin/products/create}" th:object="${productCreateReq}" method="post"
+                      enctype="multipart/form-data" id="createProductForm">
+                    <h6 class="mb-3 text-color-primary">Thông tin cơ bản</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Tên sản phẩm <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:errorclass="is-invalid" autocomplete="off"
+                                   id="name" th:field="*{name}">
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}"
+                                 th:errors="*{name}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="basePrice" class="form-label">Giá cơ bản (VNĐ) <span
+                                    class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">VNĐ</span>
+                                <input type="text" autocomplete="off" inputmode="numeric"
+                                       class="form-control format-as-money"
+                                       th:errorclass="is-invalid"
+                                       id="basePrice" th:field="*{basePrice}">
                                 <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('basePrice')}"
-                                    th:errors="*{basePrice}"></div>
+                                     th:errors="*{basePrice}"></div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="category" class="form-label">Danh mục <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-control form-select" id="category" th:errorclass="is-invalid"
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Danh mục <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-control form-select" id="category" th:errorclass="is-invalid"
                                     th:field="*{categoryId}">
-                                    <option value="">Chọn danh mục</option>
-                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">
-                                    </option>
-                                </select>
-                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('categoryId')}"
-                                    th:errors="*{categoryId}"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="origin" class="form-label">Nguồn gốc <span
-                                        class="text-danger">*</span></label>
-                                <select th:errorclass="is-invalid" class="form-control form-select" id="origin"
+                                <option value="">Chọn danh mục</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('categoryId')}"
+                                 th:errors="*{categoryId}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="origin" class="form-label">Nguồn gốc <span
+                                    class="text-danger">*</span></label>
+                            <select th:errorclass="is-invalid" class="form-control form-select" id="origin"
                                     th:field="*{originId}">
-                                    <option value="">Chọn nguồn gốc</option>
-                                    <option th:each="ori : ${origins}" th:value="${ori.id}" th:text="${ori.name}">
-                                    </option>
-                                </select>
-                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('originId')}"
-                                    th:errors="*{originId}"></div>
-                            </div>
+                                <option value="">Chọn nguồn gốc</option>
+                                <option th:each="ori : ${origins}" th:value="${ori.id}" th:text="${ori.name}">
+                                </option>
+                            </select>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('originId')}"
+                                 th:errors="*{originId}"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shortDescription" class="form-label">Mô tả ngắn</label>
+                        <textarea class="form-control" id="shortDescription" th:field="*{shortDescription}"
+                                  rows="3"></textarea>
+                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('shortDescription')}"
+                             th:errors="*{shortDescription}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Mô tả sản phẩm</label>
+
+                        <div id="quill-editor" style="min-height: 250px;">
+                            <th:block th:utext="*{description}"></th:block>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Mô tả ngắn</label>
-                            <textarea class="form-control" id="description" th:field="*{shortDescription}"
-                                rows="3"></textarea>
-                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('shortDescription')}"
-                                th:errors="*{shortDescription}"></div>
-                        </div>
+                        <textarea id="description" th:field="*{description}" style="display:none;"></textarea>
 
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Mô tả sản phẩm</label>
+                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('description')}"
+                             th:errors="*{description}"></div>
+                    </div>
 
-                            <div id="quill-editor" style="min-height: 250px;">
-                                <th:block th:utext="*{description}"></th:block>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Trạng thái:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input p-0" type="radio" th:field="*{status}"
+                                       id="statusActive" th:value="true"
+                                       th:checked="*{status == true or status == null}">
+                                <label class="form-check-label" for="statusActive">Kích hoạt</label>
                             </div>
-
-                            <textarea id="description" th:field="*{description}" style="display:none;"></textarea>
-
-                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('description')}"
-                                th:errors="*{description}"></div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label d-block">Trạng thái:</label>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input p-0" type="radio" th:field="*{status}"
-                                        id="statusActive" th:value="true"
-                                        th:checked="*{status == true or status == null}">
-                                    <label class="form-check-label" for="statusActive">Kích hoạt</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input p-0" type="radio" th:field="*{status}"
-                                        id="statusInactive" th:value="false" th:checked="*{status == false}">
-                                    <label class="form-check-label" for="statusInactive">Vô hiệu hóa</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label d-block">Sản phẩm mới:</label>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input p-0" type="checkbox" th:field="*{new}" id="isNew" />
-                                    <label class="form-check-label" for="isNew">Đánh dấu là sản phẩm mới</label>
-                                </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input p-0" type="radio" th:field="*{status}"
+                                       id="statusInactive" th:value="false" th:checked="*{status == false}">
+                                <label class="form-check-label" for="statusInactive">Vô hiệu hóa</label>
                             </div>
                         </div>
-                        <hr class="my-4">
-                        <div class="row">
-                            <div class="col-md-5 border-end">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="mb-0 semi-bold" style="color: #64b496;">Biến thể sản phẩm</h6>
-                                    <button type="button" id="add-variant-btn" class="btn btn-outline-primary btn-sm">
-                                        <i class="ri-add-line"></i> Thêm biến thể
-                                    </button>
-                                </div>
-                                <div id="variants-container">
-                                    <th:block th:if="*{variants != null and !variants.empty}">
-                                        <div th:each="variant, iterStat : *{variants}" class="variant-item">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-2">
-                                                    <label th:for="|variantAttribute${iterStat.index}|"
-                                                        class="form-label">Thuộc
-                                                        tính <span class="text-danger">*</span></label>
-                                                    <input th:errorclass="is-invalid" type="text"
-                                                        class="form-control form-control-sm"
-                                                        th:id="|variantAttribute${iterStat.index}|"
-                                                        th:field="*{variants[__${iterStat.index}__].attribute}">
-                                                    <div class="invalid-feedback d-block"
-                                                        th:if="${#fields.hasErrors('variants[__${iterStat.index}__].attribute')}"
-                                                        th:errors="*{variants[__${iterStat.index}__].attribute}"></div>
-                                                </div>
-                                                <div class="col-md-5 mb-2">
-                                                    <label th:for="|variantPrice${iterStat.index}|"
-                                                        class="form-label">Giá (VNĐ)
-                                                        <span class="text-danger">*</span></label>
-                                                    <input th:errorclass="is-invalid" type="number" step="1000" min="0"
-                                                        class="form-control form-control-sm"
-                                                        th:id="|variantPrice${iterStat.index}|"
-                                                        th:field="*{variants[__${iterStat.index}__].price}">
-                                                    <div class="invalid-feedback d-block"
-                                                        th:if="${#fields.hasErrors('variants[__${iterStat.index}__].price')}"
-                                                        th:errors="*{variants[__${iterStat.index}__].price}"></div>
-                                                </div>
-                                                <div class="col-md-1 mb-2 d-flex align-items-center">
-                                                    <button type="button"
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Sản phẩm mới:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input p-0" type="checkbox" th:field="*{new}" id="isNew"/>
+                                <label class="form-check-label" for="isNew">Đánh dấu là sản phẩm mới</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="my-4">
+                    <div class="row">
+                        <div class="col-md-5 border-end">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0 semi-bold" style="color: #64b496;">Biến thể sản phẩm</h6>
+                                <button type="button" id="add-variant-btn" class="btn btn-outline-primary btn-sm">
+                                    <i class="ri-add-line"></i> Thêm biến thể
+                                </button>
+                            </div>
+                            <div id="variants-container">
+                                <th:block th:if="*{variants != null and !variants.isEmpty()}">
+                                    <div th:each="variant, iterStat : *{variants}" class="variant-item">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-2">
+                                                <label th:for="|variantAttribute${iterStat.index}|"
+                                                       class="form-label">Thuộc
+                                                    tính <span class="text-danger">*</span></label>
+                                                <input autocomplete="off" th:errorclass="is-invalid" type="text"
+                                                       class="form-control form-control-sm"
+                                                       th:id="|variantAttribute${iterStat.index}|"
+                                                       th:field="*{variants[__${iterStat.index}__].attribute}">
+                                                <div class="invalid-feedback d-block"
+                                                     th:if="${#fields.hasErrors('variants[__${iterStat.index}__].attribute')}"
+                                                     th:errors="*{variants[__${iterStat.index}__].attribute}"></div>
+                                            </div>
+                                            <div class="col-md-5 mb-2">
+                                                <label th:for="|variantPrice${iterStat.index}|"
+                                                       class="form-label">Giá (VNĐ)
+                                                    <span class="text-danger">*</span></label>
+                                                <input th:errorclass="is-invalid" type="text"
+                                                       class="form-control form-control-sm format-as-money"
+                                                       th:id="|variantPrice${iterStat.index}|"
+                                                       th:field="*{variants[__${iterStat.index}__].price}">
+                                                <div class="invalid-feedback d-block"
+                                                     th:if="${#fields.hasErrors('variants[__${iterStat.index}__].price')}"
+                                                     th:errors="*{variants[__${iterStat.index}__].price}"></div>
+                                            </div>
+                                            <div class="col-md-1 mb-2 d-flex align-items-center">
+                                                <button type="button"
                                                         class="btn btn-danger btn-sm remove-variant-btn w-100">
-                                                        <i class="ri-delete-bin-line"></i>
-                                                    </button>
-                                                </div>
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
                                             </div>
                                         </div>
-                                    </th:block>
-                                </div>
-                                <div class="invalid-feedback d-block"
-                                    th:if="${#fields.hasErrors('variants') && #fields.errors('variants').size() > 0 && #fields.errors('variants')[0].contains('không được để trống')}"
-                                    th:errors="*{variants}"></div>
+                                    </div>
+                                </th:block>
                             </div>
-                            <div class="col-md-7">
-                                <h6 class="mb-3 semi-bold" style="color: #64b496;">Hình ảnh sản phẩm</h6>
-                                <div class="mb-3">
-                                    <label for="productImages" class="form-label">Tải lên hình ảnh (có thể chọn nhiều
-                                        ảnh)</label>
-                                    <input type="file" class="form-control" id="productImages" name="images" multiple
-                                        accept="image/png, image/jpeg, image/gif, image/webp">
-                                </div>
-                                <div id="image-preview-container" class="image-preview-container">
-                                </div>
+                            <div class="invalid-feedback d-block"
+                                 th:if="${#fields.hasErrors('variants') && #fields.errors('variants').size() > 0 && #fields.errors('variants')[0].contains('không được để trống')}"
+                                 th:errors="*{variants}"></div>
+                        </div>
+                        <div class="col-md-7">
+                            <h6 class="mb-3 semi-bold" style="color: #64b496;">Hình ảnh sản phẩm</h6>
+                            <div class="mb-3">
+                                <label for="productImages" class="form-label">Tải lên hình ảnh (có thể chọn nhiều
+                                    ảnh)</label>
+                                <input type="file" class="form-control" id="productImages" name="images" multiple
+                                       accept="image/png, image/jpeg, image/gif, image/webp">
+                            </div>
+                            <div id="image-preview-container" class="image-preview-container">
                             </div>
                         </div>
-                        <hr class="my-4">
-                        <div class="d-flex float-end gap-2">
-                            <button type="submit" class="cr-btn default-btn color-primary"><i
-                                    class="ri-save-line me-1"></i>Lưu</button>
-                            <a href="/admin/products" class="cr-btn default-btn color-light me-2"><i
-                                    class="ri-close-line me-1"></i>Hủy</a>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <hr class="my-4">
+                    <div class="d-flex float-end gap-2">
+                        <button type="submit" class="cr-btn default-btn color-primary"><i
+                                class="ri-save-line me-1"></i>Lưu
+                        </button>
+                        <a th:href="@{/admin/products}" class="cr-btn default-btn color-light me-2"><i
+                                class="ri-close-line me-1"></i>Hủy</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <th:block layout:fragment="extras-scripts">
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // --- Phần xử lý Biến thể ---
-                const variantsContainer = document.getElementById('variants-container');
-                const addVariantBtn = document.getElementById('add-variant-btn');
+<th:block layout:fragment="extras-scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Phần xử lý Biến thể ---
+            const variantsContainer = document.getElementById('variants-container');
+            const addVariantBtn = document.getElementById('add-variant-btn');
 
-                let variantIndex = variantsContainer.querySelectorAll('.variant-item').length;
+            let variantIndex = variantsContainer.querySelectorAll('.variant-item').length;
 
-                addVariantBtn.addEventListener('click', function () {
-                    const variantItemHtml = `
+            addVariantBtn.addEventListener('click', function () {
+                const variantItemHtml = `
                     <div class="variant-item">
                         <div class="row">
                             <div class="col-md-6 mb-2">
                                 <label for="variants${variantIndex}.attribute" class="form-label" autocomplete="off">Thuộc tính <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="variants${variantIndex}.attribute" name="variants[${variantIndex}].attribute">
+                                <input type="text" class="form-control form-control-sm" autocomplete="off" id="variants${variantIndex}.attribute" name="variants[${variantIndex}].attribute">
                             </div>
                             <div class="col-md-5 mb-2">
                                 <label for="variants${variantIndex}.price" class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
-                                <input type="number" step="1000" min="0" class="form-control form-control-sm" id="variants${variantIndex}.price" name="variants[${variantIndex}].price">
+                                <input type="text" class="form-control form-control-sm format-as-money" id="variants${variantIndex}.price" name="variants[${variantIndex}].price">
                             </div>
                             <div class="col-md-1 mb-2 d-flex align-items-end">
                                 <button type="button" class="btn btn-danger btn-sm remove-variant-btn w-100">
@@ -300,55 +306,55 @@
                         </div>
                     </div>
                 `;
-                    variantsContainer.insertAdjacentHTML('beforeend', variantItemHtml);
-                    variantIndex++;
-                });
+                variantsContainer.insertAdjacentHTML('beforeend', variantItemHtml);
+                variantIndex++;
+            });
 
-                variantsContainer.addEventListener('click', function (event) {
-                    const removeButton = event.target.closest('.remove-variant-btn');
-                    if (removeButton) {
-                        removeButton.closest('.variant-item').remove();
+            variantsContainer.addEventListener('click', function (event) {
+                const removeButton = event.target.closest('.remove-variant-btn');
+                if (removeButton) {
+                    removeButton.closest('.variant-item').remove();
+                }
+            });
+
+            // --- Phần xử lý Hình ảnh ---
+            const productImagesInput = document.getElementById('productImages');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            let imageFilesStore = [];
+
+            productImagesInput.addEventListener('change', function (event) {
+                const newFiles = Array.from(event.target.files);
+
+                newFiles.forEach(file => {
+                    const isDuplicate = imageFilesStore.some(existingFileObj =>
+                        existingFileObj.file.name === file.name && existingFileObj.file.size === file.size
+                    );
+                    if (!isDuplicate) {
+                        imageFilesStore.push({
+                            file: file,
+                            id: 'img-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                            isMain: false
+                        });
                     }
                 });
+                renderImagePreviewsAndUpdateFormInputs();
+            });
 
-                // --- Phần xử lý Hình ảnh ---
-                const productImagesInput = document.getElementById('productImages');
-                const imagePreviewContainer = document.getElementById('image-preview-container');
-                let imageFilesStore = [];
+            function renderImagePreviewsAndUpdateFormInputs() {
+                imagePreviewContainer.innerHTML = '';
 
-                productImagesInput.addEventListener('change', function (event) {
-                    const newFiles = Array.from(event.target.files);
+                if (imageFilesStore.length > 0 && !imageFilesStore.some(item => item.isMain)) {
+                    imageFilesStore[0].isMain = true;
+                }
 
-                    newFiles.forEach(file => {
-                        const isDuplicate = imageFilesStore.some(existingFileObj =>
-                            existingFileObj.file.name === file.name && existingFileObj.file.size === file.size
-                        );
-                        if (!isDuplicate) {
-                            imageFilesStore.push({
-                                file: file,
-                                id: 'img-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                                isMain: false
-                            });
-                        }
-                    });
-                    renderImagePreviewsAndUpdateFormInputs();
-                });
+                const form = document.getElementById('createProductForm');
+                form.querySelectorAll('input[name="isMainImage"]').forEach(inp => inp.remove());
 
-                function renderImagePreviewsAndUpdateFormInputs() {
-                    imagePreviewContainer.innerHTML = '';
-
-                    if (imageFilesStore.length > 0 && !imageFilesStore.some(item => item.isMain)) {
-                        imageFilesStore[0].isMain = true;
-                    }
-
-                    const form = document.getElementById('createProductForm');
-                    form.querySelectorAll('input[name="isMainImage"]').forEach(inp => inp.remove());
-
-                    imageFilesStore.forEach((item, indexInStore) => {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const checkedAttribute = item.isMain ? 'checked' : '';
-                            const previewItemHtml = `
+                imageFilesStore.forEach((item, indexInStore) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const checkedAttribute = item.isMain ? 'checked' : '';
+                        const previewItemHtml = `
                             <div class="image-preview-item" data-id="${item.id}">
                                 <img src="${e.target.result}" alt="${item.file.name}">
                                 <button type="button" class="remove-image-btn" data-id="${item.id}">&times;</button>
@@ -362,98 +368,50 @@
                                 </div>
                             </div>
                         `;
-                            imagePreviewContainer.insertAdjacentHTML('beforeend', previewItemHtml);
-                        }
-                        reader.readAsDataURL(item.file);
-
-                        const hiddenInputIsMain = document.createElement('input');
-                        hiddenInputIsMain.type = 'hidden';
-                        hiddenInputIsMain.name = 'isMainImage';
-                        hiddenInputIsMain.value = item.isMain ? 'true' : 'false';
-                        form.appendChild(hiddenInputIsMain);
-                    });
-
-                    const dataTransfer = new DataTransfer();
-                    imageFilesStore.forEach(item => dataTransfer.items.add(item.file));
-                    productImagesInput.files = dataTransfer.files;
-                }
-
-                imagePreviewContainer.addEventListener('click', function (event) {
-                    const target = event.target;
-                    if (target.classList.contains('remove-image-btn')) {
-                        const imageIdToRemove = target.dataset.id;
-                        const wasMain = imageFilesStore.find(item => item.id === imageIdToRemove)?.isMain;
-
-                        imageFilesStore = imageFilesStore.filter(item => item.id !== imageIdToRemove);
-
-                        if (wasMain && imageFilesStore.length > 0 && !imageFilesStore.some(item => item.isMain)) {
-                            imageFilesStore[0].isMain = true;
-                        }
-                        renderImagePreviewsAndUpdateFormInputs();
+                        imagePreviewContainer.insertAdjacentHTML('beforeend', previewItemHtml);
                     }
+                    reader.readAsDataURL(item.file);
+
+                    const hiddenInputIsMain = document.createElement('input');
+                    hiddenInputIsMain.type = 'hidden';
+                    hiddenInputIsMain.name = 'isMainImage';
+                    hiddenInputIsMain.value = item.isMain ? 'true' : 'false';
+                    form.appendChild(hiddenInputIsMain);
                 });
 
-                imagePreviewContainer.addEventListener('change', function (event) {
-                    const target = event.target;
-                    if (target.classList.contains('main-image-radio') && target.checked) {
-                        const selectedImageId = target.value;
-                        imageFilesStore.forEach(item => {
-                            item.isMain = (item.id === selectedImageId);
-                        });
-                        renderImagePreviewsAndUpdateFormInputs();
+                const dataTransfer = new DataTransfer();
+                imageFilesStore.forEach(item => dataTransfer.items.add(item.file));
+                productImagesInput.files = dataTransfer.files;
+            }
+
+            imagePreviewContainer.addEventListener('click', function (event) {
+                const target = event.target;
+                if (target.classList.contains('remove-image-btn')) {
+                    const imageIdToRemove = target.dataset.id;
+                    const wasMain = imageFilesStore.find(item => item.id === imageIdToRemove)?.isMain;
+
+                    imageFilesStore = imageFilesStore.filter(item => item.id !== imageIdToRemove);
+
+                    if (wasMain && imageFilesStore.length > 0 && !imageFilesStore.some(item => item.isMain)) {
+                        imageFilesStore[0].isMain = true;
                     }
-                });
-            });
-        </script>
-        <script>
-            $(document).ready(function () {
-                // Kiểm tra xem có phần tử #quill-editor trên trang không
-                if ($("#quill-editor").length) {
-
-                    // --- 1. Khởi tạo Quill (Giữ nguyên) ---
-                    const toolbarOptions = [
-                        [{ 'header': [1, 2, 3, 4, false] }],
-                        ['bold', 'italic', 'underline', 'strike'],
-                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                        [{ 'indent': '-1' }, { 'indent': '+1' }],
-                        [{ 'color': [] }, { 'background': [] }],
-                        [{ 'align': [] }],
-                        ['link', 'video'],
-                        ['clean']
-                    ];
-
-                    var quill = new Quill('#quill-editor', {
-                        modules: {
-                            toolbar: toolbarOptions
-                        },
-                        theme: 'snow'
-                    });
-
-
-                    // --- 2. Đồng bộ dữ liệu - PHIÊN BẢN CẢI TIẾN ---
-                    $("#createProductForm").on('submit', function () {
-                        // Lấy thẻ textarea ẩn bằng name hoặc id
-                        var $descriptionTextarea = $('textarea[name=description]');
-
-                        // Kiểm tra xem người dùng có thực sự nhập gì không
-                        // Quill sẽ có length > 1 nếu có nội dung
-                        if (quill.getLength() > 1) {
-                            // Lấy nội dung HTML từ trình soạn thảo Quill
-                            var quillHtml = quill.root.innerHTML;
-                            // Gán nội dung đó vào textarea ẩn
-                            $descriptionTextarea.val(quillHtml);
-                        } else {
-                            // Nếu không có nội dung, đảm bảo giá trị là rỗng
-                            $descriptionTextarea.val("");
-                        }
-
-                        // return true để form tiếp tục được submit bình thường
-                        return true;
-                    });
+                    renderImagePreviewsAndUpdateFormInputs();
                 }
             });
-        </script>
-    </th:block>
+
+            imagePreviewContainer.addEventListener('change', function (event) {
+                const target = event.target;
+                if (target.classList.contains('main-image-radio') && target.checked) {
+                    const selectedImageId = target.value;
+                    imageFilesStore.forEach(item => {
+                        item.isMain = (item.id === selectedImageId);
+                    });
+                    renderImagePreviewsAndUpdateFormInputs();
+                }
+            });
+        });
+    </script>
+</th:block>
 
 </body>
 

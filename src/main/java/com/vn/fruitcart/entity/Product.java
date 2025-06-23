@@ -89,16 +89,14 @@ public class Product extends BaseEntity {
         image.setProduct(null);
     }
 
-    @Transient // Annotation này báo cho JPA không cố gắng map phương thức này vào cột DB
+    @Transient
     public ProductImage getMainImage() {
         if (this.images == null || this.images.isEmpty()) {
             return null;
         }
 
-        return this.images.stream()
-                .filter(ProductImage::isMain) // Tìm ảnh có isMain = true
-                .findFirst()
-                .orElse(this.images.get(0)); // Nếu không có thì lấy ảnh đầu tiên
+        return this.images.stream().filter(ProductImage::isMain)
+                .findFirst().orElse(this.images.get(0));
     }
 
 }

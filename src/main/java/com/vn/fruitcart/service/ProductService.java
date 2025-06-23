@@ -15,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.vn.fruitcart.entity.Category;
@@ -23,7 +22,6 @@ import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductImage;
 import com.vn.fruitcart.entity.ProductVariant;
-import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.ProductUpdateReq;
 import com.vn.fruitcart.entity.dto.request.ProductVariantUpdateReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
@@ -33,7 +31,6 @@ import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.repository.OriginRepository;
 import com.vn.fruitcart.repository.ProductRepository;
-import com.vn.fruitcart.service.specification.UserSpecification;
 import com.vn.fruitcart.util.FruitCartUtils;
 
 import jakarta.transaction.Transactional;
@@ -48,24 +45,21 @@ public class ProductService {
     private final FileStorageService fileStorageService;
 
     @Transactional
-    public Product createProduct(ProductCreateReq productDTO, List<MultipartFile> images, List<Boolean> isMainImages)
-            throws Exception {
+    public Product createProduct(ProductCreateReq productDTO, List<MultipartFile> images, List<Boolean> isMainFlags) throws IOException {
+
         Category category = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> {
-                    return new ResourceNotFoundException(
-                            "Không tìm thấy danh mục với ID: " + productDTO.getCategoryId());
-                });
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy danh mục với ID: " + productDTO.getCategoryId()));
 
         Origin origin = originRepository.findById(productDTO.getOriginId())
-                .orElseThrow(() -> {
-                    return new ResourceNotFoundException(
-                            "Không tìm thấy nguồn gốc với ID: " + productDTO.getOriginId());
-                });
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy nguồn gốc với ID: " + productDTO.getOriginId()));
 
         Product product = new Product();
         product.setName(productDTO.getName());
         product.setSlug(FruitCartUtils.toSlug(productDTO.getName()));
-        product.setShortDescription(FruitCartUtils.toSlug(productDTO.getName()));
+        product.setShortDescription(productDTO.getShortDescription());
+
         product.setDescription(productDTO.getDescription());
         product.setBasePrice(productDTO.getBasePrice());
         product.setNew(productDTO.isNew());
@@ -88,14 +82,50 @@ public class ProductService {
             product.addVariant(defaultVariant);
         }
 
-        handleProductImagesUpload(product, images, isMainImages, true, null, null);
+        if (!CollectionUtils.isEmpty(images)) {
+            List<ProductImage> uploadedImages = new ArrayList<>();
+            boolean mainImageWasSet = false;
 
-        Product savedProduct = productRepository.save(product);
-        return savedProduct;
+            for (int i = 0; i < images.size(); i++) {
+                MultipartFile imageFile = images.get(i);
+                if (imageFile != null && !imageFile.isEmpty()) {
+                    String imageUrl = fileStorageService.storeFile(imageFile, "product_images");
+
+                    ProductImage productImage = new ProductImage();
+                    productImage.setImageUrl(imageUrl);
+
+                    if (!mainImageWasSet && isMainFlags != null && i < isMainFlags.size() && isMainFlags.get(i)) {
+                        productImage.setMain(true);
+                        mainImageWasSet = true;
+                    } else {
+                        productImage.setMain(false);
+                    }
+
+                    uploadedImages.add(productImage);
+                }
+            }
+
+            if (!mainImageWasSet && !uploadedImages.isEmpty()) {
+                uploadedImages.get(0).setMain(true);
+            }
+
+            uploadedImages.forEach(product::addImage);
+        }
+
+        if (product.getImages().isEmpty()) {
+            ProductImage defaultImage = new ProductImage();
+
+            defaultImage.setImageUrl("/storage/default/product.webp");
+
+            defaultImage.setMain(true);
+            product.addImage(defaultImage);
+        }
+
+        return productRepository.save(product);
     }
 
     private void handleProductImagesUpload(Product product, List<MultipartFile> images, List<Boolean> isMainFlags,
-            boolean isCreateMode, Long mainImageIdForUpdate, Integer newMainImageIndexForUpdate) throws IOException {
+                                           boolean isCreateMode, Long mainImageIdForUpdate, Integer newMainImageIndexForUpdate) throws IOException {
         if (CollectionUtils.isEmpty(images)) {
             if (!isCreateMode && mainImageIdForUpdate != null && newMainImageIndexForUpdate == null) {
                 setMainImageForExisting(product, mainImageIdForUpdate);
@@ -162,35 +192,30 @@ public class ProductService {
     }
 
     private void setMainImageForExisting(Product product, Long mainImageIdToSet) {
-        boolean mainSet = false;
-        for (ProductImage img : product.getImages()) {
-            if (img.getId() != null && img.getId().equals(mainImageIdToSet)) {
-                img.setMain(true);
-                mainSet = true;
-            } else {
-                img.setMain(false);
-            }
-        }
-        if (!mainSet && !product.getImages().isEmpty()
-                && product.getImages().stream().noneMatch(ProductImage::isMain)) {
+        product.getImages().forEach(img -> img.setMain(false));
+
+        product.getImages().stream()
+                .filter(img -> img.getId() != null && img.getId().equals(mainImageIdToSet))
+                .findFirst()
+                .ifPresent(img -> img.setMain(true));
+
+        boolean hasMainImage = product.getImages().stream().anyMatch(ProductImage::isMain);
+        if (!hasMainImage && !product.getImages().isEmpty()) {
             product.getImages().get(0).setMain(true);
         }
     }
 
     public Product getProductById(Long id) throws ResourceNotFoundException {
-        Product product = productRepository.findById(id)
+        return productRepository.findById(id)
                 .orElseThrow(() -> {
                     return new ResourceNotFoundException("Không tìm thấy sản phẩm với ID: " + id);
                 });
-        product.getVariants().size();
-        product.getImages().size();
-        return product;
     }
 
     @Transactional
     public Product updateProduct(Long productId, ProductUpdateReq productDTO,
-            List<MultipartFile> newImages,
-            List<Long> imageIdsToDelete) throws Exception {
+                                 List<MultipartFile> newImages,
+                                 List<Long> imageIdsToDelete) throws Exception {
 
         if (!Objects.equals(productId, productDTO.getId())) {
             throw new IllegalArgumentException("ID sản phẩm không khớp để cập nhật.");
@@ -237,12 +262,11 @@ public class ProductService {
             product.getImages().get(0).setMain(true);
         }
 
-        Product updatedProduct = productRepository.save(product);
-        return updatedProduct;
+        return productRepository.save(product);
     }
 
     @Transactional
-    private void updateProductVariants(Product product, List<ProductVariantUpdateReq> variantDTOs) {
+    protected void updateProductVariants(Product product, List<ProductVariantUpdateReq> variantDTOs) {
         if (variantDTOs == null) {
             // Nếu không có DTO nào được gửi lên, hãy xóa tất cả các biến thể hiện có.
             product.getVariants().clear();
@@ -363,9 +387,9 @@ public class ProductService {
     }
 
     public Page<Product> searchProducts(String keyword, String categorySlug, String originSlug,
-            Double minPrice, Double maxPrice,
-            Boolean inStockOnly,
-            String sortBy, String sortOrder, Pageable pageable) {
+                                        Double minPrice, Double maxPrice,
+                                        Boolean inStockOnly,
+                                        String sortBy, String sortOrder, Pageable pageable) {
 
         Specification<Product> spec = Specification.where(ProductSpecification.isActive());
 

@@ -91,6 +91,7 @@
 
         <!-- Main Custom -->
         <script th:src="@{/admin/assets/js/main.js}"></script>
+        <script th:src="@{/shared/assets/js/my-script.js}"></script>
         <script th:src="@{/shared/assets/js/swal-utils.js}"></script>
 
         <th:block layout:fragment="extras-scripts"></th:block>
@@ -102,7 +103,6 @@
 
             if (message) {
                 showToast(message, messageType);
-                console.log(message);
             }
         </script>
     </main>

@@ -168,13 +168,10 @@
                                         <td class="text-center text-color-gray" th:text="${product.id}"></td>
                                         <td class="text-center">
                                             <img style="max-width: 60px;"
-                                                th:if="${product.images != null && !product.images.empty}"
-                                                th:src="@{${product.images.?[isMain == true].get(0).imageUrl}}"
-                                                th:alt="${product.name}" class="product-image-thumbnail"
-                                                onerror="this.onerror=null; this.src='/shared/assets/images/default-product.png';">
-                                            <img th:unless="${product.images != null && !product.images.empty}"
-                                                th:src="@{/shared/assets/images/default-product.png}"
-                                                alt="Default product image" class="product-image-thumbnail">
+                                                 class="product-image-thumbnail"
+                                                 th:alt="${product.name}"
+                                                 th:src="@{${product.mainImage?.imageUrl ?: '/shared/assets/images/product/default-product.png'}}"
+                                                 onerror="this.onerror=null; this.src='/shared/assets/images/product/default-product.png';">
                                         </td>
                                         <td class="text-color-gray" th:text="${product.name}"></td>
                                         <td class="text-center text-color-gray"
@@ -215,7 +212,7 @@
                                             </form>
                                         </td>
                                     </tr>
-                                    <tr th:if="${productsPage.empty}">
+                                    <tr th:if="${productsPage.isEmpty()}">
                                         <td colspan="9" class="text-center fst-italic py-3">Không tìm thấy sản phẩm
                                             nào.</td>
                                     </tr>
