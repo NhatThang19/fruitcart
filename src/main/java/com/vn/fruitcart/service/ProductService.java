@@ -154,10 +154,17 @@ public class ProductService {
     }
 
     private void setMainImageForExisting(Product product, Long mainImageIdToSet) {
+        product.getImages().forEach(img -> img.setMain(false));
+
         product.getImages().stream()
                 .filter(img -> img.getId() != null && img.getId().equals(mainImageIdToSet))
                 .findFirst()
                 .ifPresent(img -> img.setMain(true));
+
+        boolean hasMainImage = product.getImages().stream().anyMatch(ProductImage::isMain);
+        if (!hasMainImage && !product.getImages().isEmpty()) {
+            product.getImages().get(0).setMain(true);
+        }
     }
 
     public Product getProductById(Long id) throws ResourceNotFoundException {

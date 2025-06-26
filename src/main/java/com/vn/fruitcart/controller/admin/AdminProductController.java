@@ -24,9 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
-import com.vn.fruitcart.entity.ProductImage;
 import com.vn.fruitcart.entity.dto.request.product.ProductUpdateReq;
-import com.vn.fruitcart.entity.dto.request.product.ProductVariantUpdateReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteriaReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
@@ -186,7 +184,6 @@ public class AdminProductController {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
         model.addAttribute("categories", categoryService.findAllActiveCategories());
         model.addAttribute("origins", originService.findAllActiveOrigins());
-
 
         if (productDTO.getId() != null) {
             try {
