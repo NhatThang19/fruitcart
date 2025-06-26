@@ -212,4 +212,11 @@ public class BreadcrumbService {
         return new PageMetadata("Chi tiết sản phẩm", breadcrumbList);
     }
 
+    public Object buidAdminProductDetail() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", "/admin/products"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Cập nhật sản phẩm", null));
+        return new PageMetadata("Cập nhật sản phẩm", breadcrumbList);
+    }
 }

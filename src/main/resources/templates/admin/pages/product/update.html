@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{admin/layouts/admin-layout}">
+      layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
     <title th:text="${pageMetadata.title}"></title>
@@ -9,6 +9,7 @@
         .existing-images-container {
             display: flex;
             flex-wrap: wrap;
+            justify-content: space-evenly;
             gap: 15px;
             margin-top: 10px;
             margin-bottom: 20px;
@@ -23,41 +24,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 150px;
+            width: 210px;
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .image-preview-item img,
         .existing-image-item img {
-            max-width: 120px;
-            max-height: 120px;
+            max-width: 190px;
+            max-height: 190px;
             display: block;
             margin-bottom: 8px;
             border-radius: 3px;
-        }
-
-        .remove-image-btn,
-        .delete-existing-image-btn {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            line-height: 22px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .remove-image-btn:hover,
-        .delete-existing-image-btn:hover {
-            background: #c82333;
         }
 
         .variant-item {
@@ -88,434 +66,473 @@
 
 <body>
 
-    <div layout:fragment="content">
-        <div class="container-fluid">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h5 class="m-0 font-weight-bold text-primary" th:text="${pageTitle}">Chỉnh sửa sản phẩm</h5>
+<div layout:fragment="content">
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 background-color-primary">
+                <h5 class="m-0 fw-semibold text-color-primary">Cập nhật thông tin sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                        <span th:text="${successMessage}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <span th:text="${errorMessage}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    <div th:if="${pageErrorMessage}" class="alert alert-warning alert-dismissible fade show"
-                        role="alert">
-                        <span th:text="${pageErrorMessage}"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${pageErrorMessage}" class="alert alert-warning alert-dismissible fade show"
+                     role="alert">
+                    <span th:text="${pageErrorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
 
-                    <form th:action="@{/admin/products/edit/{id}(id=${productDTO.id})}" th:object="${productDTO}"
-                        method="post" enctype="multipart/form-data" id="editProductForm">
-                        <input type="hidden" th:field="*{id}" />
-                        <h5 class="mb-3 text-secondary">Thông tin cơ bản</h5>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label">Tên sản phẩm <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
-                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}"
-                                    th:errors="*{name}"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="price" class="form-label">Giá cơ bản (VNĐ) <span
-                                        class="text-danger">*</span></label>
-                                <input type="number" step="1000" min="0" class="form-control" id="price"
-                                    th:field="*{price}" required>
-                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('price')}"
-                                    th:errors="*{price}"></div>
+                <form th:action="@{/admin/products/edit/{id}(id=${productDTO.id})}" th:object="${productDTO}"
+                      method="post" enctype="multipart/form-data" id="editProductForm">
+                    <input type="hidden" th:field="*{id}"/>
+                    <h6 class="mb-3 text-color-primary">Thông tin cơ bản</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Tên sản phẩm<span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:errorclass="is-invalid" autocomplete="off"
+                                   id="name" th:field="*{name}">
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}"
+                                 th:errors="*{name}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="basePrice" class="form-label">Giá cơ bản (VNĐ)<span
+                                    class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">VNĐ</span>
+                                <input type="text" autocomplete="off" inputmode="numeric"
+                                       class="form-control format-as-money"
+                                       th:errorclass="is-invalid"
+                                       id="basePrice" th:field="*{basePrice}">
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('basePrice')}"
+                                     th:errors="*{basePrice}"></div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="category" class="form-label">Danh mục <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-select" id="category" th:field="*{categoryId}" required>
-                                    <option value="">-- Chọn danh mục --</option>
-                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Danh mục<span
+                                    class="text-danger">*</span></label>
+                            <select class="form-control form-select" id="category" th:field="*{categoryId}">
+                                <option value="">-- Chọn danh mục --</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
                                         th:selected="${cat.id == productDTO.categoryId}"></option>
-                                </select>
-                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('categoryId')}"
-                                    th:errors="*{categoryId}"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="origin" class="form-label">Nguồn gốc <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-select" id="origin" th:field="*{originId}" required>
-                                    <option value="">-- Chọn nguồn gốc --</option>
-                                    <option th:each="ori : ${origins}" th:value="${ori.id}" th:text="${ori.name}"
+                            </select>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('categoryId')}"
+                                 th:errors="*{categoryId}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="origin" class="form-label">Nguồn gốc <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-control form-select" id="origin" th:field="*{originId}">
+                                <option value="">-- Chọn nguồn gốc --</option>
+                                <option th:each="ori : ${origins}" th:value="${ori.id}" th:text="${ori.name}"
                                         th:selected="${ori.id == productDTO.originId}"></option>
-                                </select>
-                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('originId')}"
-                                    th:errors="*{originId}"></div>
+                            </select>
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('originId')}"
+                                 th:errors="*{originId}"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="shortDescription" class="form-label">Mô tả ngắn</label>
+                        <textarea class="form-control" id="shortDescription" th:field="*{shortDescription}"
+                                  rows="3"></textarea>
+                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('shortDescription')}"
+                             th:errors="*{shortDescription}"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <div id="quill-editor" style="min-height: 250px;" th:utext="*{description}"></div>
+                        <textarea name="description" th:field="*{description}"
+                                  style="display:none;"></textarea>
+                        <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('description')}"
+                             th:errors="*{description}"></div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Trạng thái:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input p-0" type="radio" th:field="*{status}" id="statusActive"
+                                       th:value="true">
+                                <label class="form-check-label" for="statusActive">Kích hoạt</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input p-0" type="radio" th:field="*{status}"
+                                       id="statusInactive" th:value="false">
+                                <label class="form-check-label" for="statusInactive">Vô hiệu hóa</label>
                             </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Mô tả</label>
-                            <textarea class="form-control" id="description" th:field="*{description}"
-                                rows="3"></textarea>
-                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('description')}"
-                                th:errors="*{description}"></div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label d-block">Trạng thái:</label>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" th:field="*{status}" id="statusActive"
-                                        th:value="true">
-                                    <label class="form-check-label" for="statusActive">Kích hoạt</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" th:field="*{status}"
-                                        id="statusInactive" th:value="false">
-                                    <label class="form-check-label" for="statusInactive">Vô hiệu hóa</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label d-block">Sản phẩm mới:</label>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" th:field="*{new}" id="isNew">
-                                    <label class="form-check-label" for="isNew">Đánh dấu là sản phẩm mới</label>
-                                </div>
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Sản phẩm mới:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input p-0" type="checkbox" th:field="*{new}" id="isNew">
+                                <label class="form-check-label" for="isNew">Đánh dấu là sản phẩm mới</label>
                             </div>
                         </div>
+                    </div>
 
-                        <hr class="my-4">
+                    <hr class="my-4">
 
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="text-secondary mb-0">Biến thể sản phẩm</h5>
-                            <button type="button" id="add-variant-btn" class="btn btn-outline-primary btn-sm">
-                                <i class="ri-add-line"></i> Thêm biến thể
-                            </button>
-                        </div>
-                        <div id="variants-container">
-                            <th:block th:each="variant, iterStat : *{variants}">
-                                <div class="variant-item">
-                                    <input type="hidden" th:field="*{variants[__${iterStat.index}__].id}" />
-                                    <div class="row">
-                                        <div class="col-md-4 mb-2">
-                                            <label th:for="|variantAttribute${iterStat.index}|" class="form-label">Thuộc
-                                                tính <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control form-control-sm"
-                                                th:id="|variantAttribute${iterStat.index}|"
-                                                th:field="*{variants[__${iterStat.index}__].attribute}" required>
-                                            <div class="invalid-feedback d-block"
-                                                th:if="${#fields.hasErrors('variants[__${iterStat.index}__].attribute')}"
-                                                th:errors="*{variants[__${iterStat.index}__].attribute}"></div>
+                    <h6 class="mb-3 text-color-primary">Hình ảnh sản phẩm</h6>
+                    <div class="row">
+                        <div class="col-6 border-end">
+                            <strong>Hình ảnh hiện tại:</strong>
+                            <div class="existing-images-container mb-3" id="existing-images-container">
+                                <th:block th:if="${existingImages != null and !existingImages.isEmpty()}">
+                                    <div th:each="image : ${existingImages}" class="existing-image-item"
+                                         th:data-image-id="${image.id}">
+                                        <img th:src="@{${image.imageUrl}}"
+                                             th:alt="${productDTO.name + ' image ' + image.id}">
+                                        <div class="form-check mt-1">
+                                            <input type="checkbox" class="form-check-input delete-image-checkbox p-0"
+                                                   th:id="'deleteImage_' + ${image.id}" name="imageIdsToDelete"
+                                                   th:value="${image.id}">
+                                            <label class="form-check-label delete-image-checkbox-label"
+                                                   th:for="'deleteImage_' + ${image.id}"> Xóa ảnh này</label>
                                         </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label th:for="|variantSku${iterStat.index}|" class="form-label">SKU <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" class="form-control form-control-sm"
-                                                th:id="|variantSku${iterStat.index}|"
-                                                th:field="*{variants[__${iterStat.index}__].sku}" required>
-                                            <div class="invalid-feedback d-block"
-                                                th:if="${#fields.hasErrors('variants[__${iterStat.index}__].sku')}"
-                                                th:errors="*{variants[__${iterStat.index}__].sku}"></div>
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label th:for="|variantPrice${iterStat.index}|" class="form-label">Giá (VNĐ)
-                                                <span class="text-danger">*</span></label>
-                                            <input type="number" step="1000" min="0"
-                                                class="form-control form-control-sm"
-                                                th:id="|variantPrice${iterStat.index}|"
-                                                th:field="*{variants[__${iterStat.index}__].price}" required>
-                                            <div class="invalid-feedback d-block"
-                                                th:if="${#fields.hasErrors('variants[__${iterStat.index}__].price')}"
-                                                th:errors="*{variants[__${iterStat.index}__].price}"></div>
-                                        </div>
-                                        <div class="col-md-2 mb-2 d-flex align-items-end">
-                                            <button type="button" class="btn btn-danger btn-sm remove-variant-btn w-100"
-                                                title="Xóa biến thể này">
-                                                <i class="ri-delete-bin-line"></i> Xóa
-                                            </button>
+                                        <div class="form-check mt-1">
+                                            <input type="radio" class="form-check-input main-image-radio p-0"
+                                                   th:id="'mainImageOld_' + ${image.id}" name="mainImageSelection"
+                                                   th:value="'old_' + ${image.id}"
+                                                   th:checked="${productDTO.mainImageId != null && productDTO.mainImageId == image.id}">
+                                            <label class="form-check-label main-image-label"
+                                                   th:for="'mainImageOld_' + ${image.id}">Ảnh chính</label>
                                         </div>
                                     </div>
-                                </div>
-                            </th:block>
+                                </th:block>
+                                <p th:if="${existingImages == null or existingImages.isEmpty()}" class="text-muted">Sản
+                                    phẩm này
+                                    hiện chưa có hình ảnh.</p>
+                            </div>
+
+                            <input type="hidden" th:field="*{mainImageId}" id="mainImageIdHidden"/>
+                            <input type="hidden" th:field="*{newMainImageIndex}" id="newMainImageIndexHidden"/>
                         </div>
-                        <div class="invalid-feedback d-block"
-                            th:if="${#fields.hasErrors('variants') && #fields.errors('variants').size() > 0 && (#fields.errors('variants')[0].contains('không được để trống') || #fields.errors('variants')[0].contains('must not be empty'))}"
-                            th:errors="*{variants}"></div>
+                        <div class="col-6">
+                            <strong>Thêm hình ảnh mới:</strong>
+                            <div class="mb-3">
+                                <label for="newProductImages" class="form-label">Tải lên hình ảnh mới (có thể chọn nhiều
+                                    ảnh)</label>
+                                <input type="file" class="form-control" id="newProductImages" name="newImages" multiple
+                                       accept="image/png, image/jpeg, image/gif, image/webp">
+                            </div>
+                            <div id="new-image-preview-container" class="image-preview-container">
+                            </div>
+                        </div>
+                    </div>
 
+                    <hr class="my-4">
 
-                        <hr class="my-4">
-
-                        <h5 class="mb-3 text-secondary">Hình ảnh sản phẩm</h5>
-
-                        <h6>Hình ảnh hiện tại:</h6>
-                        <div class="existing-images-container mb-3" id="existing-images-container">
-                            <th:block th:if="${existingImages != null and !existingImages.empty}">
-                                <div th:each="image : ${existingImages}" class="existing-image-item"
-                                    th:data-image-id="${image.id}">
-                                    <img th:src="@{${image.imageUrl}}"
-                                        th:alt="${productDTO.name + ' image ' + image.id}" class="img-thumbnail">
-                                    <div class="form-check mt-1">
-                                        <input type="checkbox" class="form-check-input delete-image-checkbox"
-                                            th:id="'deleteImage_' + ${image.id}" name="imageIdsToDelete"
-                                            th:value="${image.id}">
-                                        <label class="form-check-label delete-image-checkbox-label"
-                                            th:for="'deleteImage_' + ${image.id}">Xóa ảnh này</label>
+                    <div class="row">
+                        <div class="col-md-6 border-end">
+                            <h6 class="mb-3 text-color-primary">Biến thể hiện tại</h6>
+                            <div id="existing-variants-container">
+                                <p th:if="${#lists.isEmpty(productDTO.variants)}"
+                                   class="text-muted">
+                                    Chưa có biến thể nào.
+                                </p>
+                                <th:block th:each="variant, iterStat : *{variants}">
+                                    <div class="variant-item existing-variant" th:if="${variant.id != null}">
+                                        <input type="hidden" th:field="*{variants[__${iterStat.index}__].id}"/>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-2">
+                                                <label th:for="|variantAttribute${iterStat.index}|"
+                                                       class="form-label">Thuộc
+                                                    tính <span class="text-danger">*</span></label>
+                                                <input autocomplete="off" th:errorclass="is-invalid" type="text"
+                                                       class="form-control form-control-sm"
+                                                       th:id="|variantAttribute${iterStat.index}|"
+                                                       th:field="*{variants[__${iterStat.index}__].attribute}">
+                                                <div class="invalid-feedback d-block"
+                                                     th:if="${#fields.hasErrors('variants[__${iterStat.index}__].attribute')}"
+                                                     th:errors="*{variants[__${iterStat.index}__].attribute}"></div>
+                                            </div>
+                                            <div class="col-md-5 mb-2">
+                                                <label th:for="|variantPrice${iterStat.index}|"
+                                                       class="form-label">Giá (VNĐ)
+                                                    <span class="text-danger">*</span></label>
+                                                <input th:errorclass="is-invalid" type="text"
+                                                       class="form-control form-control-sm format-as-money"
+                                                       th:id="|variantPrice${iterStat.index}|"
+                                                       th:field="*{variants[__${iterStat.index}__].price}">
+                                                <div class="invalid-feedback d-block"
+                                                     th:if="${#fields.hasErrors('variants[__${iterStat.index}__].price')}"
+                                                     th:errors="*{variants[__${iterStat.index}__].price}"></div>
+                                            </div>
+                                            <div class="col-md-1 mb-2 d-flex align-items-center">
+                                                <button type="button"
+                                                        class="btn btn-danger btn-sm remove-variant-btn w-100">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-check mt-1">
-                                        <input type="radio" class="form-check-input main-image-radio"
-                                            th:id="'mainImageOld_' + ${image.id}" name="mainImageSelection"
-                                            th:value="'old_' + ${image.id}"
-                                            th:checked="${productDTO.mainImageId != null && productDTO.mainImageId == image.id}">
-                                        <label class="form-check-label main-image-label"
-                                            th:for="'mainImageOld_' + ${image.id}">Ảnh chính</label>
+                                </th:block>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0 text-color-primary">Thêm biến thể mới</h6>
+                                <button type="button" id="add-variant-btn" class="btn btn-outline-primary btn-sm">
+                                    <i class="ri-add-line"></i> Thêm biến thể
+                                </button>
+                            </div>
+                            <div id="new-variants-container">
+                                <th:block th:each="variant, iterStat : *{variants}">
+                                    <div class="variant-item new-variant" th:if="${variant.id == null}">
+                                        <input type="hidden" th:field="*{variants[__${iterStat.index}__].id}"/>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-2">
+                                                <label th:for="|variantAttribute${iterStat.index}|"
+                                                       class="form-label">Thuộc
+                                                    tính <span class="text-danger">*</span></label>
+                                                <input autocomplete="off" th:errorclass="is-invalid" type="text"
+                                                       class="form-control form-control-sm"
+                                                       th:id="|variantAttribute${iterStat.index}|"
+                                                       th:field="*{variants[__${iterStat.index}__].attribute}">
+                                                <div class="invalid-feedback d-block"
+                                                     th:if="${#fields.hasErrors('variants[__${iterStat.index}__].attribute')}"
+                                                     th:errors="*{variants[__${iterStat.index}__].attribute}"></div>
+                                            </div>
+                                            <div class="col-md-5 mb-2">
+                                                <label th:for="|variantPrice${iterStat.index}|"
+                                                       class="form-label">Giá (VNĐ)
+                                                    <span class="text-danger">*</span></label>
+                                                <input th:errorclass="is-invalid" type="text"
+                                                       class="form-control form-control-sm format-as-money"
+                                                       th:id="|variantPrice${iterStat.index}|"
+                                                       th:field="*{variants[__${iterStat.index}__].price}">
+                                                <div class="invalid-feedback d-block"
+                                                     th:if="${#fields.hasErrors('variants[__${iterStat.index}__].price')}"
+                                                     th:errors="*{variants[__${iterStat.index}__].price}"></div>
+                                            </div>
+                                            <div class="col-md-1 mb-2 d-flex align-items-center">
+                                                <button type="button"
+                                                        class="btn btn-danger btn-sm remove-variant-btn w-100">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </th:block>
-                            <p th:if="${existingImages == null or existingImages.empty}" class="text-muted">Sản phẩm này
-                                hiện chưa có hình ảnh.</p>
+                                </th:block>
+                            </div>
                         </div>
+                    </div>
 
-                        <input type="hidden" th:field="*{mainImageId}" id="mainImageIdHidden" />
-                        <input type="hidden" th:field="*{newMainImageIndex}" id="newMainImageIndexHidden" />
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('variants') && #fields.errors('variants').size() > 0 && (#fields.errors('variants')[0].contains('không được để trống') || #fields.errors('variants')[0].contains('must not be empty'))}"
+                         th:errors="*{variants}"></div>
 
-
-                        <h6>Thêm hình ảnh mới:</h6>
-                        <div class="mb-3">
-                            <label for="newProductImages" class="form-label">Tải lên hình ảnh mới (có thể chọn nhiều
-                                ảnh)</label>
-                            <input type="file" class="form-control" id="newProductImages" name="newImages" multiple
-                                accept="image/png, image/jpeg, image/gif, image/webp">
-                        </div>
-                        <div id="new-image-preview-container" class="image-preview-container">
-                        </div>
-
-
-                        <hr class="my-4">
-                        <div class="d-flex justify-content-end">
-                            <a th:href="@{/admin/products}" class="btn btn-outline-secondary me-2">Hủy</a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ri-save-line"></i> Lưu thay đổi
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="d-flex justify-content-end">
+                        <a th:href="@{/admin/products}" class="btn btn-outline-secondary me-2">Hủy</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-save-line"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <th:block layout:fragment="extras-scripts">
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // --- Phần xử lý Biến thể ---
-                const variantsContainer = document.getElementById('variants-container');
-                const addVariantBtn = document.getElementById('add-variant-btn');
-                // Đếm số lượng variant đã có từ server để set index cho variant mới thêm ở client
-                let variantClientIndex = variantsContainer.querySelectorAll('.variant-item').length;
+<th:block layout:fragment="extras-scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editProductForm = document.getElementById('editProductForm');
+            const newVariantsContainer = document.getElementById('new-variants-container');
+            const addVariantBtn = document.getElementById('add-variant-btn');
 
-                addVariantBtn.addEventListener('click', function () {
-                    // Sử dụng variantClientIndex để đảm bảo index không trùng với các variant đã có
-                    // khi submit form nếu các variant cũ không bị xóa hết khỏi DOM.
-                    const newIndex = variantClientIndex; // Hoặc một cơ chế tạo index duy nhất khác
-                    const variantItemHtml = `
-                    <div class="variant-item">
-                        <input type="hidden" name="variants[${newIndex}].id" value="" /> <div class="row">
-                            <div class="col-md-4 mb-2">
-                                <label for="variants${newIndex}.attribute" class="form-label">Thuộc tính <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="variants${newIndex}.attribute" name="variants[${newIndex}].attribute" required>
+            let variantIndexCounter = document.querySelectorAll('.variant-item').length;
+
+            addVariantBtn.addEventListener('click', function () {
+                const newIndex = variantIndexCounter;
+                const variantItemHtml = `
+                    <div class="variant-item new-variant">
+                        <input type="hidden" name="variants[${newIndex}].id" value="" />
+                         <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label for="variants${newIndex}.attribute" class="form-label" autocomplete="off">Thuộc tính <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" autocomplete="off" id="variants${newIndex}.attribute" name="variants[${newIndex}].attribute">
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-5 mb-2">
                                 <label for="variants${newIndex}.price" class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
-                                <input type="number" step="1000" min="0" class="form-control form-control-sm" id="variants${newIndex}.price" name="variants[${newIndex}].price" required>
+                                <input type="text" class="form-control form-control-sm format-as-money" id="variants${newIndex}.price" name="variants[${newIndex}].price">
                             </div>
-                            <div class="col-md-2 mb-2 d-flex align-items-end">
-                                <button type="button" class="btn btn-danger btn-sm remove-variant-btn w-100" title="Xóa biến thể này">
-                                    <i class="ri-delete-bin-line"></i> Xóa
+                            <div class="col-md-1 mb-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-variant-btn w-100">
+                                    <i class="ri-delete-bin-line"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 `;
-                    variantsContainer.insertAdjacentHTML('beforeend', variantItemHtml);
-                    variantClientIndex++; // Tăng index cho lần thêm tiếp theo
-                });
 
-                variantsContainer.addEventListener('click', function (event) {
-                    const removeButton = event.target.closest('.remove-variant-btn');
-                    if (removeButton) {
-                        const variantItem = removeButton.closest('.variant-item');
-                        // Quan trọng: Khi xóa variant ở client, nếu variant đó đã có ID (từ server),
-                        // thì nó vẫn sẽ được gửi lên server dưới dạng các trường rỗng nếu không bị remove hoàn toàn khỏi DOM
-                        // Hoặc nếu bạn muốn server xử lý việc xóa dựa trên việc variant đó không còn trong list gửi lên,
-                        // thì việc remove khỏi DOM là đúng.
-                        // Logic orphanRemoval của JPA sẽ xử lý việc xóa variant khỏi DB nếu nó không còn trong collection của Product.
-                        variantItem.remove();
+                newVariantsContainer.insertAdjacentHTML('beforeend', variantItemHtml);
+
+                variantIndexCounter++;
+            });
+
+            editProductForm.addEventListener('click', function (event) {
+                const removeButton = event.target.closest('.remove-variant-btn');
+                if (removeButton) {
+                    const variantItem = removeButton.closest('.variant-item');
+
+                    variantItem.remove();
+                }
+            });
+
+            // --- Phần xử lý Hình ảnh ---
+            const newProductImagesInput = document.getElementById('newProductImages');
+            const newImagePreviewContainer = document.getElementById('new-image-preview-container');
+            const existingImagesContainer = document.getElementById('existing-images-container');
+
+            const mainImageIdHidden = document.getElementById('mainImageIdHidden');
+            const newMainImageIndexHidden = document.getElementById('newMainImageIndexHidden');
+
+            let newImageFilesStore = [];
+
+            newProductImagesInput.addEventListener('change', function (event) {
+                const newFiles = Array.from(event.target.files);
+                const currentFileCountInStore = newImageFilesStore.length;
+
+                newFiles.forEach((file, i) => {
+                    const isDuplicate = newImageFilesStore.some(existingFileObj =>
+                        existingFileObj.file.name === file.name && existingFileObj.file.size === file.size
+                    );
+                    if (!isDuplicate) {
+                        newImageFilesStore.push({
+                            file: file,
+                            id: 'newImg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                            originalIndex: currentFileCountInStore + i
+                        });
                     }
                 });
+                renderNewImagePreviews();
+                updateNewFileInputData();
+            });
 
-                // --- Phần xử lý Hình ảnh ---
-                const newProductImagesInput = document.getElementById('newProductImages');
-                const newImagePreviewContainer = document.getElementById('new-image-preview-container');
-                const existingImagesContainer = document.getElementById('existing-images-container');
+            function updateNewFileInputData() {
+                const dataTransfer = new DataTransfer();
+                newImageFilesStore.forEach(item => dataTransfer.items.add(item.file));
+                newProductImagesInput.files = dataTransfer.files;
+            }
 
-                const mainImageIdHidden = document.getElementById('mainImageIdHidden');
-                const newMainImageIndexHidden = document.getElementById('newMainImageIndexHidden');
+            function renderNewImagePreviews() {
+                newImagePreviewContainer.innerHTML = '';
+                const currentNewMainIndex = newMainImageIndexHidden.value !== '' ? parseInt(newMainImageIndexHidden.value) : -1;
 
-                // Lưu trữ các file ảnh MỚI được người dùng chọn
-                // Mỗi item: { file: FileObject, id: string (client-UID cho key của preview), originalIndex: number (vị trí trong newImages list) }
-                let newImageFilesStore = [];
+                newImageFilesStore.forEach((item) => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const isChecked = item.originalIndex === currentNewMainIndex;
+                        const checkedAttribute = isChecked ? 'checked' : '';
 
-                newProductImagesInput.addEventListener('change', function (event) {
-                    const newFiles = Array.from(event.target.files);
-                    const currentFileCountInStore = newImageFilesStore.length;
-
-                    newFiles.forEach((file, i) => {
-                        const isDuplicate = newImageFilesStore.some(existingFileObj =>
-                            existingFileObj.file.name === file.name && existingFileObj.file.size === file.size
-                        );
-                        if (!isDuplicate) {
-                            newImageFilesStore.push({
-                                file: file,
-                                id: 'newImg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                                originalIndex: currentFileCountInStore + i // Index này sẽ được dùng cho newMainImageIndex
-                            });
-                        }
-                    });
-                    renderNewImagePreviews();
-                    updateNewFileInputData(); // Cập nhật input gốc
-                });
-
-                function updateNewFileInputData() {
-                    const dataTransfer = new DataTransfer();
-                    newImageFilesStore.forEach(item => dataTransfer.items.add(item.file));
-                    newProductImagesInput.files = dataTransfer.files; // Đảm bảo form gửi đúng các file đang được preview
-                }
-
-                function renderNewImagePreviews() {
-                    newImagePreviewContainer.innerHTML = ''; // Xóa preview cũ của ảnh mới
-                    const currentNewMainIndex = newMainImageIndexHidden.value !== '' ? parseInt(newMainImageIndexHidden.value) : -1;
-
-                    newImageFilesStore.forEach((item) => { // item.originalIndex là index trong newImages
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const isChecked = item.originalIndex === currentNewMainIndex;
-                            const checkedAttribute = isChecked ? 'checked' : '';
-
-                            const previewItemHtml = `
+                        const previewItemHtml = `
                             <div class="image-preview-item" data-new-image-id="${item.id}" data-new-image-index="${item.originalIndex}">
                                 <img src="${e.target.result}" alt="Preview ${item.file.name}" class="img-thumbnail">
-                                <button type="button" class="remove-image-btn" data-id="${item.id}" title="Xóa ảnh tải lên này">&times;</button>
+                                <button type="button" class="remove-image-btn btn btn-danger btn-sm" data-id="${item.id}"><i class="ri-delete-bin-2-line"></i></button>
                                 <div class="form-check mt-1">
-                                    <input type="radio" class="form-check-input main-image-radio"
+                                    <input type="radio" class="form-check-input main-image-radio p-0"
                                            id="mainImageNew_${item.id}" name="mainImageSelection"
                                            value="new_${item.originalIndex}" ${checkedAttribute}>
                                     <label class="form-check-label main-image-label" for="mainImageNew_${item.id}">Ảnh chính</label>
                                 </div>
                             </div>
                         `;
-                            newImagePreviewContainer.insertAdjacentHTML('beforeend', previewItemHtml);
-                            if (isChecked && newImagePreviewContainer.querySelector(`#mainImageNew_${item.id}`)) {
-                                newImagePreviewContainer.querySelector(`#mainImageNew_${item.id}`).checked = true;
-                            }
+                        newImagePreviewContainer.insertAdjacentHTML('beforeend', previewItemHtml);
+                        if (isChecked && newImagePreviewContainer.querySelector(`#mainImageNew_${item.id}`)) {
+                            newImagePreviewContainer.querySelector(`#mainImageNew_${item.id}`).checked = true;
                         }
-                        reader.readAsDataURL(item.file);
+                    }
+                    reader.readAsDataURL(item.file);
+                });
+            }
+
+            newImagePreviewContainer.addEventListener('click', function (event) {
+                const removeButton = event.target.closest('.remove-image-btn');
+                if (removeButton) {
+                    const imageClientUidToRemove = removeButton.dataset.id;
+                    const removedItem = newImageFilesStore.find(item => item.id === imageClientUidToRemove);
+                    if (!removedItem) return;
+
+                    const removedOriginalIndex = removedItem.originalIndex;
+                    newImageFilesStore = newImageFilesStore.filter(item => item.id !== imageClientUidToRemove);
+
+                    newImageFilesStore.forEach((item, newIdxInStore) => {
+                        item.originalIndex = newIdxInStore;
                     });
+
+                    if (newMainImageIndexHidden.value !== '' && parseInt(newMainImageIndexHidden.value) === removedOriginalIndex) {
+                        newMainImageIndexHidden.value = '';
+                    } else if (newMainImageIndexHidden.value !== '' && parseInt(newMainImageIndexHidden.value) > removedOriginalIndex) {
+
+                        newMainImageIndexHidden.value = (parseInt(newMainImageIndexHidden.value) - 1).toString();
+                    }
+
+                    renderNewImagePreviews();
+                    updateNewFileInputData();
+                    updateMainImageRadioStates();
                 }
-
-                newImagePreviewContainer.addEventListener('click', function (event) {
-                    const removeButton = event.target.closest('.remove-image-btn');
-                    if (removeButton) {
-                        const imageClientUidToRemove = removeButton.dataset.id;
-                        const removedItem = newImageFilesStore.find(item => item.id === imageClientUidToRemove);
-                        if (!removedItem) return;
-
-                        const removedOriginalIndex = removedItem.originalIndex;
-                        newImageFilesStore = newImageFilesStore.filter(item => item.id !== imageClientUidToRemove);
-
-                        // Cập nhật lại originalIndex cho các ảnh còn lại trong store
-                        newImageFilesStore.forEach((item, newIdxInStore) => {
-                            item.originalIndex = newIdxInStore;
-                        });
-
-                        // Nếu ảnh bị xóa là ảnh chính mới được chỉ định
-                        if (newMainImageIndexHidden.value !== '' && parseInt(newMainImageIndexHidden.value) === removedOriginalIndex) {
-                            newMainImageIndexHidden.value = ''; // Xóa chỉ định
-                            // Logic tự động chọn lại ảnh chính khác (nếu cần) có thể thêm ở đây
-                            // Hoặc để người dùng tự chọn lại.
-                        } else if (newMainImageIndexHidden.value !== '' && parseInt(newMainImageIndexHidden.value) > removedOriginalIndex) {
-                            // Nếu xóa ảnh đứng TRƯỚC ảnh chính mới được chỉ định, cập nhật lại index của ảnh chính mới
-                            newMainImageIndexHidden.value = (parseInt(newMainImageIndexHidden.value) - 1).toString();
-                        }
-
-                        renderNewImagePreviews(); // Vẽ lại preview cho ảnh mới
-                        updateNewFileInputData();    // Cập nhật input file gốc
-                        updateMainImageRadioStates(); // Cập nhật trạng thái các radio button
-                    }
-                });
-
-                // Xử lý việc chọn ảnh chính (chung cho cả ảnh cũ và ảnh mới)
-                document.getElementById('editProductForm').addEventListener('change', function (event) {
-                    const target = event.target;
-                    if (target.classList.contains('main-image-radio') && target.checked) {
-                        const value = target.value; // Giá trị là "old_ID_ANH_CU" hoặc "new_INDEX_ANH_MOI"
-                        if (value.startsWith('old_')) {
-                            mainImageIdHidden.value = value.substring(4); // Lấy ID ảnh cũ
-                            newMainImageIndexHidden.value = ''; // Xóa chỉ định ảnh mới là chính
-                        } else if (value.startsWith('new_')) {
-                            newMainImageIndexHidden.value = value.substring(4); // Lấy index của ảnh mới
-                            mainImageIdHidden.value = ''; // Xóa chỉ định ảnh cũ là chính
-                        }
-                    }
-                });
-
-                // Hàm cập nhật trạng thái của tất cả các radio button chọn ảnh chính
-                function updateMainImageRadioStates() {
-                    const currentMainId = mainImageIdHidden.value;
-                    const currentNewIndex = newMainImageIndexHidden.value;
-
-                    document.querySelectorAll('.main-image-radio').forEach(radio => {
-                        if (radio.value.startsWith('old_')) {
-                            radio.checked = (currentMainId && radio.value === `old_${currentMainId}`);
-                        } else if (radio.value.startsWith('new_')) {
-                            // Chú ý: value của radio cho ảnh mới là index của nó trong newImages list (originalIndex)
-                            radio.checked = (currentNewIndex !== '' && radio.value === `new_${currentNewIndex}`);
-                        }
-                    });
-                }
-
-                // Khởi tạo trạng thái radio button ảnh chính khi tải trang
-                // (Thymeleaf đã xử lý checked cho ảnh cũ, JS sẽ xử lý cho ảnh mới nếu có lỗi và load lại)
-                // Gọi hàm này để đảm bảo trạng thái radio button đồng bộ với hidden input ngay từ đầu
-                updateMainImageRadioStates();
-
-
-                // Xử lý checkbox "Xóa ảnh hiện tại"
-                existingImagesContainer.addEventListener('change', function (event) {
-                    const target = event.target;
-                    if (target.classList.contains('delete-image-checkbox')) {
-                        const imageItem = target.closest('.existing-image-item');
-                        const imageId = imageItem.dataset.imageId;
-                        if (target.checked) {
-                            // Nếu ảnh được đánh dấu xóa là ảnh chính hiện tại, cần bỏ chọn nó làm ảnh chính
-                            if (mainImageIdHidden.value === imageId) {
-                                mainImageIdHidden.value = ''; // Xóa ID ảnh chính cũ
-                                const radio = imageItem.querySelector('.main-image-radio');
-                                if (radio) radio.checked = false; // Bỏ check radio tương ứng
-                                // Cần logic để chọn một ảnh khác làm ảnh chính nếu không còn ảnh chính nào.
-                                // Hoặc để service tự xử lý (chọn ảnh đầu tiên).
-                            }
-                            imageItem.style.opacity = '0.5'; // Làm mờ ảnh được chọn xóa
-                        } else {
-                            imageItem.style.opacity = '1';
-                        }
-                    }
-                });
-
             });
-        </script>
-    </th:block>
+
+            document.getElementById('editProductForm').addEventListener('change', function (event) {
+                const target = event.target;
+                if (target.classList.contains('main-image-radio') && target.checked) {
+                    const value = target.value;
+                    if (value.startsWith('old_')) {
+                        mainImageIdHidden.value = value.substring(4);
+                        newMainImageIndexHidden.value = '';
+                    } else if (value.startsWith('new_')) {
+                        newMainImageIndexHidden.value = value.substring(4);
+                        mainImageIdHidden.value = '';
+                    }
+                }
+            });
+
+            function updateMainImageRadioStates() {
+                const currentMainId = mainImageIdHidden.value;
+                const currentNewIndex = newMainImageIndexHidden.value;
+
+                document.querySelectorAll('.main-image-radio').forEach(radio => {
+                    if (radio.value.startsWith('old_')) {
+                        radio.checked = (currentMainId && radio.value === `old_${currentMainId}`);
+                    } else if (radio.value.startsWith('new_')) {
+                        radio.checked = (currentNewIndex !== '' && radio.value === `new_${currentNewIndex}`);
+                    }
+                });
+            }
+
+            updateMainImageRadioStates();
+
+            existingImagesContainer.addEventListener('change', function (event) {
+                const target = event.target;
+                if (target.classList.contains('delete-image-checkbox')) {
+                    const imageItem = target.closest('.existing-image-item');
+                    const imageId = imageItem.dataset.imageId;
+                    if (target.checked) {
+                        if (mainImageIdHidden.value === imageId) {
+                            mainImageIdHidden.value = '';
+                            const radio = imageItem.querySelector('.main-image-radio');
+                            if (radio) radio.checked = false;
+                        }
+                        imageItem.style.opacity = '0.5';
+                    } else {
+                        imageItem.style.opacity = '1';
+                    }
+                }
+            });
+        });
+    </script>
+</th:block>
 
 </body>
 

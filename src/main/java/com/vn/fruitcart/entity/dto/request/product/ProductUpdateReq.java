@@ -1,4 +1,4 @@
-package com.vn.fruitcart.entity.dto.request;
+package com.vn.fruitcart.entity.dto.request.product;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

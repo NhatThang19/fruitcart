@@ -185,7 +185,7 @@
                         <hr>
 
                         <h6>Các biến thể sản phẩm</h6>
-                        <div th:if="${product.variants != null && !product.variants.empty()}" class="table-responsive">
+                        <div th:if="${product.variants != null && !product.variants.isEmpty()}" class="table-responsive">
                             <table class="table table-sm table-bordered table-hover variants-table">
                                 <thead>
                                     <tr>
@@ -207,7 +207,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p th:if="${product.variants == null || product.variants.empty()}"
+                        <p th:if="${product.variants == null || product.variants.isEmpty()}"
                             class="text-muted fst-italic">Sản phẩm không có biến thể (sử dụng giá cơ bản).</p>
                     </div>
                 </div>
@@ -218,15 +218,15 @@
                             ảnh</h5>
                     </div>
                     <div class="card-body">
-                        <div th:if="${product.images != null && !product.images.empty}" class="product-images-gallery">
+                        <div th:if="${product.images != null && !product.images.isEmpty()}" class="product-images-gallery">
                             <div th:each="image : ${product.images}" class="product-image-item">
                                 <a th:href="@{${image.imageUrl}}" target="_blank">
-                                    <img th:src="@{${image.imageUrl}}" class="img-thumbnail">
+                                    <img th:src="@{${image.imageUrl}}" class="img-thumbnail" alt="">
                                 </a>
                                 <div th:if="${image.isMain}" class="main-image-ribbon">main</div>
                             </div>
                         </div>
-                        <p th:if="${product.images == null || product.images.empty}" class="text-muted fst-italic">Sản
+                        <p th:if="${product.images == null || product.images.isEmpty()}" class="text-muted fst-italic">Sản
                             phẩm này chưa có hình ảnh.</p>
                     </div>
                 </div>

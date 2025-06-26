@@ -37,20 +37,20 @@ public class ProductVariant extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "sku", nullable = false, unique = true, length = 100)
+    @Column(name = "sku", nullable = false, unique = true)
     private String sku;
 
-    @Column(name = "price", nullable = false, precision = 12, scale = 2)
+    @Column(name = "price", nullable = false, precision = 12)
     private BigDecimal price;
 
-    @Column(name = "attribute", nullable = false, length = 255)
+    @Column(name = "attribute", nullable = false)
     private String attribute;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @OneToOne(mappedBy = "productVariant", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne(mappedBy = "productVariant", cascade = CascadeType.ALL, orphanRemoval = true)
     private Inventory inventory;
 
     @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

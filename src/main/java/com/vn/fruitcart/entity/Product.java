@@ -46,7 +46,7 @@ public class Product extends BaseEntity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "base_price", nullable = false, precision = 12, scale = 2)
+    @Column(name = "base_price", nullable = false, precision = 12, scale = 0)
     private BigDecimal basePrice;
 
     @Column(name = "is_new", columnDefinition = "BOOLEAN DEFAULT TRUE")

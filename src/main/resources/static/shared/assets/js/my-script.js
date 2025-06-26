@@ -165,25 +165,49 @@ FruitCart.QuillEditor = {
 };
 
 /**
- * Hàm jQuery để tự động định dạng số trong ô input khi người dùng gõ.
- * Ví dụ: 100000 -> 100.000
- * Cách dùng: Thêm class `format-as-money` vào thẻ input.
+ * Định dạng các ô input có class 'format-as-money' thành dạng tiền tệ
+ * và định dạng lại giá trị ban đầu của chúng.
  */
-function formatCurrencyInput() {
-    $('input.format-as-money').on('input', function (e) {
+function setupCurrencyFormatting() {
 
-        let value = $(this).val();
+    const moneyInputs = $('input.format-as-money');
 
-        let rawValue = value.replace(/\D/g, '');
+    function formatValue(value) {
+        if (!value) return '';
+        let rawValue = value.toString().replace(/\D/g, '');
+        return rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
 
-        if (!rawValue) {
-            return;
-        }
-
-        let formattedValue = rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-        $(this).val(formattedValue);
+    moneyInputs.each(function () {
+        $(this).val(formatValue($(this).val()));
     });
+
+    moneyInputs.on('input', function () {
+        let originalCursorPos = this.selectionStart;
+        let originalLength = this.value.length;
+
+        let formattedValue = formatValue($(this).val());
+        $(this).val(formattedValue);
+
+        let newLength = this.value.length;
+        let newCursorPos = originalCursorPos + (newLength - originalLength);
+        this.setSelectionRange(newCursorPos, newCursorPos);
+    });
+
+    const form = moneyInputs.closest('form');
+
+    if (form.length) {
+        form.on('submit', function () {
+            moneyInputs.each(function () {
+                let formattedValue = $(this).val();
+                if (formattedValue) {
+                    let rawValue = formattedValue.replace(/\./g, '');
+                    $(this).val(rawValue);
+                }
+            });
+            return true;
+        });
+    }
 }
 
 $(document).ready(function () {
@@ -195,5 +219,5 @@ $(document).ready(function () {
         FruitCart.QuillEditor.init();
     }
 
-    formatCurrencyInput();
+    setupCurrencyFormatting();
 });

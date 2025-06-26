@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.vn.fruitcart.util.mapper.ProductMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -24,8 +25,8 @@ import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductImage;
-import com.vn.fruitcart.entity.dto.request.ProductUpdateReq;
-import com.vn.fruitcart.entity.dto.request.ProductVariantUpdateReq;
+import com.vn.fruitcart.entity.dto.request.product.ProductUpdateReq;
+import com.vn.fruitcart.entity.dto.request.product.ProductVariantUpdateReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
 import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteriaReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
@@ -46,6 +47,7 @@ public class AdminProductController {
     private final CategoryService categoryService;
     private final OriginService originService;
     private final BreadcrumbService breadcrumbService;
+    private final ProductMapper productMapper;
 
     @GetMapping("/create")
     public String showCreateProductForm(Model model) {
@@ -131,84 +133,69 @@ public class AdminProductController {
         try {
             Product product = productService.getProductById(id);
 
-            ProductUpdateReq productDTO = new ProductUpdateReq();
-            productDTO.setId(product.getId());
-            productDTO.setName(product.getName());
-            productDTO.setDescription(product.getDescription());
-            productDTO.setPrice(product.getBasePrice());
-            if (product.getCategory() != null) {
-                productDTO.setCategoryId(product.getCategory().getId());
-            }
-            if (product.getOrigin() != null) {
-                productDTO.setOriginId(product.getOrigin().getId());
-            }
-            productDTO.setNew(product.isNew());
-            productDTO.setStatus(product.isStatus());
+            ProductUpdateReq productDTO = productMapper.toProductUpdateReq(product);
 
-            if (product.getVariants() != null) {
-                List<ProductVariantUpdateReq> variantDTOs = product.getVariants().stream().map(v -> {
-                    ProductVariantUpdateReq vd = new ProductVariantUpdateReq();
-                    vd.setId(v.getId());
-                    vd.setAttribute(v.getAttribute());
-                    vd.setSku(v.getSku());
-                    vd.setPrice(v.getPrice());
-                    return vd;
-                }).collect(Collectors.toList());
-                productDTO.setVariants(variantDTOs);
-            }
-
-            product.getImages().stream().filter(ProductImage::isMain).findFirst().ifPresent(mainImg -> productDTO.setMainImageId(mainImg.getId()));
-
+            model.addAttribute("pageMetadata", breadcrumbService.buidAdminProductDetail());
             model.addAttribute("productDTO", productDTO);
             model.addAttribute("existingImages", product.getImages());
-
             model.addAttribute("categories", categoryService.findAllActiveCategories());
             model.addAttribute("origins", originService.findAllActiveOrigins());
 
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
-            return "admin/pages/product/edit";
+            return "admin/pages/product/update";
 
         } catch (ResourceNotFoundException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/admin/products";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tải trang chỉnh sửa sản phẩm.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi không mong muốn xảy ra khi tải trang.");
             return "redirect:/admin/products";
         }
     }
 
     @PostMapping("/edit/{id}")
-    public String updateProduct(@PathVariable("id") Long id, @Valid @ModelAttribute("productDTO") ProductUpdateReq productDTO, BindingResult bindingResult, @RequestParam(name = "newImages", required = false) List<MultipartFile> newImages, @RequestParam(name = "imageIdsToDelete", required = false) List<Long> imageIdsToDelete, RedirectAttributes redirectAttributes, Model model) {
-        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+    public String updateProduct(@PathVariable("id") Long id,
+                                @Valid @ModelAttribute("productDTO") ProductUpdateReq productDTO,
+                                BindingResult bindingResult,
+                                @RequestParam(name = "newImages", required = false) List<MultipartFile> newImages,
+                                @RequestParam(name = "imageIdsToDelete", required = false) List<Long> imageIdsToDelete,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
 
         productDTO.setId(id);
 
         if (bindingResult.hasErrors()) {
-            try {
-                if (productDTO.getId() != null) {
-                    Product productForForm = productService.getProductById(productDTO.getId());
-                    model.addAttribute("existingImages", productForForm.getImages());
-                }
-                model.addAttribute("categories", categoryService.findAllActiveCategories());
-                model.addAttribute("origins", originService.findAllActiveOrigins());
-            } catch (Exception e) {
-                model.addAttribute("pageErrorMessage", "Lỗi tải lại dữ liệu phụ trợ cho form.");
-            }
-            model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
-            return "admin/pages/product/edit";
+            populateFormModelOnError(model, productDTO);
+            return "admin/pages/product/update";
         }
 
         try {
-            List<MultipartFile> actualNewImages = newImages != null ? newImages.stream().filter(img -> img != null && !img.isEmpty()).collect(Collectors.toList()) : new ArrayList<>();
-
-            Product updatedProduct = productService.updateProduct(id, productDTO, actualNewImages, imageIdsToDelete);
-
+            Product updatedProduct = productService.updateProduct(id, productDTO, newImages, imageIdsToDelete);
             redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm '" + updatedProduct.getName() + "' đã được cập nhật thành công!");
+            return "redirect:/admin/products";
 
+        } catch (ResourceNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/admin/products";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Cập nhật sản phẩm thất bại: " + e.getMessage());
             return "redirect:/admin/products/edit/" + id;
+        }
+    }
+
+    private void populateFormModelOnError(Model model, ProductUpdateReq productDTO) {
+        model.addAttribute("pageMetadata", breadcrumbService.buildAdminOriginDetailPageMetadata());
+        model.addAttribute("categories", categoryService.findAllActiveCategories());
+        model.addAttribute("origins", originService.findAllActiveOrigins());
+
+
+        if (productDTO.getId() != null) {
+            try {
+                Product existingProduct = productService.getProductById(productDTO.getId());
+                model.addAttribute("existingImages", existingProduct.getImages());
+            } catch (ResourceNotFoundException e) {
+
+                model.addAttribute("pageErrorMessage", "Không thể tải lại ảnh cho sản phẩm không tồn tại.");
+            }
         }
     }
 
