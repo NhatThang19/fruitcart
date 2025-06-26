@@ -26,12 +26,14 @@ public class ProductUpdateReq {
     @Size(max = 255, message = "Tên sản phẩm không được vượt quá 255 ký tự")
     private String name;
 
+    private String shortDescription;
+
     @Size(max = 10000, message = "Mô tả không được vượt quá 10000 ký tự")
     private String description;
 
     @NotNull(message = "Giá cơ bản không được để trống")
     @DecimalMin(value = "0.01", message = "Giá cơ bản phải lớn hơn 0")
-    private BigDecimal price;
+    private BigDecimal basePrice;
 
     @NotNull(message = "ID Danh mục không được để trống")
     private Long categoryId;

@@ -14,8 +14,6 @@ import lombok.Setter;
 public class ProductVariantUpdateReq {
     private Long id;
 
-    private String sku;
-
     @NotNull(message = "Giá biến thể không được để trống")
     @DecimalMin(value = "0.01", message = "Giá biến thể phải lớn hơn 0")
     private BigDecimal price;

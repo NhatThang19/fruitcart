@@ -3,7 +3,7 @@
     layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title th:text="${pageTitle ?: 'Chỉnh sửa sản phẩm'}">Chỉnh sửa sản phẩm</title>
+    <title th:text="${pageMetadata.title}"></title>
     <style>
         .image-preview-container,
         .existing-images-container {
