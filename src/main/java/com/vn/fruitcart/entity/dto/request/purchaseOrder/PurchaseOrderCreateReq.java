@@ -1,4 +1,4 @@
-package com.vn.fruitcart.entity.dto.request;
+package com.vn.fruitcart.entity.dto.request.purchaseOrder;
 
 import java.util.List;
 

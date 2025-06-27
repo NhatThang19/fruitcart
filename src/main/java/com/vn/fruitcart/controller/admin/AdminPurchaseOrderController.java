@@ -20,7 +20,7 @@ import org.springframework.data.domain.Sort;
 
 import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.PurchaseOrder;
-import com.vn.fruitcart.entity.dto.request.PurchaseOrderCreateReq;
+import com.vn.fruitcart.entity.dto.request.purchaseOrder.PurchaseOrderCreateReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.ProductVariantRepository;
 import com.vn.fruitcart.service.BreadcrumbService;

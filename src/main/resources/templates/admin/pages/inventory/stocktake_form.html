@@ -1,165 +1,196 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{admin/layouts/admin-layout}">
+      layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
     <title th:text="${pageMetadata.title}"></title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <style>
-        /* Tùy chỉnh thêm nếu cần */
-        .select2-container--bootstrap-5 .select2-selection {
-            min-height: calc(1.5em + .75rem + 2px);
-            /* Khớp chiều cao input Bootstrap */
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            /* Khớp font-size input Bootstrap */
-        }
-
-        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
-            line-height: 1.5;
-            /* Căn chỉnh text */
-        }
-
-        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
-            height: calc(1.5em + .75rem);
-            /* Khớp chiều cao input Bootstrap */
+        .item-row {
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: .25rem;
+            margin-bottom: 1rem;
+            background-color: #f9f9f9;
         }
     </style>
 </head>
 
 <body>
-    <section layout:fragment="content">
-        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="mdi mdi-check-circle-outline me-2"></i>
-            <span th:text="${successMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="mdi mdi-alert-circle-outline me-2"></i>
-            <span th:text="${errorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+<section layout:fragment="content">
+    <div class="row">
+        <div class="col-md-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                    <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-check-double-line me-1"></i>Kiểm kê kho
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/inventory/stocktake/perform}" th:object="${stocktakeRequestDTO}"
+                          method="post" class="forms-sample">
+
+                        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                            <ul class="mb-0">
+                                <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+                            </ul>
+                        </div>
+                        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
 
-        <div class="row">
-            <div class="col-md-8 grid-margin stretch-card mx-auto">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Nhập thông tin kiểm kê</h4>
-                        <p class="card-description">Điền thông tin số lượng thực tế của sản phẩm tại kho.</p>
+                        <div class="mb-3">
+                            <label for="stocktakeNote" class="form-label">Ghi chú chung</label>
+                            <textarea class="form-control" id="stocktakeNote" th:field="*{stocktakeNote}" rows="3"
+                                      placeholder="Ví dụ: Kiểm kê định kỳ cuối tháng..."></textarea>
+                        </div>
 
-                        <form th:action="@{/admin/inventory/stocktake/perform}" th:object="${stocktakeRequestDTO}"
-                            method="post" class="forms-sample">
+                        <hr class="my-4">
 
-                            <div class="mb-3">
-                                <label for="productVariantId" class="form-label">Chọn Biến Thể Sản Phẩm <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-select" id="productVariantId" th:field="*{productVariantId}"
-                                    required>
-                                    <option value="">-- Chọn sản phẩm --</option>
-                                    <option th:each="pv : ${productVariants}" th:value="${pv.id}"
-                                        th:text="${pv.product?.name + ' - ' + pv.attribute + ' (SKU: ' + pv.sku + ')'}"
-                                        th:data-current-stock="${pv.inventory?.quantity != null ? pv.inventory.quantity : 'N/A'}">
-                                    </option>
-                                </select>
-                                <small th:if="${#fields.hasErrors('productVariantId')}" th:errors="*{productVariantId}"
-                                    class="text-danger d-block mt-1"></small>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-color-primary">Chi tiết sản phẩm kiểm kê</h6>
+                            <button type="button" id="addItemBtn" class="btn btn-outline-success btn-sm">
+                                <i class="mdi mdi-plus-circle-outline"></i> Thêm sản phẩm
+                            </button>
+                        </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="currentSystemStock" class="form-label">Số Lượng Hệ Thống Hiện
-                                        Tại</label>
-                                    <input type="text" class="form-control" id="currentSystemStock" readonly disabled
-                                        placeholder="Chọn sản phẩm để xem" />
+                        <div id="stocktakeItemsContainer">
+                            <div class="item-row" th:each="item, itemStat : *{items}"
+                                 th:id="'item-row-' + ${itemStat.index}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 mb-3">
+                                        <label th:for="'productVariantId-' + ${itemStat.index}" class="form-label">Sản
+                                            phẩm<span class="text-danger">*</span></label>
+                                        <select class="form-select product-variant-select select2-enable"
+                                                th:field="*{items[__${itemStat.index}__].productVariantId}"
+                                                th:id="'productVariantId-' + ${itemStat.index}" required>
+                                            <option value="">-- Chọn biến thể sản phẩm --</option>
+                                            <option th:each="pv : ${productVariants}" th:value="${pv.id}"
+                                                    th:text="${pv.product.name + ' - ' + pv.attribute + ' (Tồn kho: ' + (pv.inventory != null ? pv.inventory.quantity : 0) + ')'}"></option>
+                                        </select>
+                                        <small th:if="${#fields.hasErrors('items[__${itemStat.index}__].productVariantId')}"
+                                               th:errors="*{items[__${itemStat.index}__].productVariantId}"
+                                               class="text-danger"></small>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label th:for="'quantity-' + ${itemStat.index}" class="form-label">Số lượng thực
+                                            tế<span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control"
+                                               th:field="*{items[__${itemStat.index}__].actualCountedQuantity}"
+                                               th:id="'quantity-' + ${itemStat.index}"
+                                               placeholder="Nhập số lượng đếm được" min="0" required/>
+                                        <small th:if="${#fields.hasErrors('items[__${itemStat.index}__].actualCountedQuantity')}"
+                                               th:errors="*{items[__${itemStat.index}__].actualCountedQuantity}"
+                                               class="text-danger"></small>
+                                    </div>
+                                    <div class="col-md-2 mb-3 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger btn-sm remove-item-btn w-100">
+                                            <i class="mdi mdi-delete-outline"></i> Xóa
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="actualCountedQuantity" class="form-label">Số Lượng Thực Tế Đếm Được
-                                        <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="actualCountedQuantity"
-                                        th:field="*{actualCountedQuantity}" min="0" required
-                                        placeholder="Nhập số lượng thực tế" />
-                                    <small th:if="${#fields.hasErrors('actualCountedQuantity')}"
-                                        th:errors="*{actualCountedQuantity}" class="text-danger d-block mt-1"></small>
-                                </div>
                             </div>
+                        </div>
+                        <div th:if="${#fields.hasErrors('items')}" class="alert alert-danger"
+                             th:errors="*{items}"></div>
 
-                            <div class="mb-4">
-                                <label for="stocktakeNote" class="form-label">Ghi Chú Kiểm Kê</label>
-                                <textarea class="form-control" id="stocktakeNote" th:field="*{stocktakeNote}" rows="3"
-                                    placeholder="Ghi chú thêm nếu có (ví dụ: hàng hỏng, thất thoát,...)"></textarea>
-                                <small th:if="${#fields.hasErrors('stocktakeNote')}" th:errors="*{stocktakeNote}"
-                                    class="text-danger d-block mt-1"></small>
-                            </div>
 
-                            <div class="d-flex justify-content-end">
-                                <a th:href="@{/admin/dashboard}" class="btn btn-light me-2">
-                                    <i class="mdi mdi-cancel"></i> Hủy
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="mdi mdi-content-save-outline"></i> Xác nhận Kiểm Kê
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="d-flex float-end gap-2 mt-4">
+                            <button type="submit" class="cr-btn default-btn color-primary"><i
+                                    class="ri-save-line me-1"></i>Lưu phiếu kiểm kê
+                            </button>
+                            <a href="/admin/inventory/audits" class="cr-btn default-btn color-light me-2"><i
+                                    class="ri-close-line me-1"></i>Hủy</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <th:block layout:fragment="extras-scripts">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-            $(document).ready(function () {
-                const productVariantSelect = $('#productVariantId');
-                const currentSystemStockInput = $('#currentSystemStock');
+    <div id="itemTemplate" style="display: none;">
+        <div class="item-row" id="item-row-INDEX">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3">
+                    <label for="productVariantId-INDEX" class="form-label">Sản phẩm<span
+                            class="text-danger">*</span></label>
+                    <select class="form-control form-select product-variant-select select2-enable"
+                            name="items[INDEX].productVariantId" id="productVariantId-INDEX" required>
+                        <option value="">-- Chọn biến thể sản phẩm --</option>
+                        <option th:each="pv : ${productVariants}" th:value="${pv.id}"
+                                th:text="${pv.product.name + ' - ' + pv.attribute + ' (Tồn kho: ' + (pv.inventory != null ? pv.inventory.quantity : 0) + ')'}"></option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="quantity-INDEX" class="form-label">Số lượng thực tế<span
+                            class="text-danger">*</span></label>
+                    <input type="number" class="form-control" name="items[INDEX].actualCountedQuantity"
+                           id="quantity-INDEX" placeholder="Nhập số lượng đếm được" value="0" min="0" required/>
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger btn-sm remove-item-btn w-100">
+                        <i class="mdi mdi-delete-outline"></i> Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-                productVariantSelect.select2({
-                    theme: "bootstrap-5", // Sử dụng theme Bootstrap 5 cho Select2
-                    placeholder: "-- Chọn sản phẩm --",
-                    allowClear: true // Cho phép xóa lựa chọn
+<th:block layout:fragment="extras-scripts">
+    <script>
+        $(document).ready(function () {
+            const container = $('#stocktakeItemsContainer');
+            const addButton = $('#addItemBtn');
+            const templateNode = document.getElementById('itemTemplate');
+
+            if (container.length === 0 || addButton.length === 0 || !templateNode) {
+                console.error("DOM elements for dynamic form not found.");
+                return;
+            }
+
+            const template = templateNode.firstElementChild.cloneNode(true);
+            let itemIndex = container.find('.item-row').length;
+
+            function initSelect2(element) {
+                $(element).select2({
+                    theme: "bootstrap-5",
+                    placeholder: "Vui lòng chọn...",
+                    dropdownParent: $(element).parent()
                 });
+            }
 
-                // Hàm cập nhật số lượng tồn kho hệ thống
-                function updateSystemStock() {
-                    const selectedOption = productVariantSelect.find('option:selected');
-                    const systemStock = selectedOption.data('current-stock');
+            function addNewItemRow() {
+                const newItemRow = $(template.cloneNode(true));
+                newItemRow.attr('id', `item-row-${itemIndex}`);
 
-                    if (systemStock !== undefined && systemStock !== null && systemStock !== 'N/A') {
-                        currentSystemStockInput.val(systemStock);
-                    } else if (productVariantSelect.val() === '') { // Nếu không chọn sản phẩm
-                        currentSystemStockInput.val('Chọn sản phẩm để xem');
-                    }
-                    else {
-                        currentSystemStockInput.val('N/A'); // Hoặc để trống, hoặc thông báo đang tải
-                        // Nâng cao: Nếu 'N/A', có thể gọi API để lấy số lượng tồn kho
-                        // const selectedId = productVariantSelect.val();
-                        // if (selectedId) {
-                        //     $.get('/api/v1/admin/inventory/product-variants/' + selectedId + '/stock', function(data) {
-                        //         currentSystemStockInput.val(data);
-                        //     }).fail(function() {
-                        //         currentSystemStockInput.val('Lỗi tải SL tồn');
-                        //     });
-                        // }
-                    }
-                }
-
-                // Cập nhật khi chọn sản phẩm
-                productVariantSelect.on('change', function () {
-                    updateSystemStock();
+                newItemRow.find('.product-variant-select').attr({
+                    'name': `items[${itemIndex}].productVariantId`,
+                    'id': `productVariantId-${itemIndex}`
                 });
+                newItemRow.find('label[for^="productVariantId"]').attr('for', `productVariantId-${itemIndex}`);
 
-                // Cập nhật lần đầu khi tải trang (nếu có giá trị được chọn sẵn do validation fail)
-                if (productVariantSelect.val()) {
-                    updateSystemStock();
-                } else {
-                    currentSystemStockInput.val('Chọn sản phẩm để xem');
-                }
+                newItemRow.find('input[type="number"]').attr({
+                    'name': `items[${itemIndex}].actualCountedQuantity`,
+                    'id': `quantity-${itemIndex}`
+                });
+                newItemRow.find('label[for^="quantity"]').attr('for', `quantity-${itemIndex}`);
+
+                container.append(newItemRow);
+                initSelect2(newItemRow.find('.select2-enable'));
+                itemIndex++;
+            }
+
+            // Event listener for remove button
+            container.on('click', '.remove-item-btn', function () {
+                $(this).closest('.item-row').remove();
             });
-            /*]]>*/
-        </script>
-    </th:block>
-</body>
 
+            // Init Select2 for existing rows
+            container.find('.select2-enable').each(function () {
+                initSelect2(this);
+            });
+
+            addButton.on('click', addNewItemRow);
+        });
+    </script>
+</th:block>
+</body>
 </html>

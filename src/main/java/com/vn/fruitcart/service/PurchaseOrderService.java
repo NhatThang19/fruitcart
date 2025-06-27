@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.PurchaseOrder;
 import com.vn.fruitcart.entity.PurchaseOrderItem;
-import com.vn.fruitcart.entity.dto.request.PurchaseOrderCreateReq;
-import com.vn.fruitcart.entity.dto.request.PurchaseOrderItemReq;
+import com.vn.fruitcart.entity.dto.request.purchaseOrder.PurchaseOrderCreateReq;
+import com.vn.fruitcart.entity.dto.request.purchaseOrder.PurchaseOrderItemReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.ProductVariantRepository;
 import com.vn.fruitcart.repository.PurchaseOrderRepository;
@@ -84,8 +84,7 @@ public class PurchaseOrderService {
         for (PurchaseOrderItem item : purchaseOrder.getPurchaseOrderItems()) {
             String reason = "Nhập hàng từ đơn PO#" + purchaseOrder.getId() + " (Item SKU: "
                     + item.getProductVariant().getSku() + ")";
-            inventoryService.updateInventoryAndLogAudit(item.getProductVariant(), item.getQuantity(), reason,
-                    purchaseOrder);
+            inventoryService.updateInventoryAndLogAudit(item.getProductVariant(), item.getQuantity(), reason);
         }
 
         return purchaseOrderRepository.save(purchaseOrder);
