@@ -2,6 +2,7 @@ package com.vn.fruitcart.controller.admin;
 
 import com.vn.fruitcart.entity.InventoryAudit;
 import com.vn.fruitcart.entity.ProductVariant;
+import com.vn.fruitcart.entity.dto.request.inventory.InventoryAuditSearchCriteriaReq;
 import com.vn.fruitcart.entity.dto.request.inventory.StocktakeItemReq;
 import com.vn.fruitcart.entity.dto.request.inventory.StocktakeReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
@@ -102,19 +103,15 @@ public class AdminInventoryController {
     @GetMapping("/audits")
     public String listInventoryAudits(Model model,
                                       @PageableDefault(size = 15, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable,
-                                      @RequestParam(name = "productVariantId", required = false) Long productVariantIdFilter,
-                                      @RequestParam(name = "dateFrom", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFromFilter,
-                                      @RequestParam(name = "dateTo", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateToFilter) {
+                                      @ModelAttribute("criteria") InventoryAuditSearchCriteriaReq criteria) {
 
-        Page<InventoryAudit> inventoryAuditsPage = inventoryService.listInventoryAudits(
-                productVariantIdFilter, dateFromFilter, dateToFilter, pageable);
-
+        Page<InventoryAudit> inventoryAuditsPage = inventoryService.listInventoryAudits(criteria, pageable);
         model.addAttribute("inventoryAuditsPage", inventoryAuditsPage);
+
         model.addAttribute("productVariants", productVariantRepository.findAll());
-        model.addAttribute("currentProductVariantIdFilter", productVariantIdFilter);
-        model.addAttribute("currentDateFromFilter", dateFromFilter);
-        model.addAttribute("currentDateToFilter", dateToFilter);
+
         FruitCartUtils.addPagingAndSortingAttributes(model, pageable);
+
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminInventory());
 
         return "admin/pages/inventory/audit_list";

@@ -178,12 +178,10 @@
                 itemIndex++;
             }
 
-            // Event listener for remove button
             container.on('click', '.remove-item-btn', function () {
                 $(this).closest('.item-row').remove();
             });
 
-            // Init Select2 for existing rows
             container.find('.select2-enable').each(function () {
                 initSelect2(this);
             });

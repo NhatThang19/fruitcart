@@ -3,6 +3,7 @@ package com.vn.fruitcart.service;
 import com.vn.fruitcart.entity.Inventory;
 import com.vn.fruitcart.entity.InventoryAudit;
 import com.vn.fruitcart.entity.ProductVariant;
+import com.vn.fruitcart.entity.dto.request.inventory.InventoryAuditSearchCriteriaReq;
 import com.vn.fruitcart.entity.dto.request.inventory.StocktakeItemReq;
 import com.vn.fruitcart.entity.dto.request.inventory.StocktakeReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
@@ -143,5 +144,31 @@ public class InventoryService {
     public InventoryAudit findAuditById(Long auditId) {
         return inventoryAuditRepository.findById(auditId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bản ghi kiểm kho với ID: " + auditId));
+    }
+
+    public Page<InventoryAudit> listInventoryAudits(InventoryAuditSearchCriteriaReq criteria, Pageable pageable) {
+
+        Specification<InventoryAudit> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (criteria.getProductVariantId() != null) {
+                Join<InventoryAudit, ProductVariant> productVariantJoin = root.join("productVariant");
+                predicates.add(criteriaBuilder.equal(productVariantJoin.get("id"), criteria.getProductVariantId()));
+            }
+
+            if (criteria.getDateFrom() != null) {
+                Instant startOfDay = criteria.getDateFrom().atStartOfDay().toInstant(ZoneOffset.UTC);
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdDate"), startOfDay));
+            }
+
+            if (criteria.getDateTo() != null) {
+                Instant endOfDay = criteria.getDateTo().atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdDate"), endOfDay));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return inventoryAuditRepository.findAll(spec, pageable);
     }
 }

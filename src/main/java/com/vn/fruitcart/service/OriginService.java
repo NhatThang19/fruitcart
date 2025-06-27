@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.vn.fruitcart.entity.Origin;
-import com.vn.fruitcart.entity.dto.request.OriginReq;
+import com.vn.fruitcart.entity.dto.request.category.OriginReq;
 import com.vn.fruitcart.entity.dto.request.category.OriginSearchCriteria;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.OriginRepository;
