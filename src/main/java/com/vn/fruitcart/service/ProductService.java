@@ -3,6 +3,7 @@ package com.vn.fruitcart.service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.vn.fruitcart.entity.dto.request.product.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.vn.fruitcart.entity.Category;
@@ -17,11 +19,6 @@ import com.vn.fruitcart.entity.Origin;
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.ProductImage;
 import com.vn.fruitcart.entity.ProductVariant;
-import com.vn.fruitcart.entity.dto.request.product.ProductUpdateReq;
-import com.vn.fruitcart.entity.dto.request.product.ProductVariantUpdateReq;
-import com.vn.fruitcart.entity.dto.request.product.ProductCreateReq;
-import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteriaReq;
-import com.vn.fruitcart.entity.dto.request.product.ProductVariantReq;
 import com.vn.fruitcart.exception.ResourceNotFoundException;
 import com.vn.fruitcart.repository.CategoryRepository;
 import com.vn.fruitcart.repository.OriginRepository;
@@ -338,44 +335,29 @@ public class ProductService {
         productRepository.delete(product);
     }
 
-    public Page<Product> searchProducts(String keyword, String categorySlug, String originSlug,
-                                        Double minPrice, Double maxPrice,
-                                        Boolean inStockOnly,
-                                        String sortBy, String sortOrder, Pageable pageable) {
+    public Page<Product> searchProducts(ProductSearchCriteria criteria, Pageable pageable) {
 
         Specification<Product> spec = Specification.where(ProductSpecification.isActive());
 
-        if (keyword != null && !keyword.isEmpty()) {
-            spec = spec.and(ProductSpecification.byKeyword(keyword));
+        if (StringUtils.hasText(criteria.getKeyword())) {
+            spec = spec.and(ProductSpecification.byKeyword(criteria.getKeyword()));
         }
-        if (categorySlug != null && !categorySlug.isEmpty()) {
-            spec = spec.and(ProductSpecification.byCategorySlug(categorySlug));
+        if (StringUtils.hasText(criteria.getCategorySlug())) {
+            spec = spec.and(ProductSpecification.byCategorySlug(criteria.getCategorySlug()));
         }
-        if (originSlug != null && !originSlug.isEmpty()) {
-            spec = spec.and(ProductSpecification.byOriginSlug(originSlug));
+        if (StringUtils.hasText(criteria.getOriginSlug())) {
+            spec = spec.and(ProductSpecification.byOriginSlug(criteria.getOriginSlug()));
         }
-        if (minPrice != null || maxPrice != null) {
-            spec = spec.and(ProductSpecification.byPriceRange(minPrice, maxPrice));
+        if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
+            spec = spec.and(ProductSpecification.byPriceRange(criteria.getMinPrice(), criteria.getMaxPrice()));
         }
-
-        if (inStockOnly != null) {
-            spec = spec.and(ProductSpecification.byInStock(inStockOnly));
-        }
-
-        Sort sort = Sort.unsorted();
-        if (sortBy != null && !sortBy.isEmpty()) {
-
-            if ("desc".equalsIgnoreCase(sortOrder)) {
-                sort = Sort.by(Sort.Direction.DESC, sortBy);
-            } else {
-                sort = Sort.by(Sort.Direction.ASC, sortBy);
-            }
+        if (criteria.getInStockOnly() != null) {
+            spec = spec.and(ProductSpecification.byInStock(criteria.getInStockOnly()));
         }
 
-        Pageable pageableWithSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-
-        return productRepository.findAll(spec, pageableWithSort);
+        return productRepository.findAll(spec, pageable);
     }
+
 
     public Page<Product> findPaginatedByCategoryId(Long categoryId, Pageable pageable) {
         return productRepository.findByCategoryId(categoryId, pageable);

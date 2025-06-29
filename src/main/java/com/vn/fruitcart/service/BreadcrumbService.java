@@ -235,4 +235,19 @@ public class BreadcrumbService {
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết đơn kiểm kho", null));
         return new PageMetadata("Chi tiết đơn kiểm kho", breadcrumbList);
     }
+
+    public Object buildAdminDiscount() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Giảm giá", "/admin/discounts"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Tạo giảm giá", null));
+        return new PageMetadata("Tạo chương trình giảm giá", breadcrumbList);
+    }
+
+    public Object buildAdminDiscountList() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Giảm giá", "/admin/discounts"));
+        return new PageMetadata("Danh sách giảm giá", breadcrumbList);
+    }
 }

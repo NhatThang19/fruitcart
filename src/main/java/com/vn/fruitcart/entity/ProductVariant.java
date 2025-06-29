@@ -1,26 +1,14 @@
 package com.vn.fruitcart.entity;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import com.vn.fruitcart.entity.base.BaseEntity;
 import com.vn.fruitcart.util.FruitCartUtils;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,6 +50,15 @@ public class ProductVariant extends BaseEntity {
     @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PurchaseOrderItem> purchaseOrdersItems = new ArrayList<>();
 
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "variant_discounts",
+            joinColumns = @JoinColumn(name = "variant_id"),
+            inverseJoinColumns = @JoinColumn(name = "discount_id")
+    )
+    @OrderColumn(name = "discount_order")
+    private List<Discount> discounts = new ArrayList<>();
+
     @PrePersist
     public void generateSku() {
         if (this.sku == null || this.sku.trim().isEmpty()) {
@@ -83,5 +80,41 @@ public class ProductVariant extends BaseEntity {
             this.setInventory(newInventory);
         }
     }
+
+    public Optional<Discount> getActiveDiscount() {
+        LocalDateTime now = LocalDateTime.now();
+
+        return this.discounts.stream()
+                .filter(Discount::isActive)
+                .filter(d -> (d.getStartDate() == null || now.isAfter(d.getStartDate())) &&
+                        (d.getEndDate() == null || now.isBefore(d.getEndDate())))
+                .max(Comparator.comparing(Discount::getDiscountPercentage));
+    }
+
+    public BigDecimal getSalePrice() {
+        return getActiveDiscount().map(discount -> {
+            BigDecimal percentage = discount.getDiscountPercentage();
+            BigDecimal discountFactor = BigDecimal.ONE.subtract(percentage.divide(new BigDecimal("100")));
+            return this.price.multiply(discountFactor).setScale(2, RoundingMode.HALF_UP);
+        }).orElse(this.price);
+    }
+
+    public boolean isOnSale() {
+        return getActiveDiscount().isPresent();
+    }
+
+    public BigDecimal getDiscountAmount() {
+        if (!isOnSale()) {
+            return BigDecimal.ZERO;
+        }
+        return this.price.subtract(getSalePrice());
+    }
+
+    public String getDisplayableDiscount() {
+        return getActiveDiscount()
+                .map(discount -> "-" + discount.getDiscountPercentage().stripTrailingZeros().toPlainString() + "%")
+                .orElse("");
+    }
+
 
 }

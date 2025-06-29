@@ -99,4 +99,14 @@ public class Product extends BaseEntity {
                 .findFirst().orElse(this.images.get(0));
     }
 
+    @Transient
+    public boolean isAvailable() {
+        if (this.getVariants() == null || this.getVariants().isEmpty()) {
+            return false;
+        }
+
+        return this.getVariants().stream()
+                .anyMatch(variant -> variant.getInventory() != null && variant.getInventory().getQuantity() > 0);
+    }
+
 }

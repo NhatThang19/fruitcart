@@ -1,13 +1,18 @@
 package com.vn.fruitcart.controller.client;
 
 import java.util.Collections;
+import java.util.stream.Collectors;
 
+import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.vn.fruitcart.entity.Product;
@@ -33,49 +38,50 @@ public class HomeController {
         return "client/pages/index";
     }
 
-    @GetMapping("/products")
+    @GetMapping("/san-pham")
     public String index(
             Model model,
-            @RequestParam(name = "keyword", required = false) String keyword,
-            @RequestParam(name = "category", required = false) String categorySlug,
-            @RequestParam(name = "origin", required = false) String originSlug,
-            @RequestParam(name = "minPrice", required = false) Double minPrice,
-            @RequestParam(name = "maxPrice", required = false) Double maxPrice,
-            @RequestParam(name = "inStock", required = false) Boolean inStockOnly,
-            @RequestParam(name = "sortBy", defaultValue = "createdDate") String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = "desc") String sortOrder,
-            @RequestParam(name = "page", defaultValue = "1") int page,
-            @RequestParam(name = "size", defaultValue = "6") int pageSize) {
+            @ModelAttribute("criteria") ProductSearchCriteria criteria,
+            @PageableDefault(size = 8, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        // ====================================================================
+        //         *** BẮT ĐẦU PHẦN SỬA ĐỔI LOGIC SẮP XẾP ***
+        // ====================================================================
 
-        Page<Product> productPage = productService.searchProducts(
-                keyword, categorySlug, originSlug, minPrice, maxPrice,
-                inStockOnly, sortBy, sortOrder, pageable);
+        // 1. Tạo tiêu chí sắp xếp chính: luôn ưu tiên 'isNew' giảm dần (true lên trước)
+        Sort newProductSort = Sort.by(Sort.Direction.DESC, "isNew");
 
-        model.addAttribute("products", productPage.getContent());
-        model.addAttribute("currentPage", productPage.getNumber() + 1);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-        model.addAttribute("totalItems", productPage.getTotalElements());
+        // 2. Lấy tiêu chí sắp xếp phụ từ yêu cầu của người dùng (ví dụ: theo giá, theo tên)
+        Sort userSort = pageable.getSort();
 
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("selectedCategory", categorySlug);
-        model.addAttribute("selectedOrigin", originSlug);
-        model.addAttribute("minPrice", minPrice);
-        model.addAttribute("maxPrice", maxPrice);
-        model.addAttribute("inStockOnly", inStockOnly);
-        model.addAttribute("sortBy", sortBy);
-        model.addAttribute("sortOrder", sortOrder);
-        model.addAttribute("pageSize", pageSize);
+        // 3. Kết hợp hai tiêu chí: ưu tiên isNew, sau đó mới đến tiêu chí của người dùng
+        Sort finalSort = newProductSort.and(userSort);
 
-        try {
-            model.addAttribute("categories", categoryService.findAllActiveCategories());
-            model.addAttribute("origins", originService.findAllActiveOrigins());
-        } catch (Exception e) {
-            System.err.println("Error fetching categories/origins for filtering: " + e.getMessage());
-            model.addAttribute("categories", Collections.emptyList());
-            model.addAttribute("origins", Collections.emptyList());
-        }
+        // 4. Tạo một đối tượng Pageable mới với thông tin phân trang cũ và tiêu chí sắp xếp mới
+        Pageable finalPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), finalSort);
+
+        // 5. Sử dụng Pageable mới này để gọi service
+        Page<Product> productPage = productService.searchProducts(criteria, finalPageable);
+
+        // ====================================================================
+        //          *** KẾT THÚC PHẦN SỬA ĐỔI LOGIC SẮP XẾP ***
+        // ====================================================================
+
+
+        String currentSort = pageable.getSort().get()
+                .map(order -> order.getProperty() + "," + order.getDirection().name().toLowerCase())
+                .collect(Collectors.joining());
+
+        model.addAttribute("currentSort", currentSort);
+
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("categories", categoryService.findAllActiveCategories());
+        model.addAttribute("origins", originService.findAllActiveOrigins());
+        model.addAttribute("pageMetadata", breadcrumbService.demo());
+
+        model.addAttribute("productPage", productPage);
+        model.addAttribute("categories", categoryService.findAllActiveCategories());
+        model.addAttribute("origins", originService.findAllActiveOrigins());
 
         model.addAttribute("pageMetadata", breadcrumbService.demo());
 
@@ -88,7 +94,7 @@ public class HomeController {
         return "client/pages/about-us";
     }
 
-        @GetMapping("/contact")
+    @GetMapping("/contact")
     public String getContactPage(Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.demo());
         return "client/pages/contact";

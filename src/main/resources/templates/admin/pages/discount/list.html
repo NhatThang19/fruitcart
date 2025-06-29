@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layouts/admin-layout}">
+
+<head>
+    <title th:text="${pageMetadata.title}">Danh sách Giảm giá</title>
+</head>
+
+<body>
+<main class="main-content" layout:fragment="content">
+    <div th:remove="all">
+        <th:block th:fragment="sort_header(field, text)">
+            <a th:href="@{/admin/discounts(
+                    page=${discountsPage.number},
+                    size=${discountsPage.size},
+                    sort=${field} + ',' + (${currentSortField} == ${field} ? ${reverseSortDir} : 'asc'),
+                    name=${criteria.name},
+                    active=${criteria.active},
+                    startDateAfter=${criteria.startDateAfter},
+                    endDateBefore=${criteria.endDateBefore}
+                )}" th:classappend="${currentSortField == field} ? 'text-color-primary fw-bold' : ''">
+                <span th:text="${text}"></span>
+                <span th:if="${currentSortField} == ${field}" class="sort-icon"
+                      th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
+                <span th:if="${currentSortField != field}"
+                      class="sort-icon text-muted ri-arrow-up-down-line"></span>
+            </a>
+        </th:block>
+
+        <th:block th:fragment="page_link(page, text, disabledCondition, isActive)">
+            <li class="page-item"
+                th:classappend="${disabledCondition} ? 'disabled' : '' + (${isActive} ? ' active' : '')">
+                <a class="page-link" th:href="@{/admin/discounts(
+                    page=${page},
+                    size=${discountsPage.size},
+                    sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
+                    name=${criteria.name},
+                    active=${criteria.active},
+                    startDateAfter=${criteria.startDateAfter},
+                    endDateBefore=${criteria.endDateBefore}
+                )}" th:text="${text}"></a>
+            </li>
+        </th:block>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-5">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h5 class="m-0 fw-semibold">Danh sách Chương trình Giảm giá</h5>
+                    <a th:href="@{/admin/discounts/new}" class="btn btn-primary btn-sm"><i class="ri-add-line me-1"></i>Tạo
+                        mới</a>
+                </div>
+                <div class="mt-3 mx-3">
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/discounts}" method="get" class="mb-4 form-filters"
+                          th:object="${criteria}">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label for="name" class="form-label">Tìm theo tên</label>
+                                <input type="text" autocomplete="off" class="form-control form-control-sm"
+                                       id="name" th:field="*{name}" placeholder="Nhập tên chương trình...">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="active" class="form-label">Lọc theo trạng thái</label>
+                                <select class="form-control form-select form-select-sm" id="active"
+                                        th:field="*{active}">
+                                    <option value="">Tất cả</option>
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="startDateAfter" class="form-label">Bắt đầu từ ngày</label>
+                                <input type="date" class="form-control form-control-sm" id="startDateAfter"
+                                       th:field="*{startDateAfter}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="endDateBefore" class="form-label">Kết thúc trước ngày</label>
+                                <input type="date" class="form-control form-control-sm" id="endDateBefore"
+                                       th:field="*{endDateBefore}">
+                            </div>
+                            <div class="col-md-1">
+                                <label for="pageSizeSelect" class="form-label">Hiển thị</label>
+                                <select class="form-control form-select form-select-sm" id="pageSizeSelect" name="size"
+                                        onchange="this.form.submit()">
+                                    <option th:each="s : ${#lists.toList({5, 10, 20, 50})}" th:value="${s}"
+                                            th:text="${s}" th:selected="${s == discountsPage.size}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-auto ms-auto">
+                                <button type="submit" class="btn btn-success btn-sm"><i
+                                        class="ri-filter-3-line me-1"></i>Lọc
+                                </button>
+                                <a th:href="@{/admin/discounts(size=${discountsPage.size})}"
+                                   class="btn btn-light btn-sm"><i class="ri-refresh-line me-1"></i>Đặt lại</a>
+                            </div>
+                        </div>
+                        <input type="hidden" name="sort"
+                               th:value="${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : ''}">
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 5%;">
+                                    <div th:replace="~{this :: sort_header('id', 'ID')}"></div>
+                                </th>
+                                <th>
+                                    <div th:replace="~{this :: sort_header('name', 'Tên chương trình')}"></div>
+                                </th>
+                                <th class="text-center" style="width: 10%;">
+                                    <div th:replace="~{this :: sort_header('discountPercentage', 'Tỷ lệ (%)')}"></div>
+                                </th>
+                                <th class="text-center" style="width: 15%;">
+                                    <div th:replace="~{this :: sort_header('startDate', 'Ngày bắt đầu')}"></div>
+                                </th>
+                                <th class="text-center" style="width: 15%;">
+                                    <div th:replace="~{this :: sort_header('endDate', 'Ngày kết thúc')}"></div>
+                                </th>
+                                <th class="text-center" style="width: 10%;">Trạng thái</th>
+                                <th class="text-center" style="width: 12%;">Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="discount : ${discountsPage.content}">
+                                <td class="text-center" th:text="${discount.id}"></td>
+                                <td th:text="${discount.name}"></td>
+                                <td class="text-center" th:text="${discount.discountPercentage}"></td>
+                                <td class="text-center"
+                                    th:text="${discount.startDate != null ? #temporals.format(discount.startDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
+                                <td class="text-center"
+                                    th:text="${discount.endDate != null ? #temporals.format(discount.endDate, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
+                                <td class="text-center">
+                                    <span th:if="${discount.active}"
+                                          class="badge rounded-pill bg-success">Hoạt động</span>
+                                    <span th:unless="${discount.active}" class="badge rounded-pill bg-danger">Vô hiệu hóa</span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/admin/discounts/edit/{id}(id=${discount.id})}"
+                                       class="btn btn-sm btn-warning"><i class="ri-pencil-line"></i></a>
+                                    <a th:href="@{/admin/discounts/delete/{id}(id=${discount.id})}"
+                                       class="btn btn-sm btn-danger"
+                                       th:onclick="return confirm('Bạn có chắc chắn muốn xóa chương trình giảm giá này?');"><i
+                                            class="ri-delete-bin-line"></i></a>
+                                </td>
+                            </tr>
+                            <tr th:if="${discountsPage.isEmpty()}">
+                                <td colspan="7" class="text-center fst-italic py-3">Không tìm thấy chương trình giảm giá
+                                    nào.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <nav aria-label="Page navigation" th:if="${discountsPage.totalPages > 1}">
+                        <ul class="pagination justify-content-center mt-4">
+                            <th:block th:replace="~{this :: page_link(0, 'Đầu', ${discountsPage.first}, false)}"/>
+                            <th:block
+                                    th:replace="~{this :: page_link(${discountsPage.number - 1}, 'Trước', ${!discountsPage.hasPrevious()}, false)}"/>
+
+                            <th:block th:each="i : ${#numbers.sequence(0, discountsPage.totalPages - 1)}">
+                                <th:block th:if="${i >= discountsPage.number - 2 && i <= discountsPage.number + 2}">
+                                    <th:block
+                                            th:replace="~{this :: page_link(${i}, ${i + 1}, false, ${i == discountsPage.number})}"/>
+                                </th:block>
+                            </th:block>
+
+                            <th:block
+                                    th:replace="~{this :: page_link(${discountsPage.number + 1}, 'Sau', ${!discountsPage.hasNext()}, false)}"/>
+                            <th:block
+                                    th:replace="~{this :: page_link(${discountsPage.totalPages - 1}, 'Cuối', ${discountsPage.last}, false)}"/>
+                        </ul>
+                    </nav>
+                    <div class="text-center mt-2">
+                        <small th:text="'Hiển thị ' + ${discountsPage.numberOfElements} + ' trên tổng số ' + ${discountsPage.totalElements} + ' chương trình. (Trang ' + (${discountsPage.number} + 1) + ' / ' + ${discountsPage.totalPages} + ')'"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

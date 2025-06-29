@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layouts/admin-layout}">
+<head>
+    <title th:text="${pageMetadata.title}">Quản lý Giảm giá</title>
+</head>
+<body>
+
+<section layout:fragment="content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card card-block card-stretch card-height">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                    <h5 class="m-0 text-color-primary">Form Giảm giá</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/discounts/save}" th:object="${discount}" method="post"
+                          class="forms-sample">
+
+                        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                            <ul class="mb-0">
+                                <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+                            </ul>
+                        </div>
+
+                        <input type="hidden" th:field="*{id}"/>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Tên chương trình:<span
+                                        class="text-danger">*</span></label>
+                                <input type="text" id="name" th:field="*{name}" class="form-control" autocomplete="off" required
+                                       placeholder="Ví dụ: Giảm giá Black Friday">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="discountPercentage" class="form-label">Tỷ lệ giảm giá (%):<span
+                                        class="text-danger">*</span></label>
+                                <input type="number" step="0.01" id="discountPercentage"
+                                       th:field="*{discountPercentage}"
+                                       class="form-control" required placeholder="Ví dụ: 15.5">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="startDate" class="form-label">Ngày bắt đầu:</label>
+                                <input type="datetime-local" id="startDate" th:field="*{startDate}"
+                                       class="form-control"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="endDate" class="form-label">Ngày kết thúc:</label>
+                                <input type="datetime-local" id="endDate" th:field="*{endDate}" class="form-control"/>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input type="checkbox" id="active" th:field="*{active}" class="form-check-input p-0"/>
+                            <label for="active" class="form-check-label ms-2">Kích hoạt chương trình</label>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-4">
+                            <label for="product-selector" class="form-label">Áp dụng cho các sản phẩm:</label>
+                            <select class="form-select select2-enable" id="product-selector" name="variantIds"
+                                    multiple="multiple">
+                                <option th:each="variant : ${allVariants}"
+                                        th:value="${variant.id}"
+                                        th:text="${variant.product.name + ' - ' + variant.attribute}"
+                                        th:selected="${selectedVariantIds != null && #lists.contains(selectedVariantIds, variant.id)}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex float-end gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-save-line me-1"></i>
+                                <span th:text="${discount.id == null} ? 'Tạo mới' : 'Lưu thay đổi'"></span>
+                            </button>
+                            <a th:href="@{/admin/discounts}" class="btn btn-light">
+                                <i class="ri-close-line me-1"></i>
+                                <span>Hủy</span>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<th:block layout:fragment="extras-scripts">
+    <script>
+        $(document).ready(function () {
+            // Kiểm tra xem select2 đã được nạp chưa
+            if ($.fn.select2) {
+                $('.select2-enable').select2({
+                    theme: "bootstrap-5",
+                    placeholder: "Chọn các sản phẩm để áp dụng...",
+                    dropdownParent: $('.select2-enable').parent(), // Giúp select2 hoạt động tốt trong modal (nếu có)
+                    allowClear: true
+                });
+            } else {
+                console.error("Thư viện Select2 chưa được tải. Hãy chắc chắn nó đã được thêm vào admin-layout.html.");
+            }
+        });
+    </script>
+</th:block>
+
+</body>
+</html>

@@ -1,247 +1,449 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{client/layouts/client-layout}">
+      layout:decorate="~{client/layouts/client-layout}">
 
 <head>
-    <title th:text="${pageMetadata.title}">Tiêu đề trang</title>
+    <title th:text="${pageMetadata.title}">Danh sách sản phẩm</title>
+    <style>
+        .cr-product-card .cr-product-image .cr-discount-badg {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .cr-product-card .cr-product-image .cr-new-badg {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .cr-product-details .variant-attribute {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: -8px; /* Giảm khoảng cách với tên sản phẩm */
+            margin-bottom: 8px;
+        }
+
+        .quickview-modal .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .quickview-modal.loading .modal-body-content {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .quickview-modal.loading .loading-spinner {
+            display: block;
+        }
+
+        .cr-kg ul li {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
-    <div layout:fragment="content">
-        <section class="section-shop padding-tb-100">
-            <div class="container">
-                <form th:action="@{/products}" method="get" id="filterSortForm">
-                    <input type="hidden" name="page" th:value="${param.page != null ? param.page : '1'}">
-                    <input type="hidden" name="size" th:value="${pageSize}">
-                    <input type="hidden" name="sortBy" id="sortByParam" th:value="${sortBy}">
-                    <input type="hidden" name="sortOrder" id="sortOrderParam" th:value="${sortOrder}">
+<main class="main-content" layout:fragment="content">
+    <section class="section-shop padding-tb-100">
+        <div class="container">
+            <form th:action="@{/san-pham}" method="get" id="filterSortForm" th:object="${criteria}">
+                <input type="hidden" name="sort" id="sortParam" th:value="${currentSort}">
 
-                    <div class="row">
-                        <div class="col-lg-3 col-12 md-30 aos-init aos-animate" data-aos="fade-up"
-                            data-aos-duration="2000" data-aos-delay="400">
-                            <div class="cr-shop-sideview">
-
-                                <div class="cr-shop-categories mb-4">
-                                    <h4 class="cr-shop-sub-title">Tìm kiếm</h4>
-                                    <input type="text" class="form-control" name="keyword" th:value="${keyword}"
-                                        placeholder="Tên sản phẩm...">
-                                </div>
-
-                                <div class="cr-shop-categories">
-                                    <h4 class="cr-shop-sub-title">Loại sản phẩm</h4>
-                                    <div class="cr-checkbox">
-                                        <select name="category" class="form-select mb-3">
-                                            <option value="">Tất cả loại</option>
-                                            <option th:each="cat : ${categories}" th:value="${cat.slug}"
-                                                th:text="${cat.name}" th:selected="${cat.slug == selectedCategory}">
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="cr-shop-categories mt-4">
-                                    <h4 class="cr-shop-sub-title">Xuất xứ</h4>
-                                    <div class="cr-checkbox">
-                                        <select name="origin" class="form-select mb-3">
-                                            <option value="">Tất cả xuất xứ</option>
-                                            <option th:each="org : ${origins}" th:value="${org.slug}"
-                                                th:text="${org.name}" th:selected="${org.slug == selectedOrigin}">
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="cr-shop-price mt-4">
-                                    <h4 class="cr-shop-sub-title">Giá</h4>
-                                    <div class="price-range-inputs mb-2">
-                                        <input type="number" class="form-control mb-1" name="minPrice"
-                                            th:value="${minPrice}" placeholder="Giá từ (VND)">
-                                        <input type="number" class="form-control" name="maxPrice" th:value="${maxPrice}"
-                                            placeholder="Giá đến (VND)">
-                                    </div>
-                                </div>
-
-                                <div class="cr-shop-categories mt-4">
-                                    <h4 class="cr-shop-sub-title">Tình trạng</h4>
-                                    <div class="cr-checkbox">
-                                        <div class="checkbox-group">
-                                            <input type="checkbox" name="inStock" value="true" id="inStockFilter"
-                                                th:checked="${inStockOnly == true}">
-                                            <label for="inStockFilter">Chỉ hiển thị hàng còn kho</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mt-4">
-                                    <button type="submit" class="cr-button d-block w-100 mb-2">Lọc sản phẩm</button>
-                                    <a th:href="@{/products}" class="btn btn-outline-secondary d-block w-100">Xóa tất cả
-                                        bộ lọc</a>
+                <div class="row">
+                    <div class="col-lg-3 col-12 md-30 aos-init aos-animate" data-aos="fade-up"
+                         data-aos-duration="2000" data-aos-delay="400">
+                        <div class="cr-shop-sideview">
+                            <div class="cr-shop-categories mb-4">
+                                <h4 class="cr-shop-sub-title">Tìm kiếm</h4>
+                                <input type="text" class="form-control" th:field="*{keyword}"
+                                       placeholder="Tên sản phẩm...">
+                            </div>
+                            <div class="cr-shop-categories">
+                                <h4 class="cr-shop-sub-title">Loại sản phẩm</h4>
+                                <div class="cr-checkbox">
+                                    <select th:field="*{categorySlug}" class="form-select mb-3">
+                                        <option value="">Tất cả loại</option>
+                                        <option th:each="cat : ${categories}" th:value="${cat.slug}"
+                                                th:text="${cat.name}"></option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-lg-9 col-12 md-30 aos-init aos-animate" data-aos="fade-up"
-                            data-aos-duration="2000" data-aos-delay="600">
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="cr-shop-bredekamp">
-                                        <div class="cr-toggle">
-                                            <a href="javascript:void(0)" class="gridCol active-grid">
-                                                <i class="ri-grid-line"></i>
-                                            </a>
-                                            <a href="javascript:void(0)" class="gridRow">
-                                                <i class="ri-list-check-2"></i>
-                                            </a>
-                                        </div>
-                                        <div class="center-content">
-                                            <span th:if="${totalItems != null}"
-                                                th:text="'Tìm thấy ' + ${totalItems} + ' sản phẩm'"></span>
-                                            <span th:if="${totalItems == null}">Đang tải sản phẩm...</span>
-                                        </div>
-                                        <div class="cr-select">
-                                            <label>Sắp xếp theo :</label>
-                                            <select class="form-select" name="sortByCombined"
-                                                onchange="applySortAndSubmit(this.value)">
-                                                <option value="createdDate_desc"
-                                                    th:selected="${sortBy == 'createdDate' && sortOrder == 'desc'}">Mới
-                                                    nhất</option>
-                                                <option value="basePrice_asc"
-                                                    th:selected="${sortBy == 'basePrice' && sortOrder == 'asc'}">Giá:
-                                                    Thấp
-                                                    đến Cao</option>
-                                                <option value="basePrice_desc"
-                                                    th:selected="${sortBy == 'basePrice' && sortOrder == 'desc'}">Giá:
-                                                    Cao
-                                                    đến Thấp</option>
-                                                <option value="name_asc"
-                                                    th:selected="${sortBy == 'name' && sortOrder == 'asc'}">Tên: A-Z
-                                                </option>
-                                                <option value="name_desc"
-                                                    th:selected="${sortBy == 'name' && sortOrder == 'desc'}">Tên: Z-A
-                                                </option>
-                                            </select>
-                                        </div>
+                            <div class="cr-shop-categories mt-4">
+                                <h4 class="cr-shop-sub-title">Xuất xứ</h4>
+                                <div class="cr-checkbox">
+                                    <select th:field="*{originSlug}" class="form-select mb-3">
+                                        <option value="">Tất cả xuất xứ</option>
+                                        <option th:each="org : ${origins}" th:value="${org.slug}"
+                                                th:text="${org.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="cr-shop-price mt-4">
+                                <h4 class="cr-shop-sub-title">Giá</h4>
+                                <div class="price-range-inputs mb-2">
+                                    <input type="number" class="form-control mb-1" th:field="*{minPrice}"
+                                           placeholder="Giá từ (VND)">
+                                    <input type="number" class="form-control" th:field="*{maxPrice}"
+                                           placeholder="Giá đến (VND)">
+                                </div>
+                            </div>
+                            <div class="cr-shop-categories mt-4">
+                                <h4 class="cr-shop-sub-title">Tình trạng</h4>
+                                <div class="cr-checkbox">
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" th:field="*{inStockOnly}" id="inStockFilter">
+                                        <label for="inStockFilter">Chỉ hiển thị hàng còn kho</label>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row col-100 mb-minus-24" id="productListingArea">
-                                <div th:each="product : ${products}"
-                                    class="col-xxl-4 col-xl-4 col-md-6 col-sm-6 col-12 cr-product-box mb-24">
-                                    <div class="cr-product-card">
-                                        <div class="cr-product-image">
-                                            <div class="cr-image-inner zoom-image-hover">
-                                                <a th:href="@{'/san-pham/' + ${product.slug}}">
-                                                    <th:block
-                                                        th:with="mainImagesList = (${product.images != null} ? ${product.images.?[isMain == true]} : null)">
-                                                        <img th:if="${mainImagesList != null && not #lists.isEmpty(mainImagesList)}"
-                                                            th:src="@{${mainImagesList[0].imageUrl}}"
-                                                            alt="product-image"
-                                                            style="height: 250px; object-fit: cover; width:100%;">
-
-                                                        <img th:if="${(mainImagesList == null || #lists.isEmpty(mainImagesList)) && (product.images != null && not #lists.isEmpty(product.images))}"
-                                                            th:src="@{${product.images[0].imageUrl}}"
-                                                            alt="product-image"
-                                                            style="height: 250px; object-fit: cover; width:100%;">
-                                                    </th:block>
-                                                </a>
-                                            </div>
-                                            <div class="cr-side-view">
-                                                <a href="javascript:void(0)" class="wishlist">
-                                                    <i class="ri-heart-line"></i>
-                                                </a>
-                                                <a class="model-oraganic-product quick-view-btn" data-bs-toggle="modal"
-                                                    href="#quickview" role="button"
-                                                    th:attr="data-product-slug=${product.slug}">
-                                                    <i class="ri-eye-line"></i>
-                                                </a>
-                                            </div>
-                                            <a href="javascript:void(0);" class="cr-shopping-bag add-to-cart-btn"
-                                                th:attr="data-product-variant-id=${(product.variants != null && not #lists.isEmpty(product.variants)) ? product.variants[0].id : ''}">
-                                                <i class="ri-shopping-bag-line"></i>
-                                            </a>
-                                        </div>
-                                        <div class="cr-product-details">
-                                            <div class="cr-brand">
-                                                <a th:if="${product.category != null}"
-                                                    th:href="@{/products(category=${product.category.slug})}"
-                                                    th:text="${product.category.name}">Category</a>
-                                            </div>
-                                            <a th:href="@{'/san-pham/' + ${product.slug}}" class="title"
-                                                th:text="${product.name}">Product Name</a>
-
-                                            <p class="cr-price"
-                                                th:if="${product.variants != null && not #lists.isEmpty(product.variants) && product.variants[0].price != null}">
-                                                <span class="new-price"
-                                                    th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'">
-                                                </span>
-                                            </p>
-                                            <p class="cr-price fst-italic"
-                                                th:if="${product.variants == null || #lists.isEmpty(product.variants) || (not #lists.isEmpty(product.variants) && product.variants[0].price == null)}">
-                                                Giá liên hệ
-                                            </p>
-
-                                            <div class="mt-2">
-                                                <span
-                                                    th:if="${product.variants != null && not #lists.isEmpty(product.variants) && product.variants[0].inventory != null && product.variants[0].inventory.quantity > 0}"
-                                                    class="badge bg-success">Còn hàng</span>
-                                                <span
-                                                    th:if="${product.variants != null && not #lists.isEmpty(product.variants) && (product.variants[0].inventory == null || product.variants[0].inventory.quantity <= 0)}"
-                                                    class="badge bg-danger">Hết hàng</span>
-                                                <span
-                                                    th:if="${product.variants == null || #lists.isEmpty(product.variants)}"
-                                                    class="badge bg-warning text-dark">Chưa có biến thể</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div th:if="${products == null || #lists.isEmpty(products)}" class="col-12">
-                                    <p class="text-center text-muted mt-5 py-5">Không tìm thấy sản phẩm nào phù hợp với
-                                        tiêu chí của bạn.</p>
-                                </div>
+                            <div class="mt-4">
+                                <button type="submit" class="cr-button d-block w-100 mb-2">Lọc sản phẩm</button>
+                                <a th:href="@{/san-pham(size=${productPage.size})}"
+                                   class="btn btn-outline-secondary d-block w-100">Xóa bộ lọc</a>
                             </div>
-
-                            <nav th:if="${totalPages != null && totalPages > 0}" aria-label="Product navigation"
-                                class="cr-pagination mt-5">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled' : ''">
-                                        <a class="page-link"
-                                            th:href="@{/products(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword}, category=${selectedCategory}, origin=${selectedOrigin}, minPrice=${minPrice}, maxPrice=${maxPrice}, inStock=${inStockOnly}, sortBy=${sortBy}, sortOrder=${sortOrder})}">Trước</a>
-                                    </li>
-
-                                    <li th:each="i : ${#numbers.sequence(1, totalPages)}" class="page-item"
-                                        th:classappend="${i == currentPage} ? 'active' : ''">
-                                        <a class="page-link"
-                                            th:href="@{/products(page=${i}, size=${pageSize}, keyword=${keyword}, category=${selectedCategory}, origin=${selectedOrigin}, minPrice=${minPrice}, maxPrice=${maxPrice}, inStock=${inStockOnly}, sortBy=${sortBy}, sortOrder=${sortOrder})}"
-                                            th:text="${i}"></a>
-                                    </li>
-
-                                    <li class="page-item"
-                                        th:classappend="${currentPage == totalPages} ? 'disabled' : ''">
-                                        <a class="page-link"
-                                            th:href="@{/products(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword}, category=${selectedCategory}, origin=${selectedOrigin}, minPrice=${minPrice}, maxPrice=${maxPrice}, inStock=${inStockOnly}, sortBy=${sortBy}, sortOrder=${sortOrder})}">Sau</a>
-                                    </li>
-                                </ul>
-                            </nav>
                         </div>
                     </div>
-                </form>
+
+                    <div class="col-lg-9 col-12 md-30 aos-init aos-animate" data-aos="fade-up"
+                         data-aos-duration="2000" data-aos-delay="600">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="cr-shop-bredekamp">
+                                    <div class="cr-toggle">
+                                        <a href="javascript:void(0)" class="gridCol active-grid"><i
+                                                class="ri-grid-line"></i></a>
+                                        <a href="javascript:void(0)" class="gridRow"><i class="ri-list-check-2"></i></a>
+                                    </div>
+                                    <div class="center-content">
+                                        <span th:text="'Tìm thấy ' + ${productPage.totalElements} + ' sản phẩm'"></span>
+                                    </div>
+                                    <div class="cr-select">
+                                        <label>Sắp xếp theo :</label>
+                                        <select class="form-select" onchange="applySortAndSubmit(this.value)">
+                                            <option value="createdDate,desc"
+                                                    th:selected="${currentSort == 'createdDate,desc'}">Mới nhất
+                                            </option>
+                                            <option value="basePrice,asc"
+                                                    th:selected="${currentSort == 'basePrice,asc'}">Giá: Thấp đến Cao
+                                            </option>
+                                            <option value="basePrice,desc"
+                                                    th:selected="${currentSort == 'basePrice,desc'}">Giá: Cao đến Thấp
+                                            </option>
+                                            <option value="name,asc" th:selected="${currentSort == 'name,asc'}">Tên:
+                                                A-Z
+                                            </option>
+                                            <option value="name,desc" th:selected="${currentSort == 'name,desc'}">Tên:
+                                                Z-A
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row col-100 mb-minus-24" id="productListingArea">
+                            <div th:each="product : ${productPage.content}"
+                                 class="col-lg-3 col-md-4 col-sm-6 col-12 cr-product-box mb-24">
+                                <div class="cr-product-card">
+                                    <div class="cr-product-image">
+                                        <div class="cr-discount-badg"
+                                             th:if="${!product.variants.isEmpty() && product.variants[0].isOnSale()}"
+                                             th:text="${product.variants[0].getDisplayableDiscount()}">
+                                        </div>
+                                        <div class="cr-new-badg" th:if="${product.isNew()}">
+                                            Mới
+                                        </div>
+                                        <div class="cr-image-inner zoom-image-hover">
+                                            <a th:href="@{'/san-pham/' + ${product.slug}}">
+                                                <img th:src="@{${product.mainImage?.imageUrl ?: (product.images.isEmpty() ? '/shared/assets/images/product/default-product.png' : product.images[0].imageUrl)}}"
+                                                     alt="product-image"
+                                                     style="height: 250px; object-fit: cover; width:100%;">
+                                            </a>
+                                        </div>
+                                        <div class="cr-side-view">
+                                            <a href="javascript:void(0)" class="wishlist"><i class="ri-heart-line"></i></a>
+                                            <a class="model-oraganic-product quick-view-btn" data-bs-toggle="modal"
+                                               href="#quickview" role="button"
+                                               th:attr="data-product-slug=${product.slug}">
+                                                <i class="ri-eye-line"></i>
+                                            </a>
+                                        </div>
+                                        <a href="javascript:void(0);" class="cr-shopping-bag add-to-cart-btn"
+                                           th:attr="data-product-variant-id=${!product.variants.isEmpty() ? product.variants[0].id : ''}">
+                                            <i class="ri-shopping-bag-line"></i>
+                                        </a>
+                                    </div>
+                                    <div class="cr-product-details">
+                                        <div class="cr-brand">
+                                            <a th:if="${product.category != null}"
+                                               th:href="@{/san-pham(categorySlug=${product.category.slug})}"
+                                               th:text="${product.category.name}">Category</a>
+                                        </div>
+                                        <a th:href="@{'/san-pham/' + ${product.slug}}" class="title"
+                                           th:text="${product.name}">Product Name</a>
+
+                                        <p class="variant-attribute" th:if="${!product.variants.isEmpty()}"
+                                           th:text="${product.variants[0].attribute}"></p>
+
+                                        <p class="cr-price"
+                                           th:if="${!product.variants.isEmpty() && product.variants[0].price != null}">
+                                            <th:block th:if="${product.variants[0].isOnSale()}">
+                                                <span class="new-price"
+                                                      th:text="${#numbers.formatDecimal(product.variants[0].getSalePrice(), 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                                                <span class="old-price" style="text-decoration: line-through;"
+                                                      th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                                            </th:block>
+                                            <th:block th:unless="${product.variants[0].isOnSale()}">
+                                                <span class="new-price"
+                                                      th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                                            </th:block>
+                                        </p>
+                                        <p class="cr-price fst-italic"
+                                           th:if="${product.variants.isEmpty() || product.variants[0].price == null}">
+                                            Giá liên hệ
+                                        </p>
+
+                                        <div class="mt-2">
+                                            <span th:if="${product.isAvailable()}"
+                                                  class="badge bg-success">Còn hàng</span>
+                                            <span th:unless="${product.isAvailable()}"
+                                                  class="badge bg-danger">Hết hàng</span>
+                                        </div>
+
+                                        <div class="mt-2" th:if="${product.variants.isEmpty()}">
+                                            <span class="badge bg-warning text-dark">Chưa có biến thể</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${productPage.isEmpty()}" class="col-12">
+                                <p class="text-center text-muted mt-5 py-5">Không tìm thấy sản phẩm nào phù hợp.</p>
+                            </div>
+                        </div>
+
+                        <nav th:if="${productPage.totalPages > 1}" aria-label="Product navigation"
+                             class="cr-pagination mt-5">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" th:classappend="${productPage.first} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/san-pham(page=${productPage.number - 1}, size=${productPage.size}, sort=${currentSort},
+                                        keyword=*{keyword}, categorySlug=*{categorySlug}, originSlug=*{originSlug}, minPrice=*{minPrice}, maxPrice=*{maxPrice}, inStockOnly=*{inStockOnly})}">Trước</a>
+                                </li>
+
+                                <li th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}" class="page-item"
+                                    th:classappend="${i == productPage.number} ? 'active'">
+                                    <a class="page-link" th:href="@{/san-pham(page=${i}, size=${productPage.size}, sort=${currentSort},
+                                        keyword=*{keyword}, categorySlug=*{categorySlug}, originSlug=*{originSlug}, minPrice=*{minPrice}, maxPrice=*{maxPrice}, inStockOnly=*{inStockOnly})}"
+                                       th:text="${i + 1}"></a>
+                                </li>
+
+                                <li class="page-item" th:classappend="${productPage.last} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/san-pham(page=${productPage.number + 1}, size=${productPage.size}, sort=${currentSort},
+                                        keyword=*{keyword}, categorySlug=*{categorySlug}, originSlug=*{originSlug}, minPrice=*{minPrice}, maxPrice=*{maxPrice}, inStockOnly=*{inStockOnly})}">Sau</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    <div class="modal fade quickview-modal" id="quickview" aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered cr-modal-dialog">
+            <div class="modal-content">
+                <button type="button" class="cr-close-model btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                <div class="modal-body">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status"><span
+                                class="visually-hidden">Loading...</span></div>
+                    </div>
+                    <div class="row modal-body-content">
+                        <div class="col-md-5 col-sm-12 col-xs-12">
+                            <div class="zoom-image-hover modal-border-image">
+                                <img src="" alt="product-image" class="product-image" id="quickViewImage">
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-sm-12 col-xs-12">
+                            <div class="cr-size-and-weight-contain">
+                                <h2 class="heading" id="quickViewProductName"></h2>
+                                <p id="quickViewDescription"></p>
+                            </div>
+                            <div class="cr-size-and-weight">
+                                <div class="cr-product-price">
+                                    <span class="new-price" id="quickViewNewPrice"></span>
+                                    <span class="old-price" id="quickViewOldPrice"></span>
+                                </div>
+                                <div class="cr-size-weight">
+                                    <h5><span id="quickViewAttributeName">Biến thể</span> :</h5>
+                                    <div class="cr-kg">
+                                        <ul id="quickViewVariantList"></ul>
+                                    </div>
+                                </div>
+                                <div class="stock-status">
+                                    Tồn kho: <span id="quickViewStock" class="fw-bold"></span>
+                                </div>
+                                <div class="cr-add-card">
+                                    <div class="cr-qty-main">
+                                        <input type="number" value="1" min="1" class="quantity" id="quickViewQuantity">
+                                    </div>
+                                    <div class="cr-add-button">
+                                        <button type="button" class="cr-button" id="quickViewAddToCartBtn">Thêm vào
+                                            giỏ
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </section>
+        </div>
     </div>
+</main>
 
-    <th:block layout:fragment="extras-scripts">
-        <script th:inline="javascript">
-            function applySortAndSubmit(value) {
-                if (value) {
-                    const parts = value.split('_');
-                    document.getElementById('sortByParam').value = parts[0];
-                    document.getElementById('sortOrderParam').value = parts[1];
+<th:block layout:fragment="extras-scripts">
+    <script th:inline="javascript">
+        // Hàm này sẽ đặt giá trị sort và submit form
+        function applySortAndSubmit(sortValue) {
+            document.getElementById('sortParam').value = sortValue;
+            document.getElementById('filterSortForm').submit();
+        }
+
+        $(document).ready(function () {
+            const quickViewModal = $('#quickview');
+            let quickViewProductData = null; // Biến để lưu trữ dữ liệu sản phẩm
+            let selectedVariantId = null;
+
+            // 1. Khi người dùng bấm nút "Quick View"
+            // Dùng event delegation để bắt cả những sản phẩm được load sau này
+            $('#productListingArea').on('click', '.quick-view-btn', function (e) {
+                e.preventDefault();
+                const productSlug = $(this).data('product-slug');
+
+                quickViewModal.addClass('loading');
+
+                $.ajax({
+                    url: `/api/products/quick-view/${productSlug}`,
+                    type: 'GET',
+                    success: function (data) {
+                        quickViewProductData = data; // Lưu dữ liệu
+                        populateQuickViewModal(data);
+                        quickViewModal.removeClass('loading');
+                    },
+                    error: function () {
+                        alert('Không thể tải thông tin sản phẩm. Vui lòng thử lại.');
+                        quickViewModal.removeClass('loading');
+                        quickViewModal.modal('hide');
+                    }
+                });
+            });
+
+            function populateQuickViewModal(product) {
+                $('#quickViewProductName').text(product.name);
+                $('#quickViewDescription').text(product.shortDescription || 'Chưa có mô tả cho sản phẩm này.');
+                $('#quickViewImage').attr('src', product.mainImage || '/shared/assets/images/product/default-product.png');
+
+                const variantList = $('#quickViewVariantList');
+                variantList.empty();
+
+                if (product.variants && product.variants.length > 0) {
+                    product.variants.forEach((variant, index) => {
+                        const listItem = $(`<li data-variant-id="${variant.id}">${variant.attribute}</li>`);
+                        variantList.append(listItem);
+                        if (index === 0) {
+                            listItem.addClass('active-color');
+                            updatePrice(variant);
+                        }
+                    });
+                    $('.cr-size-weight').show();
+                    $('.cr-add-card').show();
+                } else {
+                    // Ẩn phần chọn biến thể và giá nếu không có
+                    $('.cr-size-weight').hide();
+                    $('.cr-add-card').hide();
+                    $('#quickViewNewPrice').text('Giá liên hệ');
+                    $('#quickViewOldPrice').hide();
                 }
-                document.getElementById('filterSortForm').submit();
             }
-        </script>
-    </th:block>
-</body>
 
+            // 3. Hàm cập nhật giá khi chọn biến thể
+            function updatePrice(variant) {
+                selectedVariantId = variant.id;
+                if (variant.onSale) {
+                    $('#quickViewNewPrice').text(formatCurrency(variant.salePrice));
+                    $('#quickViewOldPrice').text(formatCurrency(variant.price)).show();
+                } else {
+                    $('#quickViewNewPrice').text(formatCurrency(variant.price));
+                    $('#quickViewOldPrice').hide();
+                }
+
+                // *** BỔ SUNG 2: CẬP NHẬT SỐ LƯỢNG TỒN KHO ***
+                const stockElement = $('#quickViewStock');
+                stockElement.text(variant.quantity);
+
+                // Thay đổi màu sắc và vô hiệu hóa nút nếu hết hàng
+                if (variant.quantity > 0) {
+                    stockElement.removeClass('text-danger').addClass('text-success');
+                    $('#quickViewAddToCartBtn').prop('disabled', false).text('Thêm vào giỏ');
+                } else {
+                    stockElement.removeClass('text-success').addClass('text-danger');
+                    $('#quickViewAddToCartBtn').prop('disabled', true).text('Hết hàng');
+                }
+            }
+
+
+            // 4. Bắt sự kiện khi người dùng chọn một biến thể khác
+            $('#quickViewVariantList').on('click', 'li', function () {
+                const clickedVariantId = $(this).data('variant-id');
+                // Tìm variant trong dữ liệu đã lưu, không cần gọi API lại
+                const variant = quickViewProductData.variants.find(v => v.id === clickedVariantId);
+                if (variant) {
+                    $('#quickViewVariantList li').removeClass('active-color');
+                    $(this).addClass('active-color');
+                    updatePrice(variant);
+                }
+            });
+
+            // 5. Nút thêm vào giỏ hàng (chỉ hiển thị thông báo)
+            $('#quickViewAddToCartBtn').on('click', function () {
+                const quantity = $('#quickViewQuantity').val();
+                if (selectedVariantId) {
+                    // Tạm thời chỉ hiển thị alert
+                    alert(`(Chức năng đang phát triển)\nĐã chọn Variant ID: ${selectedVariantId}, Số lượng: ${quantity}`);
+                } else {
+                    alert('Sản phẩm chưa có biến thể để thêm vào giỏ.');
+                }
+            });
+
+            // Hàm tiện ích để định dạng tiền tệ
+            function formatCurrency(number) {
+                return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(number);
+            }
+        });
+    </script>
+    </script>
+</th:block>
+
+</body>
 </html>
