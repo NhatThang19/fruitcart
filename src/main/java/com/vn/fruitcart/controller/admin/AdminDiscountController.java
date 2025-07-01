@@ -7,6 +7,7 @@ import com.vn.fruitcart.entity.dto.request.DiscountSearchCriteriaReq;
 import com.vn.fruitcart.service.BreadcrumbService;
 import com.vn.fruitcart.service.DiscountService;
 import com.vn.fruitcart.util.FruitCartUtils;
+import com.vn.fruitcart.util.constant.CustomerClusterEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -49,6 +50,7 @@ public class AdminDiscountController {
     public String showCreateForm(Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminDiscount());
         model.addAttribute("discount", new Discount());
+        model.addAttribute("customerClusters", CustomerClusterEnum.values());
         model.addAttribute("allVariants", discountService.findAllVariants());
         return "admin/pages/discount/form";
     }
@@ -57,6 +59,7 @@ public class AdminDiscountController {
     public String showEditForm(@PathVariable("id") Long id, Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.buildAdminDiscount());
         Discount discount = discountService.findById(id);
+        model.addAttribute("customerClusters", CustomerClusterEnum.values());
 
         List<Long> selectedVariantIds = discount.getVariants().stream()
                 .map(ProductVariant::getId)

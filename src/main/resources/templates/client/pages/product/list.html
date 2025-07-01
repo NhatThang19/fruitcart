@@ -167,8 +167,8 @@
                                 <div class="cr-product-card">
                                     <div class="cr-product-image">
                                         <div class="cr-discount-badg"
-                                             th:if="${!product.variants.isEmpty() && product.variants[0].isOnSale()}"
-                                             th:text="${product.variants[0].getDisplayableDiscount()}">
+                                             th:if="${product.isAnyVariantOnSale(currentUser)}"
+                                             th:text="${product.getDisplayableDiscountTag(currentUser)}">
                                         </div>
                                         <div class="cr-new-badg" th:if="${product.isNew()}">
                                             Mới
@@ -207,13 +207,13 @@
 
                                         <p class="cr-price"
                                            th:if="${!product.variants.isEmpty() && product.variants[0].price != null}">
-                                            <th:block th:if="${product.variants[0].isOnSale()}">
+                                            <th:block th:if="${product.variants[0].isOnSaleForUser(currentUser)}">
                                                 <span class="new-price"
-                                                      th:text="${#numbers.formatDecimal(product.variants[0].getSalePrice(), 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                                                      th:text="${#numbers.formatDecimal(product.variants[0].getSalePriceForUser(currentUser), 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
                                                 <span class="old-price" style="text-decoration: line-through;"
                                                       th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
                                             </th:block>
-                                            <th:block th:unless="${product.variants[0].isOnSale()}">
+                                            <th:block th:unless="${product.variants[0].isOnSaleForUser(currentUser)}">
                                                 <span class="new-price"
                                                       th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
                                             </th:block>
@@ -427,12 +427,19 @@
 
             // 5. Nút thêm vào giỏ hàng (chỉ hiển thị thông báo)
             $('#quickViewAddToCartBtn').on('click', function () {
-                const quantity = $('#quickViewQuantity').val();
+                const quantity = parseInt($('#quickViewQuantity').val()) || 1;
+
+                // Kiểm tra xem đã chọn biến thể chưa
                 if (selectedVariantId) {
-                    // Tạm thời chỉ hiển thị alert
-                    alert(`(Chức năng đang phát triển)\nĐã chọn Variant ID: ${selectedVariantId}, Số lượng: ${quantity}`);
+                    // Gọi hàm addToCart() toàn cục mà chúng ta đã định nghĩa trong file cart-global.js
+                    // Hàm này đã bao gồm gọi AJAX và hiển thị thông báo
+                    addToCart(selectedVariantId, quantity);
+
+                    // Đóng modal sau khi thêm thành công
+                    quickViewModal.modal('hide');
                 } else {
-                    alert('Sản phẩm chưa có biến thể để thêm vào giỏ.');
+                    // Cảnh báo nếu chưa có biến thể nào được chọn
+                    Swal.fire('Lỗi', 'Sản phẩm chưa có biến thể để thêm vào giỏ.', 'error');
                 }
             });
 
@@ -441,7 +448,6 @@
                 return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(number);
             }
         });
-    </script>
     </script>
 </th:block>
 

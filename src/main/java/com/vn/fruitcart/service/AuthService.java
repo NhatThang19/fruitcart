@@ -40,9 +40,5 @@ public class AuthService {
                 .build();
 
         userService.save(newUser);
-
-        Cart cart = new Cart();
-        cart.setUser(newUser);
-        cartService.saveCart(cart);
     }
 }

@@ -25,6 +25,12 @@
                                     <li><a class="dropdown-item" th:href="@{/register}">Đăng ký</a></li>
                                     <li><a class="dropdown-item" th:href="@{/login}">Đăng nhập</a></li>
                                 </ul>
+                                <a th:href="@{/gio-hang}" class="cr-right-bar-item cr-cart"
+                                   th:if="${session.loggedInUser}">
+                                    <i class="ri-shopping-cart-line"></i>
+                                    <span class="cr-cart-count">0</span>
+                                    <span>Giỏ hàng</span>
+                                </a>
                             </li>
 
                             <li class="nav-item dropdown" th:if="${session.loggedInUser}">

@@ -1,116 +1,185 @@
 package com.vn.fruitcart.service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.vn.fruitcart.entity.*;
+import com.vn.fruitcart.entity.dto.request.OrderCheckoutRequest;
+import com.vn.fruitcart.entity.dto.request.OrderSearchCriteria;
+import com.vn.fruitcart.exception.OutOfStockException;
+import com.vn.fruitcart.exception.ResourceNotFoundException;
+import com.vn.fruitcart.repository.OrderRepository;
+import com.vn.fruitcart.util.constant.EOrderStatus;
+import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import com.vn.fruitcart.entity.Cart;
-import com.vn.fruitcart.entity.CartItem;
-import com.vn.fruitcart.entity.Order;
-import com.vn.fruitcart.entity.OrderItem;
-import com.vn.fruitcart.entity.Origin;
-import com.vn.fruitcart.entity.ProductVariant;
-import com.vn.fruitcart.entity.User;
-import com.vn.fruitcart.entity.dto.request.OrderCheckoutRequest;
-import com.vn.fruitcart.entity.dto.request.OrderSearchCriteria;
-import com.vn.fruitcart.entity.dto.response.UserSessionInfo;
-import com.vn.fruitcart.entity.dto.response.user.AdminUserDetailRes;
-import com.vn.fruitcart.exception.ResourceNotFoundException;
-import com.vn.fruitcart.repository.OrderRepository;
-import com.vn.fruitcart.repository.ProductVariantRepository;
-import com.vn.fruitcart.repository.UserRepository;
-import com.vn.fruitcart.service.specification.OrderSpecification;
-import com.vn.fruitcart.service.specification.OriginSpecification;
-import com.vn.fruitcart.util.constant.OrderStatusEnum;
-
-import jakarta.servlet.http.HttpSession;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
     private final OrderRepository orderRepository;
-    private final ProductVariantRepository productVariantRepository;
-    private final UserRepository userRepository;
     private final CartService cartService;
+    private final UserService userService;
 
-    @Transactional()
-    public Order createOrderFromCart(OrderCheckoutRequest checkoutRequest, HttpSession session) {
-        Cart cart = cartService.getCartForSession(session);
-        UserSessionInfo userSessionInfo = (UserSessionInfo) session.getAttribute("loggedInUser");
+    public Optional<Order> findById(Long orderId) {
+        return orderRepository.findById(orderId);
+    }
 
-        if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            throw new IllegalStateException("Giỏ hàng đang trống.");
-        }
-        if (userSessionInfo == null) {
-            throw new SecurityException("Vui lòng đăng nhập để đặt hàng.");
+    @Transactional
+    public Order createOrderFromCart(OrderCheckoutRequest checkoutReq) {
+        Cart cart = cartService.getCartForCurrentUser();
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalStateException("Không thể tạo đơn hàng từ giỏ hàng rỗng.");
         }
 
         Order order = new Order();
-        User user = userRepository.findById(userSessionInfo.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        order.setUser(userService.getCurrentUser());
+        order.setStatus(EOrderStatus.PENDING);
 
-        // Set thông tin chung cho đơn hàng
-        order.setUser(user);
-        order.setStatus(OrderStatusEnum.DELIVERED);
-        order.setReceiverName(checkoutRequest.getReceiverName());
-        order.setShippingAddress(checkoutRequest.getShippingAddress());
-        order.setPhoneNumber(checkoutRequest.getPhoneNumber());
-        order.setNotes(checkoutRequest.getNotes());
+        // 1. Điền thông tin khách hàng từ request
+        order.setCustomerName(checkoutReq.getCustomerName());
+        order.setPhoneNumber(checkoutReq.getPhoneNumber());
+        order.setNote(checkoutReq.getNote());
 
-        BigDecimal grandTotal = BigDecimal.ZERO;
-        List<OrderItem> orderItems = new ArrayList<>();
+        // 2. Ghép các thành phần địa chỉ lại thành một chuỗi duy nhất
+        String fullAddress = String.join(", ",
+                checkoutReq.getStreetAddress(),
+                checkoutReq.getWardName(),
+                checkoutReq.getDistrictName(),
+                checkoutReq.getProvinceName()
+        );
+        order.setAddress(fullAddress);
 
+        // 3. Chuyển CartItem thành OrderItem và cập nhật tồn kho
         for (CartItem cartItem : cart.getItems()) {
-            ProductVariant variant = productVariantRepository.findById(cartItem.getProductVariant().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại."));
-
-            if (variant.getInventory().getQuantity() < cartItem.getQuantity()) {
-                throw new IllegalStateException("Sản phẩm '" + variant.getProduct().getName() + "' không đủ hàng.");
-            }
-
-            variant.getInventory().setQuantity(variant.getInventory().getQuantity() - cartItem.getQuantity());
-            productVariantRepository.save(variant);
-
             OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProductVariant(variant);
+            orderItem.setProductVariant(cartItem.getProductVariant());
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setUnitPrice(variant.getPrice());
-            orderItems.add(orderItem);
+            orderItem.setPriceAtOrder(cartItem.getUnitPrice()); // Lấy giá đã lưu trong giỏ
 
-            grandTotal = grandTotal.add(variant.getPrice().multiply(new BigDecimal(cartItem.getQuantity())));
+            Inventory inventory = cartItem.getProductVariant().getInventory();
+            if (inventory == null || inventory.getQuantity() < cartItem.getQuantity()) {
+                throw new OutOfStockException("Sản phẩm '" +
+                        cartItem.getProductVariant().getProduct().getName() + " - " +
+                        cartItem.getProductVariant().getAttribute() + "' không đủ số lượng tồn kho.");
+            }
+            inventory.setQuantity(inventory.getQuantity() - cartItem.getQuantity());
+
+            order.addOrderItem(orderItem);
         }
 
-        order.setItems(orderItems);
-        order.setTotalAmount(grandTotal);
-
+        // 4. Gán tổng tiền và lưu đơn hàng
+        order.setTotalAmount(cart.getTotal());
         Order savedOrder = orderRepository.save(order);
+
+        // 5. Dọn dẹp giỏ hàng
         cartService.clearCart();
 
         return savedOrder;
     }
 
-    public Page<Order> findOrdersByCriteria(OrderSearchCriteria criteria, Pageable pageable) {
-        Specification<Order> spec = Specification.where(null);
+    public Page<Order> findOrdersForCurrentUser(Pageable pageable) {
+        User currentUser = userService.getCurrentUser();
+        return orderRepository.findByUser(currentUser, pageable);
+    }
 
-        if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
-            spec = spec.and(OrderSpecification.hasName(criteria.getKeyword()));
-        }
+    public Optional<Order> findOrderByIdForCurrentUser(Long orderId) {
+        User currentUser = userService.getCurrentUser();
+        return orderRepository.findByIdAndUser(orderId, currentUser);
+    }
 
-        if (criteria.getStatus() != null) {
-            spec = spec.and(OrderSpecification.hasStatus(criteria.getStatus()));
-        }
+    /**
+     * Tìm kiếm và phân trang tất cả đơn hàng dựa trên các tiêu chí lọc.
+     * @param criteria Đối tượng chứa các tiêu chí từ admin.
+     * @param pageable Thông tin phân trang và sắp xếp.
+     * @return Một trang (Page) các đơn hàng phù hợp.
+     */
+    public Page<Order> findByCriteria(OrderSearchCriteria criteria, Pageable pageable) {
+        Specification<Order> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Lọc theo từ khóa (có thể là ID hoặc tên khách hàng)
+            if (StringUtils.hasText(criteria.getKeyword())) {
+                try {
+                    // Nếu từ khóa là số, tìm theo ID đơn hàng
+                    Long orderId = Long.parseLong(criteria.getKeyword());
+                    predicates.add(criteriaBuilder.equal(root.get("id"), orderId));
+                } catch (NumberFormatException e) {
+                    // Nếu không phải số, tìm theo tên người nhận
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("customerName")),
+                            "%" + criteria.getKeyword().toLowerCase() + "%"));
+                }
+            }
+
+            // Lọc theo trạng thái
+            if (criteria.getStatus() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), criteria.getStatus()));
+            }
+
+            // Lọc theo ngày đặt hàng
+            if (criteria.getFromDate() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdDate"), criteria.getFromDate().atStartOfDay()));
+            }
+            if (criteria.getToDate() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdDate"), criteria.getToDate().atTime(23, 59, 59)));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
 
         return orderRepository.findAll(spec, pageable);
+    }
+
+    @Transactional
+    public Order updateStatus(Long orderId, EOrderStatus newStatus) {
+        // 1. Tìm đơn hàng, nếu không thấy sẽ ném lỗi
+        Order order = findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
+
+        // Lấy trạng thái hiện tại để kiểm tra
+        EOrderStatus currentStatus = order.getStatus();
+
+        // 2. Kiểm tra các quy tắc nghiệp vụ
+        if (currentStatus == newStatus) {
+            // Không làm gì nếu trạng thái không thay đổi
+            return order;
+        }
+
+        if (currentStatus == EOrderStatus.COMPLETED || currentStatus == EOrderStatus.CANCELLED) {
+            // Không cho phép thay đổi trạng thái của đơn hàng đã Hoàn thành hoặc đã Hủy
+            throw new IllegalStateException("Không thể thay đổi trạng thái của đơn hàng đã hoàn thành hoặc đã bị hủy.");
+        }
+
+        // =============================================
+        //      *** BẮT ĐẦU LOGIC HỦY ĐƠN HÀNG ***
+        // =============================================
+        // 3. Nếu trạng thái mới là CANCELLED, hoàn trả số lượng vào kho
+        if (newStatus == EOrderStatus.CANCELLED) {
+            for (OrderItem item : order.getOrderItems()) {
+                Inventory inventory = item.getProductVariant().getInventory();
+                if (inventory != null) {
+                    // Cộng lại số lượng sản phẩm đã bị trừ khi đặt hàng
+                    int newQuantity = inventory.getQuantity() + item.getQuantity();
+                    inventory.setQuantity(newQuantity);
+                }
+            }
+        }
+        // =============================================
+        //       *** KẾT THÚC LOGIC HỦY ĐƠN HÀNG ***
+        // =============================================
+
+        // 4. Cập nhật trạng thái mới cho đơn hàng
+        order.setStatus(newStatus);
+
+        // 5. Lưu lại đơn hàng (và các thay đổi về inventory nhờ có @Transactional)
+        return orderRepository.save(order);
     }
 }

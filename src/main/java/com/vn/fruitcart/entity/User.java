@@ -74,7 +74,7 @@ public class User extends BaseEntity {
   @Builder.Default
   private List<Order> orders = new ArrayList<>();
 
-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private CustomerCluster customerCluster;
 
   public String getFullName() {

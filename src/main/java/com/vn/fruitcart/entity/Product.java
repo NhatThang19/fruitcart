@@ -2,7 +2,9 @@ package com.vn.fruitcart.entity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import com.vn.fruitcart.entity.base.BaseEntity;
 
@@ -107,6 +109,41 @@ public class Product extends BaseEntity {
 
         return this.getVariants().stream()
                 .anyMatch(variant -> variant.getInventory() != null && variant.getInventory().getQuantity() > 0);
+    }
+
+    @Transient // Đảm bảo JPA không map phương thức này vào cột DB
+    public boolean isAnyVariantOnSale(User user) {
+        if (getVariants() == null || getVariants().isEmpty()) {
+            return false;
+        }
+        // Dùng Stream API để kiểm tra: có bất kỳ variant nào thỏa mãn điều kiện không?
+        return getVariants().stream().anyMatch(variant -> variant.isOnSaleForUser(user));
+    }
+
+    /**
+     * Lấy ra tag giảm giá hấp dẫn nhất để hiển thị.
+     * Ví dụ: Nếu sản phẩm có biến thể giảm 10% và biến thể giảm 20%,
+     * phương thức này sẽ trả về chuỗi "-20%".
+     *
+     * @param user Người dùng đang xem sản phẩm.
+     * @return Chuỗi hiển thị % giảm giá cao nhất, hoặc chuỗi rỗng nếu không có giảm giá.
+     */
+    @Transient
+    public String getDisplayableDiscountTag(User user) {
+        if (getVariants() == null || getVariants().isEmpty()) {
+            return "";
+        }
+
+        // Tìm khuyến mãi có % cao nhất trong tất cả các biến thể
+        Optional<Discount> bestDiscount = getVariants().stream()
+                .map(variant -> variant.getActiveDiscountForUser(user)) // Lấy Optional<Discount> từ mỗi variant
+                .filter(Optional::isPresent)          // Chỉ giữ lại những Optional không rỗng
+                .map(Optional::get)                   // Lấy đối tượng Discount ra
+                .max(Comparator.comparing(Discount::getDiscountPercentage)); // Tìm cái có % cao nhất
+
+        return bestDiscount
+                .map(discount -> "-" + discount.getDiscountPercentage().stripTrailingZeros().toPlainString() + "%")
+                .orElse(""); // Nếu không có discount nào, trả về chuỗi rỗng
     }
 
 }

@@ -1,134 +1,147 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{client/layouts/client-layout}">
+      layout:decorate="~{client/layouts/client-layout}">
 
 <head>
     <title>Thanh toán đơn hàng</title>
 </head>
 
 <body>
-    <div layout:fragment="content">
-        <section class="cr-checkout-section padding-tb-100">
-            <div class="container">
-                <div th:if="${errorMessage}" class="alert alert-danger mb-4" role="alert" th:text="${errorMessage}">
+<div layout:fragment="content">
+    <section class="section-checkout padding-tb-100">
+        <div class="container">
+            <h2 class="text-center mb-5">Thanh toán</h2>
+            <div class="row">
+                <div class="col-lg-7">
+                    <h4>Thông tin giao hàng</h4>
+                    <hr>
+                    <form id="checkout-form" th:object="${checkoutForm}" method="post">
+                        <div class="mb-3">
+                            <label for="customerName" class="form-label">Họ và tên người nhận <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="customerName" th:field="*{customerName}"
+                                   required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="tel" class="form-control" id="phoneNumber" th:field="*{phoneNumber}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="province" class="form-label">Tỉnh/Thành phố <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="province"></select>
+                                <input type="hidden" id="provinceName" th:field="*{provinceName}"/>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="district" class="form-label">Quận/Huyện <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="district"></select>
+                                <input type="hidden" id="districtName" th:field="*{districtName}"/>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="ward" class="form-label">Phường/Xã <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="ward"></select>
+                                <input type="hidden" id="wardName" th:field="*{wardName}"/>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="streetAddress" class="form-label">Địa chỉ chi tiết (Số nhà, tên đường) <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="streetAddress" th:field="*{streetAddress}"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="note" class="form-label">Ghi chú đơn hàng (tùy chọn)</label>
+                            <textarea class="form-control" id="note" th:field="*{note}" rows="3"></textarea>
+                        </div>
+                    </form>
                 </div>
-                <div th:if="${successMessage}" class="alert alert-success mb-4" role="alert"
-                    th:text="${successMessage}"></div>
 
-                <form th:action="@{/order/place}" th:object="${checkoutRequest}" method="post" id="checkout-form">
-                    <div class="row">
-                        <div class="cr-checkout-leftside col-lg-8 col-md-12">
-                            <div class="cr-checkout-content">
-                                <div class="cr-checkout-inner">
-                                    <div class="cr-checkout-wrap">
-                                        <div class="cr-checkout-block cr-check-bill">
-                                            <h3 class="cr-checkout-title">Thông tin giao hàng</h3>
-                                            <div class="cr-check-bill-form mb-minus-24">
-
-                                                <span class="cr-bill-wrap">
-                                                    <label>Họ tên người nhận*</label>
-                                                    <input type="text" th:field="*{receiverName}"
-                                                        placeholder="Nhập họ và tên" required>
-                                                    <small class="text-danger"
-                                                        th:if="${#fields.hasErrors('receiverName')}"
-                                                        th:errors="*{receiverName}"></small>
-                                                </span>
-
-                                                <span class="cr-bill-wrap">
-                                                    <label>Địa chỉ giao hàng*</label>
-                                                    <input type="text" th:field="*{shippingAddress}"
-                                                        placeholder="Nhập địa chỉ chi tiết (số nhà, đường, phường/xã...)"
-                                                        required>
-                                                    <small class="text-danger"
-                                                        th:if="${#fields.hasErrors('shippingAddress')}"
-                                                        th:errors="*{shippingAddress}"></small>
-                                                </span>
-
-                                                <span class="cr-bill-wrap">
-                                                    <label>Số điện thoại*</label>
-                                                    <input type="tel" th:field="*{phoneNumber}"
-                                                        placeholder="Nhập số điện thoại" required>
-                                                    <small class="text-danger"
-                                                        th:if="${#fields.hasErrors('phoneNumber')}"
-                                                        th:errors="*{phoneNumber}"></small>
-                                                </span>
-
-                                                <span class="cr-bill-wrap">
-                                                    <label>Ghi chú (tùy chọn)</label>
-                                                    <textarea th:field="*{notes}"
-                                                        placeholder="Ghi chú thêm cho đơn hàng của bạn"></textarea>
-                                                </span>
-                                            </div>
-                                        </div>
+                <div class="col-lg-5">
+                    <div class="border p-4 rounded">
+                        <h4>Tóm tắt đơn hàng</h4>
+                        <hr>
+                        <div id="checkout-item-list">
+                            <div th:each="item : ${cart.items}"
+                                 class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="d-flex align-items-center">
+                                    <img th:src="${item.productImageUrl}" alt="" class="img-fluid rounded me-3"
+                                         style="width: 60px;">
+                                    <div>
+                                        <div th:text="${item.productName}"></div>
+                                        <small class="text-muted" th:text="${item.variantAttribute}"></small>
+                                        <small class="d-block" th:text="'SL: ' + ${item.quantity}"></small>
                                     </div>
                                 </div>
+                                <span class="fw-semibold" th:text="${#numbers.formatCurrency(item.subtotal)}"></span>
                             </div>
                         </div>
-
-                        <div class="cr-checkout-rightside col-lg-4 col-md-12">
-                            <div class="cr-sidebar-wrap">
-                                <div class="cr-sidebar-block">
-                                    <div class="cr-sb-title">
-                                        <h3 class="cr-sidebar-title">Đơn hàng của bạn</h3>
-                                    </div>
-                                    <div class="cr-sb-block-content">
-                                        <div class="cr-checkout-pro">
-                                            <table class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Sản phẩm</th>
-                                                        <th class="text-right">Tạm tính</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr th:each="item : ${cartItems}">
-                                                        <td
-                                                            th:text="|${item.productName} (${item.variantAttribute}) × ${item.quantity}|">
-                                                            Tên sản phẩm (Phiên bản) x Số lượng
-                                                        </td>
-                                                        <td class="text-right"
-                                                            th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'">
-                                                            Thành tiền
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr class="font-weight-bold">
-                                                        <th>Tổng cộng</th>
-                                                        <td class="text-right"
-                                                            th:text="${#numbers.formatDecimal(grandTotal, 0, 'COMMA', 0, 'POINT')} + ' VND'">
-                                                            Tổng tiền
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-
-                                        <div class="cr-checkout-payment-method mt-4">
-                                            <h4 class="cr-checkout-title"
-                                                style="border-bottom: 0; margin-bottom: 15px;">Phương thức thanh toán
-                                            </h4>
-                                            <div class="cr-pay-option">
-                                                <span>
-                                                    <input type="radio" id="pay1" name="payment-method" value="COD"
-                                                        checked>
-                                                    <label for="pay1">Thanh toán khi nhận hàng (COD)</label>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div class="cr-check-order-btn mt-4">
-                                            <button class="cr-button w-100" type="submit">Đặt Hàng</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Tổng cộng</span>
+                            <span class="text-danger" th:text="${#numbers.formatCurrency(cart.totalPrice)}"></span>
                         </div>
+                        <button type="submit" form="checkout-form" class="cr-button w-100 mt-4">Đặt hàng</button>
                     </div>
-                </form>
+                </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+</div>
+
+<th:block layout:fragment="extras-scripts">
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            // =============================================
+            // *** BỔ SUNG: KHỞI TẠO MODULE CHỌN ĐỊA CHỈ ***
+            // =============================================
+            // Lấy dữ liệu địa chỉ đã lưu từ Model mà Controller đã truyền sang
+            const savedAddress = {
+                provinceName: /*[[${checkoutForm.provinceName}]]*/ null,
+                districtName: /*[[${checkoutForm.districtName}]]*/ null,
+                wardName: /*[[${checkoutForm.wardName}]]*/ null,
+            };
+            // Gọi hàm init từ module của bạn và truyền dữ liệu vào
+            FruitCart.AddressSelector.init(savedAddress);
+
+            // Xử lý submit form bằng AJAX (giữ nguyên)
+            $('#checkout-form').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = {
+                    customerName: $('#customerName').val(),
+                    phoneNumber: $('#phoneNumber').val(),
+                    provinceName: $('#provinceName').val(),
+                    districtName: $('#districtName').val(),
+                    wardName: $('#wardName').val(),
+                    streetAddress: $('#streetAddress').val(),
+                    note: $('#note').val()
+                };
+
+                const submitButton = $(this).find('button[type="submit"]');
+                submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
+
+                $.ajax({
+                    url: '/api/v1/orders',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        window.location.href = '/order/success?orderId=' + response.orderId;
+                    },
+                    error: function (xhr) {
+                        const errorMessage = xhr.responseJSON?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+                        Swal.fire('Đặt hàng thất bại!', errorMessage, 'error');
+                        submitButton.prop('disabled', false).text('Đặt hàng');
+                    }
+                });
+            });
+        });
+    </script>
+</th:block>
 </body>
 
 </html>

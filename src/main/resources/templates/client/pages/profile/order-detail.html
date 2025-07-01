@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layouts/client-layout}">
+
+<head>
+    <title>Thanh toán đơn hàng</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <section class="section-profile padding-tb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 th:text="'Chi tiết đơn hàng #' + ${order.id}"></h3>
+                        <a th:href="@{/profile/orders}" class="cr-links"><i class="ri-arrow-left-line"></i> Quay lại
+                            danh sách</a>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Thông tin đơn hàng</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Ngày đặt:</strong> <span
+                                            th:text="${#temporals.format(order.createdDate, 'dd/MM/yyyy HH:mm')}"></span>
+                                    </p>
+                                    <p><strong>Trạng thái:</strong> <span class="badge"
+                                                                          th:classappend="${order.status.getBadgeClass()}"
+                                                                          th:text="${order.status.getDisplayName()}"></span>
+                                    </p>
+                                    <p class="fs-5"><strong>Tổng tiền:</strong> <span class="fw-bold text-danger"
+                                                                                      th:text="${#numbers.formatCurrency(order.totalAmount)}"></span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Người nhận:</strong> <span th:text="${order.customerName}"></span></p>
+                                    <p><strong>Số điện thoại:</strong> <span th:text="${order.phoneNumber}"></span></p>
+                                    <p><strong>Địa chỉ giao hàng:</strong> <span
+                                            th:text="${order.address}"></span></p>
+                                    <p th:if="${order.note}"><strong>Ghi chú:</strong> <span class="fst-italic"
+                                                                                              th:text="${order.note}"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">Chi tiết sản phẩm</div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <tbody>
+                                    <tr th:each="item : ${order.orderItems}">
+                                        <td style="width: 80px;">
+                                            <img th:src="${item.productVariant.product.mainImage?.imageUrl}"
+                                                 class="img-fluid rounded" alt="">
+                                        </td>
+                                        <td>
+                                            <div th:text="${item.productVariant.product.name}"></div>
+                                            <small class="text-muted"
+                                                   th:text="${item.productVariant.attribute}"></small>
+                                        </td>
+                                        <td class="text-nowrap" th:text="'x' + ${item.quantity}"></td>
+                                        <td class="text-nowrap"
+                                            th:text="${#numbers.formatCurrency(item.getPriceAtOrder())}"></td>
+                                        <td class="text-end fw-semibold"
+                                            th:text="${#numbers.formatCurrency(item.quantity * item.getPriceAtOrder())}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<th:block layout:fragment="extras-scripts">
+
+</th:block>
+</body>
+
+</html>

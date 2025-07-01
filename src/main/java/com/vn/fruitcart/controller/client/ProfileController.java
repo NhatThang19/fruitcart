@@ -1,12 +1,17 @@
 package com.vn.fruitcart.controller.client;
 
+import com.vn.fruitcart.entity.Order;
+import com.vn.fruitcart.entity.dto.response.PageMetadata;
+import com.vn.fruitcart.repository.OrderRepository;
+import com.vn.fruitcart.service.OrderService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +32,7 @@ public class ProfileController {
     private final UserDetailsCustom userDetailsCustom;
     private final UserService userService;
     private final BreadcrumbService breadcrumbService;
+    private final OrderService orderService;
 
     @GetMapping
     public String viewProfile(Model model) {
@@ -135,6 +141,29 @@ public class ProfileController {
             model.addAttribute("error_message", e.getMessage());
             return "client/pages/profile/change-password";
         }
+    }
+
+    @GetMapping("/orders")
+    public String orderHistoryPage(Model model,
+                                   @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<Order> orderPage = orderService.findOrdersForCurrentUser(pageable);
+        model.addAttribute("orderPage", orderPage);
+        model.addAttribute("pageMetadata", breadcrumbService.buildUpdateUserProfilePageMetadata());
+        return "client/pages/profile/order-list";
+    }
+
+    @GetMapping("/orders/{id}")
+    public String orderDetailPage(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
+        return orderService.findOrderByIdForCurrentUser(id)
+                .map(order -> {
+                    model.addAttribute("order", order);
+                    model.addAttribute("pageMetadata", breadcrumbService.buildUpdateUserProfilePageMetadata());
+                    return "client/pages/profile/order-detail";
+                })
+                .orElseGet(() -> {
+                    ra.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.");
+                    return "redirect:/profile/orders";
+                });
     }
 
 }

@@ -27,5 +27,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("SELECT MAX(o.createdDate) FROM Order o WHERE o.user = :user")
     Optional<Instant> findMostRecentOrderDateByUser(@Param("user") User user);
 
-    Page<Order> findAll(Specification<Order> spec, Pageable pageable); 
+    Page<Order> findAll(Specification<Order> spec, Pageable pageable);
+
+    Page<Order> findByUser(User user, Pageable pageable);
+
+    Optional<Order> findByIdAndUser(Long id, User user);
 }

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{admin/layouts/admin-layout}">
+
 <head>
     <title th:text="${pageMetadata.title}">Quản lý Giảm giá</title>
 </head>
@@ -59,6 +60,16 @@
                             <label for="active" class="form-check-label ms-2">Kích hoạt chương trình</label>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="targetCluster" class="form-label">Phân khúc khách hàng mục tiêu</label>
+                            <select id="targetCluster" th:field="*{targetCluster}" class="form-select">
+                                <option value="">-- Áp dụng cho tất cả --</option>
+                                <option th:each="cluster : ${customerClusters}"
+                                        th:value="${cluster}"
+                                        th:text="${cluster.getClusterName()}"></option>
+                            </select>
+                        </div>
+
                         <hr class="my-4">
 
                         <div class="mb-4">
@@ -98,7 +109,7 @@
                 $('.select2-enable').select2({
                     theme: "bootstrap-5",
                     placeholder: "Chọn các sản phẩm để áp dụng...",
-                    dropdownParent: $('.select2-enable').parent(), // Giúp select2 hoạt động tốt trong modal (nếu có)
+                    dropdownParent: $('.select2-enable').parent(),
                     allowClear: true
                 });
             } else {

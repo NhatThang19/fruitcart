@@ -3,7 +3,7 @@ package com.vn.fruitcart.service.specification;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.vn.fruitcart.entity.Order;
-import com.vn.fruitcart.util.constant.OrderStatusEnum;
+import com.vn.fruitcart.util.constant.EOrderStatus;
 
 public class OrderSpecification {
     public static Specification<Order> hasName(String name) {
@@ -15,7 +15,7 @@ public class OrderSpecification {
         };
     }
 
-public static Specification<Order> hasStatus(OrderStatusEnum status) {
+public static Specification<Order> hasStatus(EOrderStatus status) {
         return (root, query, criteriaBuilder) -> {
             if (status == null) {
                 return criteriaBuilder.conjunction(); 

@@ -31,6 +31,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -275,6 +278,26 @@ public class UserService {
       ));
     }
     return clusteringDataList;
+  }
+
+  public User getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+      throw new ResourceNotFoundException("Không có người dùng nào được xác thực. Vui lòng đăng nhập.");
+    }
+
+    String username;
+    Object principal = authentication.getPrincipal();
+
+    if (principal instanceof UserDetails) {
+      username = ((UserDetails) principal).getUsername();
+    } else {
+      username = principal.toString();
+    }
+
+    return userRepository.findByEmail(username) // Giả sử bạn có phương thức này trong UserRepository
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với email: " + username));
   }
 
 }

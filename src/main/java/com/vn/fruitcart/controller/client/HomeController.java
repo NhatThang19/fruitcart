@@ -3,7 +3,10 @@ package com.vn.fruitcart.controller.client;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import com.vn.fruitcart.entity.User;
 import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteria;
+import com.vn.fruitcart.entity.dto.response.PageMetadata;
+import com.vn.fruitcart.service.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,10 +19,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.vn.fruitcart.entity.Product;
-import com.vn.fruitcart.service.BreadcrumbService;
-import com.vn.fruitcart.service.CategoryService;
-import com.vn.fruitcart.service.OriginService;
-import com.vn.fruitcart.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +29,7 @@ public class HomeController {
     private final CategoryService categoryService;
     private final OriginService originService;
     private final BreadcrumbService breadcrumbService;
+    private final UserService userService;
 
     @GetMapping("/")
     public String getHomePage(Model model) {
@@ -74,6 +74,15 @@ public class HomeController {
 
         model.addAttribute("currentSort", currentSort);
 
+        User currentUser = null;
+        try {
+            currentUser = userService.getCurrentUser();
+        } catch (Exception e) {
+            // Bỏ qua lỗi, người dùng là khách, currentUser sẽ vẫn là null
+        }
+        // 2. Đưa người dùng hiện tại vào Model để Thymeleaf có thể sử dụng
+        model.addAttribute("currentUser", currentUser);
+
         model.addAttribute("productPage", productPage);
         model.addAttribute("categories", categoryService.findAllActiveCategories());
         model.addAttribute("origins", originService.findAllActiveOrigins());
@@ -98,6 +107,16 @@ public class HomeController {
     public String getContactPage(Model model) {
         model.addAttribute("pageMetadata", breadcrumbService.demo());
         return "client/pages/contact";
+    }
+
+    @GetMapping("/gio-hang")
+    public String cartPage(Model model) {
+        // Thêm các thông tin cho breadcrumb hoặc tiêu đề trang
+        model.addAttribute("pageMetadata", breadcrumbService.demo());
+
+        // Trả về tên của file template HTML
+        // Spring Boot sẽ tự động tìm file tại: /resources/templates/client/pages/cart/detail.html
+        return "client/pages/cart/detail";
     }
 
 }

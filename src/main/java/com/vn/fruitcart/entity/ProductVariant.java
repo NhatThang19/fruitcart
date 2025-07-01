@@ -1,18 +1,18 @@
 package com.vn.fruitcart.entity;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.util.*;
-
 import com.vn.fruitcart.entity.base.BaseEntity;
 import com.vn.fruitcart.util.FruitCartUtils;
-
+import com.vn.fruitcart.util.constant.CustomerClusterEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Getter
 @Setter
@@ -64,15 +64,11 @@ public class ProductVariant extends BaseEntity {
         if (this.sku == null || this.sku.trim().isEmpty()) {
             if (this.product != null && this.product.getName() != null) {
                 String productSlug = FruitCartUtils.toSlug(this.product.getName());
-
                 String attributeSLug = FruitCartUtils.toSlug(this.attribute);
-
                 String uniqueId = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-
                 this.sku = String.format("%s-%s-%s", productSlug, attributeSLug, uniqueId).toUpperCase();
             }
         }
-
         if (this.inventory == null) {
             Inventory newInventory = new Inventory();
             newInventory.setQuantity(0);
@@ -81,40 +77,70 @@ public class ProductVariant extends BaseEntity {
         }
     }
 
-    public Optional<Discount> getActiveDiscount() {
+    // ====================================================================
+    //      *** CÁC PHƯƠNG THỨC LOGIC ĐÃ ĐƯỢC SỬA LẠI HOÀN CHỈNH ***
+    // ====================================================================
+
+    /**
+     * Phương thức cốt lõi: Tìm khuyến mãi tốt nhất cho một người dùng cụ thể.
+     * @param user Người dùng đang xem sản phẩm. Có thể là null nếu là khách.
+     * @return Optional chứa Discount nếu có.
+     */
+    public Optional<Discount> getActiveDiscountForUser(User user) {
         LocalDateTime now = LocalDateTime.now();
+        CustomerClusterEnum userCluster = (user != null && user.getCustomerCluster() != null)
+                ? user.getCustomerCluster().getClusterEnum()
+                : null;
 
         return this.discounts.stream()
                 .filter(Discount::isActive)
                 .filter(d -> (d.getStartDate() == null || now.isAfter(d.getStartDate())) &&
                         (d.getEndDate() == null || now.isBefore(d.getEndDate())))
+                .filter(d -> {
+                    CustomerClusterEnum targetCluster = d.getTargetCluster();
+                    return targetCluster == null || targetCluster.equals(userCluster);
+                })
                 .max(Comparator.comparing(Discount::getDiscountPercentage));
     }
 
-    public BigDecimal getSalePrice() {
-        return getActiveDiscount().map(discount -> {
+    /**
+     * Sửa: Đổi tên thành getSalePriceForUser và nhận vào một đối tượng User.
+     * Trả về giá bán cuối cùng, có xem xét đến người dùng.
+     */
+    public BigDecimal getSalePriceForUser(User user) {
+        return getActiveDiscountForUser(user).map(discount -> {
             BigDecimal percentage = discount.getDiscountPercentage();
             BigDecimal discountFactor = BigDecimal.ONE.subtract(percentage.divide(new BigDecimal("100")));
             return this.price.multiply(discountFactor).setScale(2, RoundingMode.HALF_UP);
         }).orElse(this.price);
     }
 
-    public boolean isOnSale() {
-        return getActiveDiscount().isPresent();
+    /**
+     * Sửa: Đổi tên thành isOnSaleForUser và nhận vào một đối tượng User.
+     * Kiểm tra xem sản phẩm có đang được giảm giá cho người dùng này không.
+     */
+    public boolean isOnSaleForUser(User user) {
+        return getActiveDiscountForUser(user).isPresent();
     }
 
-    public BigDecimal getDiscountAmount() {
-        if (!isOnSale()) {
+    /**
+     * Sửa: Đổi tên thành getDiscountAmountForUser và nhận vào một đối tượng User.
+     * Trả về SỐ TIỀN được giảm giá cho người dùng này.
+     */
+    public BigDecimal getDiscountAmountForUser(User user) {
+        if (!isOnSaleForUser(user)) {
             return BigDecimal.ZERO;
         }
-        return this.price.subtract(getSalePrice());
+        return this.price.subtract(getSalePriceForUser(user));
     }
 
-    public String getDisplayableDiscount() {
-        return getActiveDiscount()
+    /**
+     * Sửa: Đổi tên thành getDisplayableDiscountForUser và nhận vào một đối tượng User.
+     * Trả về chuỗi hiển thị mức giảm giá cho người dùng này (ví dụ: "-20%").
+     */
+    public String getDisplayableDiscountForUser(User user) {
+        return getActiveDiscountForUser(user)
                 .map(discount -> "-" + discount.getDiscountPercentage().stripTrailingZeros().toPlainString() + "%")
                 .orElse("");
     }
-
-
 }

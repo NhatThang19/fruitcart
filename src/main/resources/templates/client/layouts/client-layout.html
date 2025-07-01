@@ -23,9 +23,9 @@
     <link rel="stylesheet" th:href="@{/client/assets/css/vendor/swiper-bundle.min.css}">
     <link rel="stylesheet" th:href="@{/client/assets/css/vendor/jquery.slick.css}">
     <link rel="stylesheet" th:href="@{/client/assets/css/vendor/slick-theme.css}">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+          href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"/>
 
     <!-- Main CSS -->
     <link id="main-css" th:href="@{/client/assets/css/style.css}" rel="stylesheet">
@@ -33,180 +33,65 @@
 </head>
 
 <body>
-    <!-- Loader -->
-    <div id="cr-overlay">
-        <span class="loader"></span>
-    </div>
+<!-- Loader -->
+<div id="cr-overlay">
+    <span class="loader"></span>
+</div>
 
-    <!-- Header -->
-    <header th:replace="~{client/fragments/header :: header}"></header>
+<!-- Header -->
+<header th:replace="~{client/fragments/header :: header}"></header>
 
-    <!-- Mobile menu -->
-    <div th:replace="~{client/fragments/mobile-menu :: div}"></div>
+<!-- Mobile menu -->
+<div th:replace="~{client/fragments/mobile-menu :: div}"></div>
 
-    <th:block th:unless="${hideBreadcrumb}">
-        <div th:replace="~{client/fragments/breadcrumb :: div}"></div>
-    </th:block>
+<th:block th:unless="${hideBreadcrumb}">
+    <div th:replace="~{client/fragments/breadcrumb :: div}"></div>
+</th:block>
 
-    <div layout:fragment="content"></div>
+<div layout:fragment="content"></div>
 
-    <!-- Footer -->
-    <footer th:replace="~{client/fragments/footer :: footer}"></footer>
+<!-- Footer -->
+<footer th:replace="~{client/fragments/footer :: footer}"></footer>
 
-    <!-- Tab to top -->
-    <a th:replace="~{client/fragments/to-top :: a}"></a>
+<!-- Tab to top -->
+<a th:replace="~{client/fragments/to-top :: a}"></a>
 
 <!--     Modal-->
 <!--     <div th:replace="~{client/fragments/modal :: div}"></div>-->
 
-    <!-- Cart -->
-    <div th:replace="~{client/fragments/cart :: div}"></div>
+<!-- Cart -->
+<div th:replace="~{client/fragments/cart :: div}"></div>
 
 
-    <!-- Vendor Custom -->
-    <script th:src="@{/shared/assets/js/vendor/jquery-3.6.4.min.js}"></script>
-    <script th:src="@{/shared/assets/js/vendor/bootstrap.bundle.min.js}"></script>
-    <script th:src="@{/shared/assets/js/vendor/sweetalert2.min.js}"></script>
-    <script th:src="@{/client/assets/js/vendor/jquery.zoom.min.js}"></script>
-    <script th:src="@{/client/assets/js/vendor/mixitup.min.js}"></script>
-    <script th:src="@{/client/assets/js/vendor/range-slider.js}"></script>
-    <script th:src="@{/client/assets/js/vendor/aos.min.js}"></script>
-    <script th:src="@{/client/assets/js/vendor/swiper-bundle.min.js}"></script>
-    <script th:src="@{/client/assets/js/vendor/slick.min.js}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Vendor Custom -->
+<script th:src="@{/shared/assets/js/vendor/jquery-3.6.4.min.js}"></script>
+<script th:src="@{/shared/assets/js/vendor/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/shared/assets/js/vendor/sweetalert2.min.js}"></script>
+<script th:src="@{/client/assets/js/vendor/jquery.zoom.min.js}"></script>
+<script th:src="@{/client/assets/js/vendor/mixitup.min.js}"></script>
+<script th:src="@{/client/assets/js/vendor/range-slider.js}"></script>
+<script th:src="@{/client/assets/js/vendor/aos.min.js}"></script>
+<script th:src="@{/client/assets/js/vendor/swiper-bundle.min.js}"></script>
+<script th:src="@{/client/assets/js/vendor/slick.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- Main Custom -->
-    <script th:src="@{/client/assets/js/main.js}"></script>
-    <script th:src="@{/shared/assets/js/swal-utils.js}"></script>
-    <script th:src="@{/shared/assets/js/my-script.js}"></script>
+<!-- Main Custom -->
+<script th:src="@{/client/assets/js/main.js}"></script>
+<script th:src="@{/shared/assets/js/swal-utils.js}"></script>
+<script th:src="@{/shared/assets/js/my-script.js}"></script>
+<script th:src="@{/client/assets/js/cart-global.js}"></script>
 
-    <th:block layout:fragment="extras-scripts"></th:block>
+<th:block layout:fragment="extras-scripts"></th:block>
 
-    <script th:inline="javascript">
-        const message = /*[[${message}]]*/ null;
-        const messageType = /*[[${messageType}]]*/ 'success';
+<script th:inline="javascript">
+    const message = /*[[${message}]]*/ null;
+    const messageType = /*[[${messageType}]]*/ 'success';
 
-        if (message) {
-            showToast(message, messageType);
-        }
-    </script>
+    if (message) {
+        showToast(message, messageType);
+    }
+</script>
 
-    <script>
-        $(document).ready(function () {
-            function loadAndRenderSidebarCart() {
-                fetch('/cart/summary')
-                    .then(response => response.json())
-                    .then(data => {
-                        const itemsList = $('#sidebar-cart-items-list');
-                        const grandTotalEl = $('#sidebar-cart-grand-total');
-                        const cartCountBadge = $('#header-cart-count');
-
-                        itemsList.empty();
-
-                        if (data && data.items && data.items.length > 0) {
-                            data.items.forEach(item => {
-                                const itemHtml = `
-                                    <li>
-                                        <a href="/products/${item.id}" class="crside_pro_img">
-                                            <img src="${item.imgUrl}" alt="${item.name}">
-                                        </a>
-                                        <div class="cr-pro-content">
-                                            <a href="/products/${item.id}" class="cart_pro_title">${item.name}</a>
-                                            <span class="cart-price">
-                                                <span>${new Intl.NumberFormat('vi-VN').format(item.totalPrice)} VND</span> x ${item.quantity}
-                                            </span>
-                                            <p style="font-size: 12px; margin: 0;"><em>${item.attribute}</em></p>
-                                            
-                                            <a href="javascript:void(0)" class="remove-from-cart" data-cart-item-id="${item.itemId}" title="Xóa sản phẩm">×</a>
-
-                                        </div>
-                                    </li>
-                                `;
-                                itemsList.append(itemHtml);
-                            });
-
-                            grandTotalEl.text(new Intl.NumberFormat('vi-VN').format(data.totalPrice) + ' VND');
-                            if (cartCountBadge.length) cartCountBadge.text(data.totalItems);
-
-                        } else {
-                            itemsList.html('<li><p class="text-center p-3">Giỏ hàng của bạn đang trống.</p></li>');
-                            grandTotalEl.text('0 VND');
-                            if (cartCountBadge.length) cartCountBadge.text('0');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Lỗi khi tải giỏ hàng:', error);
-                    });
-            }
-
-
-
-            $(document).on('refreshCart', function () {
-                loadAndRenderSidebarCart();
-            });
-
-            $('#sidebar-cart-items-list').on('click', '.remove-from-cart', function (event) {
-                event.preventDefault();
-
-                const cartItemElement = $(this).closest('li');
-
-                const cartItemId = $(this).data('cart-item-id');
-
-                console.log(cartItemId);
-
-                if (!cartItemId) {
-                    console.error('Không tìm thấy cartItemId để xóa.');
-                    return;
-                }
-
-                $.ajax({
-                    url: 'cart/remove/' + cartItemId,
-                    type: 'POST',
-                    success: function (response) {
-                        if (response.success) {
-                            if (typeof showSuccessToast === 'function') {
-                                showSuccessToast(response.message);
-                            } else {
-                                alert(response.message);
-                            }
-
-                            cartItemElement.remove();
-
-                            $('#sidebar-cart-grand-total').text(new Intl.NumberFormat('vi-VN').format(response.totalPrice) + ' VND');
-                            $('#header-cart-count').text(response.itemCount);
-
-                            if (response.itemCount === 0) {
-                                $('#sidebar-cart-items-list').html('<li><p class="text-center p-3">Giỏ hàng của bạn đang trống.</p></li>');
-                            }
-
-                        } else {
-                            if (typeof showErrorAlert === 'function') {
-                                showErrorAlert(response.message);
-                            } else {
-                                alert(response.message);
-                            }
-                        }
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        console.error("Lỗi AJAX:", textStatus, errorThrown);
-                        let errorMessage = 'Có lỗi xảy ra khi xóa sản phẩm.';
-
-                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                            errorMessage = jqXHR.responseJSON.message;
-                        }
-
-                        if (typeof showErrorAlert === 'function') {
-                            showErrorAlert(errorMessage);
-                        } else {
-                            alert(errorMessage);
-                        }
-                    }
-                });
-            });
-
-            loadAndRenderSidebarCart();
-        });
-    </script>
 </body>
 
 </html>

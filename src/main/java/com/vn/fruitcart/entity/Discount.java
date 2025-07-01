@@ -1,5 +1,6 @@
 package com.vn.fruitcart.entity;
 
+import com.vn.fruitcart.util.constant.CustomerClusterEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,10 @@ public class Discount {
 
     @ManyToMany(mappedBy = "discounts")
     private List<ProductVariant> variants = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_customer_cluster")
+    private CustomerClusterEnum targetCluster;
 
     public void addVariant(ProductVariant variant) {
         this.variants.add(variant);

@@ -3,20 +3,18 @@ package com.vn.fruitcart.util.constant;
 import lombok.Getter;
 
 @Getter
-public enum OrderStatusEnum {
-    PENDING("Đang chờ xử lý"),
-    CONFIRMED("Đã xác nhận"),
-    DELIVERING("Đang giao hàng"),
-    DELIVERED("Đã giao thành công"),
-    CANCELLED("Đã hủy");
+public enum EOrderStatus {
+    PENDING("Chờ xác nhận", "bg-secondary"),
+    PROCESSING("Đang xử lý", "bg-info text-dark"),
+    SHIPPING("Đang giao hàng", "bg-primary"),
+    COMPLETED("Hoàn thành", "bg-success"),
+    CANCELLED("Đã hủy", "bg-danger");
 
     private final String displayName;
+    private final String badgeClass;
 
-    OrderStatusEnum(String displayName) {
+    EOrderStatus(String displayName, String badgeClass) {
         this.displayName = displayName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
+        this.badgeClass = badgeClass;
     }
 }

@@ -1,7 +1,7 @@
 package com.vn.fruitcart.entity;
 
-import com.vn.fruitcart.entity.base.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,9 +11,11 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "cart_items")
-public class CartItem extends BaseEntity {
+public class CartItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,21 +31,13 @@ public class CartItem extends BaseEntity {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(name = "price_at_addition", precision = 10, scale = 2, nullable = false)
-    private BigDecimal priceAtAddition;
+    @Column(nullable = false, precision = 12)
+    private BigDecimal unitPrice;
 
-    @Transient
     public BigDecimal getSubtotal() {
-        if (this.priceAtAddition != null && this.quantity != null && this.quantity > 0) {
-            return this.priceAtAddition.multiply(new BigDecimal(this.quantity));
+        if (this.unitPrice == null || this.quantity == null) {
+            return BigDecimal.ZERO;
         }
-        return BigDecimal.ZERO;
-    }
-
-    public CartItem(Cart cart, ProductVariant productVariant, Integer quantity, BigDecimal priceAtAddition) {
-        this.cart = cart;
-        this.productVariant = productVariant;
-        this.quantity = quantity;
-        this.priceAtAddition = priceAtAddition;
+        return this.unitPrice.multiply(new BigDecimal(this.quantity));
     }
 }

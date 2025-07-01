@@ -1,194 +1,215 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{client/layouts/client-layout}">
+      layout:decorate="~{client/layouts/client-layout}">
 
 <head>
-    <title>Giỏ hàng</title>
+    <title th:text="${pageMetadata.title}">Giỏ hàng chi tiết</title>
 </head>
 
 <body>
-    <div layout:fragment="content">j
-        <main>
-            <section class="cart-section section-lg-b">
-                <div class="container">
-                    <div th:if="${cart == null or #lists.isEmpty(cart.items)}" class="text-center">
-                        <img th:src="@{/client/assets/img/empty-cart.png}" alt="Empty Cart"
-                            style="max-width: 200px; margin-bottom: 20px;">
-                        <h3>Giỏ hàng của bạn đang trống</h3>
-                        <p>Hãy khám phá các sản phẩm tuyệt vời của chúng tôi và thêm chúng vào giỏ hàng nhé!</p>
-                        <a th:href="@{/shop}" class="btn btn-primary mt-3">Tiếp tục mua sắm</a>
-                    </div>
+<main class="main-content" layout:fragment="content">
+    <section class="section-cart padding-tb-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-12" data-aos="fade-up" data-aos-duration="2000" data-aos-delay="400">
+                    <h2 class="text-center mb-5">Giỏ hàng của bạn</h2>
 
-                    <div th:if="${cart != null and not #lists.isEmpty(cart.items)}">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="cart-table-container">
-                                    <table class="table cart-table">
-                                        <thead>
-                                            <tr>
-                                                <th class="product-col">SẢN PHẨM</th>
-                                                <th class="price-col">GIÁ</th>
-                                                <th class="qty-col">SỐ LƯỢNG</th>
-                                                <th class="total-col">TỔNG CỘNG</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="item : ${cart.items}" th:id="'cart-item-' + ${item.id}">
-                                                <td class="product-col">
-                                                    <div class="product">
-                                                        <figure class="product-media">
-                                                            <a th:href="@{'/product/' + ${item.productVariant.id}}">
-                                                                <!-- <img th:src="${item.productImage}" alt="product"> -->
-                                                            </a>
-                                                        </figure>
-                                                        <div class="product-detail">
-                                                            <h3 class="product-title">
-                                                                <!-- <a th:href="@{'/product/' + ${item.productVariant.id}}"
-                                                                    th:text="${item.product.slug}"></a> -->
-                                                            </h3>
-                                                            <span class="product-variant"
-                                                                th:text="${item.productVariant.attribute}"></span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <!-- <td class="price-col"
-                                                    th:text="${T(com.vn.fruitcart.util.FruitCartUtils).formatMoney(item.price)}"> -->
-                                                </td>
-                                                <td class="qty-col">
-                                                    <div class="quantity-selector">
-                                                        <input type="number" class="form-control quantity-input"
-                                                            th:value="${item.quantity}" min="1"
-                                                            th:data-cart-item-id="${item.id}"
-                                                            onchange="updateCartItem(this)">
-                                                    </div>
-                                                </td>
-                                                <!-- <td class="total-col"
-                                                    th:text="{$item.subtotal}">
-                                                </td> -->
-                                                <td class="remove-col">
-                                                    <a href="#" class="btn-remove" title="Xóa sản phẩm"
-                                                        th:data-cart-item-id="${item.id}"
-                                                        onclick="removeCartItem(event, this)">
-                                                        <i class="ri-close-line"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="cart-summary">
-                                    <h3 class="summary-title">TỔNG GIỎ HÀNG</h3>
-                                    <table class="table table-summary">
-                                        <tbody>
-                                            <tr class="summary-total">
-                                                <td>Tổng cộng:</td>
-                                                <!-- <td id="grand-total"
-                                                    th:text="${T(com.vn.fruitcart.util.FruitCartUtils).formatMoney(cart.grandTotal)}">
-                                                </td> -->
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <a href="#" class="btn btn-primary btn-block">TIẾN HÀNH THANH TOÁN</a>
-                                </div>
+                    <div id="cart-page-container">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"
+                                 role="status">
+                                <span class="visually-hidden">Đang tải giỏ hàng...</span>
                             </div>
                         </div>
                     </div>
+
                 </div>
-            </section>
+            </div>
+        </div>
+    </section>
+</main>
 
-            <th:block th:fragment="extras-scripts">
-                <script>
-                    function updateCartItem(inputElement) {
-                        const cartItemId = $(inputElement).data('cart-item-id');
-                        const quantity = $(inputElement).val();
+<th:block layout:fragment="extras-scripts">
+    <script>
+        /**
+         * File: cart-page.js
+         * Chứa các hàm xử lý AJAX dành riêng cho trang giỏ hàng chi tiết.
+         */
 
-                        if (quantity < 1) {
-                            showErrorAlert('Số lượng phải lớn hơn hoặc bằng 1');
-                            // Bạn có thể reset lại giá trị cũ nếu cần
-                            return;
+        $(document).ready(function () {
+            const cartContainer = $('#cart-page-container');
+            // Kiểm tra xem có đang ở trang giỏ hàng không, nếu không thì không làm gì cả
+            if (cartContainer.length === 0) {
+                return;
+            }
+
+            // --- HÀM 1: "VẼ" GIỎ HÀNG RA GIAO DIỆN ---
+            function renderCart(cartData) {
+                cartContainer.empty(); // Xóa sạch nội dung cũ (bao gồm cả spinner)
+
+                // Trường hợp giỏ hàng rỗng
+                if (!cartData || !cartData.items || cartData.items.length === 0) {
+                    const emptyCartHtml = `
+                <div class="text-center py-5">
+                    <h4>Giỏ hàng của bạn đang trống.</h4>
+                    <a href="/san-pham" class="cr-button mt-3">Tiếp tục mua sắm</a>
+                </div>
+            `;
+                    cartContainer.html(emptyCartHtml);
+                    return;
+                }
+
+                // Tạo bảng chứa các sản phẩm
+                let tableHtml = `
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th colspan="2" class="text-start">Sản phẩm</th>
+                            <th>Đơn giá</th>
+                            <th class="text-center">Số lượng</th>
+                            <th class="text-end">Thành tiền</th>
+                            <th class="text-center">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+                // Lặp qua từng sản phẩm và tạo một hàng trong bảng
+                cartData.items.forEach(item => {
+                    tableHtml += `
+                <tr data-item-id="${item.cartItemId}">
+                    <td style="width: 100px;">
+                        <a href="/san-pham/${item.productSlug}">
+                            <img src="${item.productImageUrl || '/shared/assets/images/product/default-product.png'}" alt="${item.productName}" class="img-fluid rounded">
+                        </a>
+                    </td>
+                    <td class="text-start">
+                        <a href="/san-pham/${item.productSlug}" class="d-block fw-semibold text-dark">${item.productName}</a>
+                        <span class="text-muted small">${item.variantAttribute}</span>
+                    </td>
+                    <td>${formatCurrency(item.unitPrice)}</td>
+                    <td class="text-center">
+                        <div class="cr-qty-main mx-auto" style="width: 120px;">
+                            <input type="number" value="${item.quantity}" min="1" max="${item.stock}"
+                                   class="quantity-input form-control text-center" data-item-id="${item.cartItemId}">
+                        </div>
+                        <small class="text-muted d-block mt-1">Tồn kho: ${item.stock}</small>
+                    </td>
+                    <td class="text-end fw-bold">${formatCurrency(item.subtotal)}</td>
+                    <td class="text-center">
+                        <a href="javascript:void(0)" class="remove-item-btn text-danger" data-item-id="${item.cartItemId}" title="Xóa sản phẩm">
+                            <i class="ri-delete-bin-line fs-5"></i>
+                        </a>
+                    </td>
+                </tr>
+            `;
+                });
+
+                tableHtml += `</tbody></table></div>`;
+
+                // Tạo khu vực tổng kết giỏ hàng và các nút bấm
+                tableHtml += `
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <a href="/san-pham" class="cr-links">
+                        <i class="ri-arrow-left-line me-2"></i>Tiếp tục mua sắm
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <div class="cr-cart-summary border p-4 rounded">
+                        <h4 class="mb-3">Tổng cộng giỏ hàng</h4>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Tổng tiền (${cartData.totalItems} sản phẩm):</span>
+                            <span class="fw-bold fs-5 text-danger">${formatCurrency(cartData.totalPrice)}</span>
+                        </div>
+                        <hr>
+                        <a href="/thanh-toan" class="cr-button w-100 mt-3">Tiến hành thanh toán</a>
+                    </div>
+                </div>
+            </div>
+        `;
+
+                // Đưa toàn bộ HTML đã tạo vào container
+                cartContainer.html(tableHtml);
+            }
+
+            // --- HÀM 2: TẢI DỮ LIỆU GIỎ HÀNG BAN ĐẦU ---
+            function loadCart() {
+                $.ajax({
+                    url: '/api/v1/cart',
+                    type: 'GET',
+                    success: function (response) {
+                        renderCart(response);
+                    },
+                    error: function () {
+                        cartContainer.html('<div class="text-center py-5"><p class="text-danger">Không thể tải giỏ hàng. Vui lòng tải lại trang.</p></div>');
+                    }
+                });
+            }
+
+            // --- HÀM 3: XỬ LÝ CÁC SỰ KIỆN CỦA NGƯỜI DÙNG ---
+
+            // 3a. Thay đổi số lượng
+            cartContainer.on('change', '.quantity-input', function () {
+                const itemId = $(this).data('item-id');
+                const quantity = parseInt($(this).val());
+
+                if (quantity > 0) {
+                    $.ajax({
+                        url: `/api/v1/cart/items/${itemId}`,
+                        type: 'PUT',
+                        contentType: 'application/json',
+                        data: JSON.stringify({quantity: quantity}),
+                        success: function (response) {
+                            renderCart(response);       // Vẽ lại giỏ hàng với dữ liệu mới
+                            updateHeaderCartCount();    // Cập nhật lại số trên header
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Lỗi', xhr.responseJSON?.message || 'Lỗi cập nhật số lượng.', 'error');
+                            loadCart(); // Tải lại giỏ hàng về trạng thái cũ nếu có lỗi
                         }
+                    });
+                } else {
+                    // Nếu người dùng nhập số 0 hoặc âm, coi như xóa
+                    $(this).closest('tr').find('.remove-item-btn').trigger('click');
+                }
+            });
 
-                        const requestData = {
-                            cartItemId: cartItemId,
-                            quantity: quantity
-                        };
+            // 3b. Xóa sản phẩm
+            cartContainer.on('click', '.remove-item-btn', function () {
+                const itemId = $(this).data('item-id');
 
-                        fetch('/cart/update', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
+                Swal.fire({
+                    title: 'Bạn chắc chắn muốn xóa?',
+                    text: "Sản phẩm sẽ bị xóa khỏi giỏ hàng!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/api/v1/cart/items/${itemId}`,
+                            type: 'DELETE',
+                            success: function (response) {
+                                renderCart(response);
+                                updateHeaderCartCount();
+                                Swal.fire('Đã xóa!', '', 'success');
                             },
-                            body: JSON.stringify(requestData),
-                        })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Cập nhật thất bại');
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                // Cập nhật lại tổng tiền của item và toàn bộ giỏ hàng
-                                const formattedItemTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(data.itemTotalPrice);
-                                const formattedGrandTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(data.grandTotal);
-
-                                $('#cart-item-' + cartItemId + ' .total-col').text(formattedItemTotal);
-                                $('#grand-total').text(formattedGrandTotal);
-                                showSuccessToast('Đã cập nhật số lượng!');
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                showErrorAlert('Có lỗi xảy ra khi cập nhật giỏ hàng.');
-                            });
+                            error: function (xhr) {
+                                Swal.fire('Lỗi', xhr.responseJSON?.message || 'Lỗi khi xóa sản phẩm.', 'error');
+                            }
+                        });
                     }
+                });
+            });
 
-                    function removeCartItem(event, element) {
-                        event.preventDefault();
-                        const cartItemId = $(element).data('cart-item-id');
-
-                        showConfirmWarning('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')
-                            .then((result) => {
-                                if (result.isConfirmed) {
-                                    fetch(`/cart/remove/${cartItemId}`, {
-                                        method: 'POST',
-                                    })
-                                        .then(response => {
-                                            if (!response.ok) {
-                                                throw new Error('Xóa thất bại');
-                                            }
-                                            return response.json();
-                                        })
-                                        .then(data => {
-                                            if (data.success) {
-                                                // Xóa hàng khỏi bảng
-                                                $('#cart-item-' + cartItemId).remove();
-                                                // Cập nhật tổng tiền
-                                                const formattedGrandTotal = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(data.grandTotal);
-                                                $('#grand-total').text(formattedGrandTotal);
-                                                showSuccessToast('Đã xóa sản phẩm!');
-
-                                                // Kiểm tra nếu giỏ hàng rỗng thì reload trang để hiển thị thông báo
-                                                if (data.cartEmpty) {
-                                                    window.location.reload();
-                                                }
-                                            } else {
-                                                showErrorAlert(data.message || 'Không thể xóa sản phẩm.');
-                                            }
-                                        })
-                                        .catch(error => {
-                                            console.error('Error:', error);
-                                            showErrorAlert('Có lỗi xảy ra khi xóa sản phẩm.');
-                                        });
-                                }
-                            });
-                    }
-                </script>
-            </th:block>
-
-        </main>
-    </div>
+            // Tải giỏ hàng lần đầu tiên khi người dùng truy cập trang
+            loadCart();
+        });
+    </script>
+</th:block>
 </body>
 
 </html>j

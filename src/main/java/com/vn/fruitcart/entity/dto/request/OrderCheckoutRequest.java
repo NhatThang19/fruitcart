@@ -1,22 +1,32 @@
 package com.vn.fruitcart.entity.dto.request;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class OrderCheckoutRequest {
 
-    @NotEmpty(message = "Vui lòng nhập họ tên người nhận.")
-    @Size(max = 100, message = "Họ tên không được vượt quá 100 ký tự.")
-    private String receiverName;
+    @NotBlank(message = "Tên người nhận không được để trống")
+    private String customerName;
 
-    @NotEmpty(message = "Vui lòng nhập địa chỉ giao hàng.")
-    private String shippingAddress;
-
-    @NotEmpty(message = "Vui lòng nhập số điện thoại.")
-    @Size(min = 10, max = 15, message = "Số điện thoại không hợp lệ.")
+    @NotBlank(message = "Số điện thoại không được để trống")
     private String phoneNumber;
 
-    private String notes; // Ghi chú thêm (không bắt buộc)
+    // Trường này sẽ nhận địa chỉ chi tiết (số nhà, tên đường)
+    @NotBlank(message = "Địa chỉ chi tiết không được để trống")
+    private String streetAddress;
+
+    // Các trường ẩn để lưu tên tỉnh/huyện/xã
+    @NotBlank(message = "Vui lòng chọn Tỉnh/Thành phố")
+    private String provinceName;
+
+    @NotBlank(message = "Vui lòng chọn Quận/Huyện")
+    private String districtName;
+
+    @NotBlank(message = "Vui lòng chọn Phường/Xã")
+    private String wardName;
+
+    private String note;
 }

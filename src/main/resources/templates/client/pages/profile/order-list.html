@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layouts/client-layout}">
+
+<head>
+    <title>Thanh toán đơn hàng</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <section class="section-profile padding-tb-100">
+        <div class="container">
+            <h2 class="text-center mb-5">Lịch sử đơn hàng</h2>
+            <div class="row">
+                <div class="col-lg-9">
+                    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+                    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Mã ĐH</th>
+                                <th>Ngày đặt</th>
+                                <th class="text-end">Tổng tiền</th>
+                                <th class="text-center">Trạng thái</th>
+                                <th class="text-center">Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="order : ${orderPage.content}">
+                                <td class="fw-semibold" th:text="'#' + ${order.id}"></td>
+                                <td th:text="${#temporals.format(order.getCreatedDate(), 'dd/MM/yyyy HH:mm')}"></td>
+                                <td class="text-end fw-bold"
+                                    th:text="${#numbers.formatCurrency(order.totalAmount)}"></td>
+                                <td class="text-center">
+                                    <span class="badge" th:classappend="${order.status.getBadgeClass()}"
+                                          th:text="${order.status.getDisplayName()}"></span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/profile/orders/{id}(id=${order.id})}"
+                                       class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${orderPage.isEmpty()}">
+                                <td colspan="5" class="text-center fst-italic py-4">Bạn chưa có đơn hàng nào.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<th:block layout:fragment="extras-scripts">
+
+</th:block>
+</body>
+
+</html>
