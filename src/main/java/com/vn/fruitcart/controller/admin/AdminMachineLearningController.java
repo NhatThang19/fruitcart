@@ -29,7 +29,6 @@ public class AdminMachineLearningController {
 
     @GetMapping("/dashboard")
     public String showDashboard(Model model) {
-        // Lấy thông tin về lần chạy cuối để hiển thị
         Optional<Instant> lastRunDate = customerClusterRepository.findFirstByOrderByAssignedDateDesc()
                 .map(CustomerCluster::getAssignedDate);
 

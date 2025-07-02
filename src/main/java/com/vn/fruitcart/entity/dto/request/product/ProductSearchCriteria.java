@@ -12,6 +12,8 @@ public class ProductSearchCriteria {
     private Double minPrice;
     private Double maxPrice;
     private Boolean inStockOnly;
+    private Boolean isNew;
+    private Boolean onSale;
 
     private String sortBy = "createdDate";
     private String sortOrder = "desc";

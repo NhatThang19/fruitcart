@@ -1,10 +1,13 @@
 package com.vn.fruitcart.service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.vn.fruitcart.entity.dto.BestSellingProductDto;
 import com.vn.fruitcart.entity.dto.request.product.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -349,8 +352,15 @@ public class ProductService {
         if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
             spec = spec.and(ProductSpecification.byPriceRange(criteria.getMinPrice(), criteria.getMaxPrice()));
         }
-        if (criteria.getInStockOnly() != null) {
-            spec = spec.and(ProductSpecification.byInStock(criteria.getInStockOnly()));
+
+        if (criteria.getInStockOnly() != null && criteria.getInStockOnly()) {
+            spec = spec.and(ProductSpecification.byInStock(true));
+        }
+        if (criteria.getIsNew() != null && criteria.getIsNew()) {
+            spec = spec.and(ProductSpecification.byIsNew(true));
+        }
+        if (criteria.getOnSale() != null && criteria.getOnSale()) {
+            spec = spec.and(ProductSpecification.byOnSale(true));
         }
 
         return productRepository.findAll(spec, pageable);
@@ -374,6 +384,19 @@ public class ProductService {
     public Product getProductBySlug(String slug) {
         return productRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm với slug: " + slug));
+    }
+
+    public List<BestSellingProductDto> findTopBestSellingProducts(int limit) {
+        Pageable topProducts = PageRequest.of(0, limit);
+        return productRepository.findBestSellingProducts(topProducts).getContent();
+    }
+
+    public List<Product> findLowStockProducts(int stockThreshold) {
+        return productRepository.findLowStockProducts(stockThreshold);
+    }
+
+    public List<Product> findOnSaleProducts() {
+        return productRepository.findOnSaleProducts(LocalDateTime.now());
     }
 
 }

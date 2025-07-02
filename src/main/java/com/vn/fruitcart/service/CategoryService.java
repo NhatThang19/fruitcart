@@ -26,7 +26,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public Category createCategory(CategoryReq cReq) {
+    public void createCategory(CategoryReq cReq) {
         if (categoryRepository.findByName(cReq.getName()).isPresent()) {
             throw new IllegalArgumentException("Tên danh mục đã tồn tại.");
         }
@@ -37,8 +37,7 @@ public class CategoryService {
         category.setDescription(cReq.getDescription());
         category.setStatus(cReq.getStatus());
 
-        Category savedCategory = categoryRepository.save(category);
-        return savedCategory;
+        categoryRepository.save(category);
     }
 
     public List<Category> getAllCategories() {
@@ -50,7 +49,7 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục với id: " + id));
     }
 
-    public Category updateCategory(Long id, CategoryReq req) {
+    public void updateCategory(Long id, CategoryReq req) {
         Category existingCategory = getCategoryById(id);
 
         if (!existingCategory.getName().equalsIgnoreCase(req.getName())
@@ -62,7 +61,7 @@ public class CategoryService {
         existingCategory.setDescription(req.getDescription());
         existingCategory.setStatus(req.getStatus());
         existingCategory.setSlug(FruitCartUtils.toSlug(req.getName()));
-        return categoryRepository.save(existingCategory);
+        categoryRepository.save(existingCategory);
     }
 
     public void deleteCategory(Long id) {

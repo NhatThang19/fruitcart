@@ -11,12 +11,6 @@
             color: #64b496;
         }
 
-        .sortable-header .sort-icon {
-            margin-left: 5px;
-            font-size: 0.8em;
-            color: #64b496 !important;
-        }
-
         .table th,
         .table td {
             vertical-align: middle;
@@ -139,6 +133,9 @@
                                         <th class="sortable-header text-center" style="width: 5%;">
                                             Trạng thái
                                         </th>
+                                        <th class="sortable-header text-center" style="width: 8%;">
+                                            Sản phẩm
+                                        </th>
                                         <th class="sortable-header text-center" style="width: 15%;">
                                             <div th:replace="~{this :: sort_header('createdDate', 'Ngày tạo')}">
                                             </div>
@@ -162,6 +159,7 @@
                                             <span th:unless="${category.status}"
                                                 class="badge rounded-pill bg-danger">Không hoạt động</span>
                                         </td>
+                                        <td class="text-center" th:text="${category.products.size()}"></td>
                                         <td class="text-center text-color-gray"
                                             th:text="${#temporals.format(category.createdDate, 'dd/MM/yyyy HH:mm')}">
                                         </td>
@@ -190,7 +188,7 @@
                                             </form>
                                         </td>
                                     </tr>
-                                    <tr th:if="${originPage.empty}">
+                                    <tr th:if="${originPage.isEmpty()}">
                                         <td colspan="7" class="text-center fst-italic py-4">Không tìm thấy nguồn gốc nào.
                                         </td>
                                     </tr>

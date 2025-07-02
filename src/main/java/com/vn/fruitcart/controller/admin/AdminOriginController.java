@@ -75,9 +75,6 @@ public class AdminOriginController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Thêm nguồn gốc '" + originReq.getName() + "'' thành công");
             return "redirect:/admin/origins";
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi thêm nguồn gốc: " + e.getMessage());
-            return "redirect:/admin/origins/create";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi thêm nguồn gốc: " + e.getMessage());
             return "redirect:/admin/origins/create";

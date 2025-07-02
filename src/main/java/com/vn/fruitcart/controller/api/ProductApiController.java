@@ -26,17 +26,13 @@ public class ProductApiController {
     @GetMapping("/products/quick-view/{slug}")
     public ResponseEntity<QuickViewProductDTO> getProductForQuickView(@PathVariable String slug) {
 
-        // --- BẮT ĐẦU PHẦN SỬA ĐỔI ---
-
-        // 1. Lấy người dùng hiện tại (có thể là null nếu là khách)
         User currentUser = null;
         try {
             currentUser = userService.getCurrentUser();
-        } catch (Exception e) {
-            // Bỏ qua lỗi nếu người dùng chưa đăng nhập, currentUser sẽ vẫn là null
+        } catch (Exception ignored) {
+
         }
 
-        // Lấy sản phẩm theo slug
         Product product = productService.getProductBySlug(slug);
 
         QuickViewProductDTO dto = new QuickViewProductDTO();
@@ -44,7 +40,6 @@ public class ProductApiController {
         dto.setShortDescription(product.getShortDescription());
         dto.setMainImage(product.getMainImage() != null ? product.getMainImage().getImageUrl() : null);
 
-        // Tạo biến final để sử dụng trong lambda
         final User finalCurrentUser = currentUser;
 
         List<QuickViewProductDTO.VariantInfo> variantInfos = product.getVariants().stream()
@@ -54,7 +49,6 @@ public class ProductApiController {
                     info.setAttribute(v.getAttribute());
                     info.setPrice(v.getPrice());
 
-                    // 2. Gọi các phương thức mới và truyền vào người dùng hiện tại
                     info.setSalePrice(v.getSalePriceForUser(finalCurrentUser));
                     info.setOnSale(v.isOnSaleForUser(finalCurrentUser));
 
@@ -66,7 +60,5 @@ public class ProductApiController {
         dto.setVariants(variantInfos);
 
         return ResponseEntity.ok(dto);
-
-        // --- KẾT THÚC PHẦN SỬA ĐỔI ---
     }
 }

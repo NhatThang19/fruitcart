@@ -1,6 +1,7 @@
 package com.vn.fruitcart.service;
 
 import com.vn.fruitcart.entity.*;
+import com.vn.fruitcart.entity.dto.SalesDataDto;
 import com.vn.fruitcart.entity.dto.request.OrderCheckoutRequest;
 import com.vn.fruitcart.entity.dto.request.OrderSearchCriteria;
 import com.vn.fruitcart.exception.OutOfStockException;
@@ -16,9 +17,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,12 +53,10 @@ public class OrderService {
         order.setUser(userService.getCurrentUser());
         order.setStatus(EOrderStatus.PENDING);
 
-        // 1. Điền thông tin khách hàng từ request
         order.setCustomerName(checkoutReq.getCustomerName());
         order.setPhoneNumber(checkoutReq.getPhoneNumber());
         order.setNote(checkoutReq.getNote());
 
-        // 2. Ghép các thành phần địa chỉ lại thành một chuỗi duy nhất
         String fullAddress = String.join(", ",
                 checkoutReq.getStreetAddress(),
                 checkoutReq.getWardName(),
@@ -58,12 +65,11 @@ public class OrderService {
         );
         order.setAddress(fullAddress);
 
-        // 3. Chuyển CartItem thành OrderItem và cập nhật tồn kho
         for (CartItem cartItem : cart.getItems()) {
             OrderItem orderItem = new OrderItem();
             orderItem.setProductVariant(cartItem.getProductVariant());
             orderItem.setQuantity(cartItem.getQuantity());
-            orderItem.setPriceAtOrder(cartItem.getUnitPrice()); // Lấy giá đã lưu trong giỏ
+            orderItem.setPriceAtOrder(cartItem.getUnitPrice());
 
             Inventory inventory = cartItem.getProductVariant().getInventory();
             if (inventory == null || inventory.getQuantity() < cartItem.getQuantity()) {
@@ -76,11 +82,9 @@ public class OrderService {
             order.addOrderItem(orderItem);
         }
 
-        // 4. Gán tổng tiền và lưu đơn hàng
         order.setTotalAmount(cart.getTotal());
         Order savedOrder = orderRepository.save(order);
 
-        // 5. Dọn dẹp giỏ hàng
         cartService.clearCart();
 
         return savedOrder;
@@ -96,35 +100,25 @@ public class OrderService {
         return orderRepository.findByIdAndUser(orderId, currentUser);
     }
 
-    /**
-     * Tìm kiếm và phân trang tất cả đơn hàng dựa trên các tiêu chí lọc.
-     * @param criteria Đối tượng chứa các tiêu chí từ admin.
-     * @param pageable Thông tin phân trang và sắp xếp.
-     * @return Một trang (Page) các đơn hàng phù hợp.
-     */
+
     public Page<Order> findByCriteria(OrderSearchCriteria criteria, Pageable pageable) {
         Specification<Order> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Lọc theo từ khóa (có thể là ID hoặc tên khách hàng)
             if (StringUtils.hasText(criteria.getKeyword())) {
                 try {
-                    // Nếu từ khóa là số, tìm theo ID đơn hàng
                     Long orderId = Long.parseLong(criteria.getKeyword());
                     predicates.add(criteriaBuilder.equal(root.get("id"), orderId));
                 } catch (NumberFormatException e) {
-                    // Nếu không phải số, tìm theo tên người nhận
                     predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("customerName")),
                             "%" + criteria.getKeyword().toLowerCase() + "%"));
                 }
             }
 
-            // Lọc theo trạng thái
             if (criteria.getStatus() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("status"), criteria.getStatus()));
             }
 
-            // Lọc theo ngày đặt hàng
             if (criteria.getFromDate() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdDate"), criteria.getFromDate().atStartOfDay()));
             }
@@ -139,47 +133,72 @@ public class OrderService {
     }
 
     @Transactional
-    public Order updateStatus(Long orderId, EOrderStatus newStatus) {
-        // 1. Tìm đơn hàng, nếu không thấy sẽ ném lỗi
+    public void updateStatus(Long orderId, EOrderStatus newStatus) {
         Order order = findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đơn hàng với ID: " + orderId));
 
-        // Lấy trạng thái hiện tại để kiểm tra
         EOrderStatus currentStatus = order.getStatus();
 
-        // 2. Kiểm tra các quy tắc nghiệp vụ
         if (currentStatus == newStatus) {
-            // Không làm gì nếu trạng thái không thay đổi
-            return order;
+            return;
         }
 
         if (currentStatus == EOrderStatus.COMPLETED || currentStatus == EOrderStatus.CANCELLED) {
-            // Không cho phép thay đổi trạng thái của đơn hàng đã Hoàn thành hoặc đã Hủy
             throw new IllegalStateException("Không thể thay đổi trạng thái của đơn hàng đã hoàn thành hoặc đã bị hủy.");
         }
 
-        // =============================================
-        //      *** BẮT ĐẦU LOGIC HỦY ĐƠN HÀNG ***
-        // =============================================
-        // 3. Nếu trạng thái mới là CANCELLED, hoàn trả số lượng vào kho
         if (newStatus == EOrderStatus.CANCELLED) {
             for (OrderItem item : order.getOrderItems()) {
                 Inventory inventory = item.getProductVariant().getInventory();
                 if (inventory != null) {
-                    // Cộng lại số lượng sản phẩm đã bị trừ khi đặt hàng
                     int newQuantity = inventory.getQuantity() + item.getQuantity();
                     inventory.setQuantity(newQuantity);
                 }
             }
         }
-        // =============================================
-        //       *** KẾT THÚC LOGIC HỦY ĐƠN HÀNG ***
-        // =============================================
 
-        // 4. Cập nhật trạng thái mới cho đơn hàng
         order.setStatus(newStatus);
 
-        // 5. Lưu lại đơn hàng (và các thay đổi về inventory nhờ có @Transactional)
-        return orderRepository.save(order);
+        orderRepository.save(order);
+    }
+
+    public List<SalesDataDto> getMonthlySalesDataLastYear() {
+        Instant startDate = LocalDateTime.now().minusMonths(11).withDayOfMonth(1)
+                .toLocalDate().atStartOfDay().toInstant(ZoneOffset.UTC);
+
+        List<Object[]> results = orderRepository.findMonthlySalesSince(startDate);
+
+        Map<String, BigDecimal> salesByMonthMap = results.stream()
+                .collect(Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> (BigDecimal) row[1]
+                ));
+
+        List<SalesDataDto> fullSalesData = new ArrayList<>();
+        YearMonth currentMonth = YearMonth.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
+
+        for (int i = 11; i >= 0; i--) {
+            YearMonth month = currentMonth.minusMonths(i);
+            String monthKey = month.format(formatter);
+            BigDecimal revenue = salesByMonthMap.getOrDefault(monthKey, BigDecimal.ZERO);
+            fullSalesData.add(new SalesDataDto(monthKey, revenue));
+        }
+
+        return fullSalesData;
+    }
+
+    public Long countTotalOrders() {
+        return orderRepository.count();
+    }
+
+    public BigDecimal getTotalRevenue() {
+        BigDecimal totalRevenue = orderRepository.sumTotalAmountByStatus(EOrderStatus.COMPLETED);
+
+        return totalRevenue == null ? BigDecimal.ZERO : totalRevenue;
+    }
+
+    public List<Order> findRecentOrders() {
+        return orderRepository.findTop5ByStatusOrderByCreatedDateDesc(EOrderStatus.PENDING);
     }
 }

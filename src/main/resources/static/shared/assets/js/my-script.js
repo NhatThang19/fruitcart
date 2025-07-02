@@ -134,7 +134,7 @@ FruitCart.QuillEditor = {
             [{'indent': '-1'}, {'indent': '+1'}],
             [{'color': []}, {'background': []}],
             [{'align': []}],
-            ['link', 'video'],
+            ['link', 'video', 'image'],
             ['clean']
         ];
 

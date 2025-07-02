@@ -60,9 +60,6 @@ public class AdminCategoryController {
             redirectAttributes.addFlashAttribute("successMessage",
                     "Thêm danh mục '" + categoryReq.getName() + "'' thành công");
             return "redirect:/admin/categories";
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi thêm danh mục: " + e.getMessage());
-            return "redirect:/admin/categories/create";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi thêm danh mục: " + e.getMessage());
             return "redirect:/admin/categories/create";

@@ -65,7 +65,7 @@
                                                     'Bạn có chắc chắn muốn sửa?',
                                                     'Danh mục \'[[${categoryReq.getName()}]]\' sẽ bị thay đổi!',
                                                     'Vâng, hãy sửa!')"><i class="ri-save-line me-1"></i>Lưu</button>
-                                    <a th:href="@{/admin/categories}" class="cr-btn default-btn color-light"><i
+                                    <a th:href="@{/admin/categories/detail/{id}(id=${categoryId})}" class="cr-btn default-btn color-light"><i
                                             class="ri-close-line me-1"></i>Hủy</a>
                                 </div>
                             </form>

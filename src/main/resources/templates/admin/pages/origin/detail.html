@@ -13,8 +13,8 @@
                 <div class="card mb-5">
                     <div
                         class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
-                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-user-line me-1"></i>Thông tin
-                            nguồn gốc</h5>
+                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-user-line me-1"></i><span
+                                    th:text="|Thông tin danh mục #${origin.id}|"></span></h5>
                         <div class="d-flex gap-2">
                             <a th:href="@{/admin/origins/update/{id}(id=${origin.id})}"
                                 class="cr-btn outline-btn color-warning">

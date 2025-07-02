@@ -86,7 +86,7 @@ public class AdminDiscountController {
         }
 
         try {
-            discountService.saveFromRequest(discountReq); // Gọi phương thức mới trong service
+            discountService.saveFromRequest(discountReq);
             ra.addFlashAttribute("successMessage", "Đã lưu chương trình giảm giá thành công!");
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", "Lỗi khi lưu chương trình giảm giá: " + e.getMessage());

@@ -23,12 +23,11 @@ public class CustomerClusteringManagerService {
     @Autowired
     private CustomerClusterRepository customerClusterRepository;
 
-    @Async // Chạy tác vụ này trên một luồng riêng (chạy ngầm)
+    @Async
     @Transactional
     public void runClusteringProcess() {
         log.info("Bắt đầu tác vụ phân cụm khách hàng vào lúc: {}", Instant.now());
 
-        // 1. Lấy và tính toán dữ liệu
         List<UserClusteringData> dataForClustering = userService.getAllUsersClusteringData();
         if (dataForClustering.isEmpty()) {
             log.info("Không có dữ liệu khách hàng để phân cụm. Kết thúc.");
@@ -37,11 +36,9 @@ public class CustomerClusteringManagerService {
         log.info("Đã tính toán xong dữ liệu cho {} khách hàng.", dataForClustering.size());
 
         try {
-            // 2. Thực hiện phân cụm
             List<UserClusteringData> clusteredData = clusteringService.performClustering(dataForClustering);
             log.info("Đã thực hiện phân cụm thành công.");
 
-            // 3. Lưu kết quả vào database
             for (UserClusteringData data : clusteredData) {
                 CustomerCluster cluster = customerClusterRepository.findByUser(data.getUser())
                         .orElse(new CustomerCluster());

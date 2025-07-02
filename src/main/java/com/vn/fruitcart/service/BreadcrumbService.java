@@ -208,6 +208,7 @@ public class BreadcrumbService {
     public Object buildClientProductDetail() {
         List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Sản phẩm", "/san-pham"));
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết sản phẩm", null));
         return new PageMetadata("Chi tiết sản phẩm", breadcrumbList);
     }
@@ -249,5 +250,43 @@ public class BreadcrumbService {
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
         breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Giảm giá", "/admin/discounts"));
         return new PageMetadata("Danh sách giảm giá", breadcrumbList);
+    }
+
+    public Object buildAdminOrderDetail() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Dashboard", "/admin"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Đơn hàng", "/admin/orders"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết đơn hàng", null));
+        return new PageMetadata("Chi tiến đơn hàng", breadcrumbList);
+    }
+
+    public Object buildCartDetail() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Chi tiết giỏ hàng", null));
+        return new PageMetadata("Chi tiết giỏ hàng", breadcrumbList);
+    }
+
+    public Object buildCheckout() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Thanh toán", null));
+        return new PageMetadata("Thanh toán", breadcrumbList);
+    }
+
+    public Object buildCheckoutSussces() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Đặt hàng", "/thanh-toan"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Thành công", null));
+        return new PageMetadata("Thành công", breadcrumbList);
+    }
+
+    public Object buildOrderDetail() {
+        List<PageMetadata.BreadcrumbSegment> breadcrumbList = new ArrayList<>();
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Home", "/"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Đặt hàng", "/thanh-toan"));
+        breadcrumbList.add(new PageMetadata.BreadcrumbSegment("Thành công", null));
+        return new PageMetadata("Thành công", breadcrumbList);
     }
 }

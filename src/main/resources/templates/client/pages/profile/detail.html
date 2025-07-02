@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{client/layouts/client-layout}">
+      layout:decorate="~{client/layouts/client-layout}">
 
 <head>
     <title th:text="${pageMetadata.title}"></title>
@@ -17,7 +17,7 @@
             flex-wrap: wrap;
         }
 
-        .profile-row>[class*='col-'] {
+        .profile-row > [class*='col-'] {
             display: flex;
             flex-direction: column;
         }
@@ -42,34 +42,12 @@
             box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
         }
 
-        .edit-avatar-btn {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background-color: #64b496;
-            color: white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.2s ease;
-        }
-
-        .edit-avatar-btn:hover {
-            background-color: #e4f2ed;
-        }
-
         .edit-avatar-btn i {
             font-size: 1.2rem;
         }
 
         @media (min-width: 992px) {
             .profile-column-sticky {
-                position: -webkit-sticky;
                 position: sticky;
                 top: 20px;
                 align-self: flex-start;
@@ -200,7 +178,7 @@
                 margin-bottom: 0.5rem;
             }
 
-            .profile-actions .btn+.btn {
+            .profile-actions .btn + .btn {
                 margin-left: 0;
             }
 
@@ -244,177 +222,178 @@
 </head>
 
 <body>
-    <div layout:fragment="content">
-        <section class="profile-section py-5">
-            <div class="container">
-                <div th:if="${userProfile == null}" class="alert alert-warning text-center" role="alert">
-                    <i class="ri-error-warning-line me-2"></i>Không thể tải thông tin người dùng. Vui lòng đăng nhập
-                    hoặc thử lại.
-                </div>
+<div layout:fragment="content">
+    <section class="profile-section py-5">
+        <div class="container">
+            <div th:if="${userProfile == null}" class="alert alert-warning text-center" role="alert">
+                <i class="ri-error-warning-line me-2"></i>Không thể tải thông tin người dùng. Vui lòng đăng nhập
+                hoặc thử lại.
+            </div>
 
-                <div class="row profile-row" th:if="${userProfile != null}">
-                    <div class="col-lg-7 mb-4 mb-lg-0 profile-column-sticky">
-                        <div class="card profile-card" id="profileCard">
-                            <div class="profile-header">
-                                <div class="profile-avatar-wrapper">
-                                    <img th:src="${userProfile.avatarUrl != null && !#strings.isEmpty(userProfile.avatarUrl) ? userProfile.avatarUrl : 'https://placehold.co/150x150/6c757d/white?text=N/A'}"
-                                        alt="Ảnh đại diện" class="profile-avatar">
-                                </div>
-                                <h4 th:text="${userProfile.fullName}">Tên người dùng</h4>
-                                <p th:text="${userProfile.email}">email@example.com</p>
+            <div class="row profile-row" th:if="${userProfile != null}">
+                <div class="col-lg-7 mb-4 mb-lg-0 profile-column-sticky">
+                    <div class="card profile-card" id="profileCard">
+                        <div class="profile-header">
+                            <div class="profile-avatar-wrapper">
+                                <img th:src="${userProfile.avatarUrl != null && !#strings.isEmpty(userProfile.avatarUrl) ? userProfile.avatarUrl : 'https://placehold.co/150x150/6c757d/white?text=N/A'}"
+                                     alt="Ảnh đại diện" class="profile-avatar">
                             </div>
+                            <h4 th:text="${userProfile.fullName}">Tên người dùng</h4>
+                            <p th:text="${userProfile.email}">email@example.com</p>
+                        </div>
 
-                            <div class="card-body profile-body">
-                                <h5 class="card-title mb-4">Chi tiết tài khoản</h5>
-                                <dl class="row profile-details">
-                                    <dt class="col-sm-4 col-md-3">Họ và tên:</dt>
-                                    <dd class="col-sm-8 col-md-9" th:text="${userProfile.fullName ?: 'N/A'}"></dd>
+                        <div class="card-body profile-body">
+                            <h5 class="card-title mb-4">Chi tiết tài khoản</h5>
+                            <dl class="row profile-details">
+                                <dt class="col-sm-4 col-md-3">Họ và tên:</dt>
+                                <dd class="col-sm-8 col-md-9" th:text="${userProfile.fullName ?: 'N/A'}"></dd>
 
-                                    <dt class="col-sm-4 col-md-3">Email:</dt>
-                                    <dd class="col-sm-8 col-md-9" th:text="${userProfile.email ?: 'N/A'}"></dd>
+                                <dt class="col-sm-4 col-md-3">Email:</dt>
+                                <dd class="col-sm-8 col-md-9" th:text="${userProfile.email ?: 'N/A'}"></dd>
 
-                                    <dt class="col-sm-4 col-md-3">Số điện thoại:</dt>
-                                    <dd class="col-sm-8 col-md-9"
-                                        th:text="${userProfile.phone != null && !#strings.isEmpty(userProfile.phone) ? userProfile.phone : 'Chưa cập nhật'}">
-                                    </dd>
+                                <dt class="col-sm-4 col-md-3">Số điện thoại:</dt>
+                                <dd class="col-sm-8 col-md-9"
+                                    th:text="${userProfile.phone != null && !#strings.isEmpty(userProfile.phone) ? userProfile.phone : 'Chưa cập nhật'}">
+                                </dd>
 
-                                    <dt class="col-sm-4 col-md-3">Giới tính:</dt>
-                                    <dd class="col-sm-8 col-md-9"
-                                        th:text="${userProfile.gender != null ? userProfile.gender.displayName : 'Chưa cập nhật'}">
-                                    </dd>
+                                <dt class="col-sm-4 col-md-3">Giới tính:</dt>
+                                <dd class="col-sm-8 col-md-9"
+                                    th:text="${userProfile.gender != null ? userProfile.gender.displayName : 'Chưa cập nhật'}">
+                                </dd>
 
-                                    <dt class="col-sm-4 col-md-3">Ngày sinh:</dt>
-                                    <dd class="col-sm-8 col-md-9"
-                                        th:text="${userProfile.birthDate != null ? #temporals.format(userProfile.birthDate, 'dd/MM/yyyy') : 'Chưa cập nhật'}">
-                                    </dd>
+                                <dt class="col-sm-4 col-md-3">Ngày sinh:</dt>
+                                <dd class="col-sm-8 col-md-9"
+                                    th:text="${userProfile.birthDate != null ? #temporals.format(userProfile.birthDate, 'dd/MM/yyyy') : 'Chưa cập nhật'}">
+                                </dd>
 
-                                    <dt class="col-sm-4 col-md-3">Địa chỉ:</dt>
-                                    <dd class="col-sm-8 col-md-9" th:text="${userProfile.fullAddress ?: 'N/A'}"></dd>
+                                <dt class="col-sm-4 col-md-3">Địa chỉ:</dt>
+                                <dd class="col-sm-8 col-md-9" th:text="${userProfile.fullAddress ?: 'N/A'}"></dd>
 
-                                    <dt class="col-sm-4 col-md-3">Ngày tạo:</dt>
-                                    <dd class="col-sm-8 col-md-9"
-                                        th:text="${userProfile.createdDate != null ? #dates.format(userProfile.createdDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
-                                    </dd>
+                                <dt class="col-sm-4 col-md-3">Ngày tạo:</dt>
+                                <dd class="col-sm-8 col-md-9"
+                                    th:text="${userProfile.createdDate != null ? #dates.format(userProfile.createdDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                                </dd>
 
-                                    <dt class="col-sm-4 col-md-3">Cập nhật:</dt>
-                                    <dd class="col-sm-8 col-md-9"
-                                        th:text="${userProfile.lastModifiedDate != null ? #dates.format(userProfile.lastModifiedDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
-                                    </dd>
-                                </dl>
+                                <dt class="col-sm-4 col-md-3">Cập nhật:</dt>
+                                <dd class="col-sm-8 col-md-9"
+                                    th:text="${userProfile.lastModifiedDate != null ? #dates.format(userProfile.lastModifiedDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                                </dd>
+                            </dl>
 
-                                <div class="profile-actions">
-                                    <a th:href="@{/profile/update}" class="btn btn-primary"><i
-                                            class="ri-edit-2-line me-1"></i>Đổi thông tin</a>
-                                    <a th:href="@{/profile/change-password}" class="btn btn-secondary"><i
-                                            class="ri-key-2-line me-1"></i>Đổi mật khẩu</a>
-                                </div>
+                            <div class="profile-actions">
+                                <a th:href="@{/profile/update}" class="btn btn-primary"><i
+                                        class="ri-edit-2-line me-1"></i>Đổi thông tin</a>
+                                <a th:href="@{/profile/change-password}" class="btn btn-secondary"><i
+                                        class="ri-key-2-line me-1"></i>Đổi mật khẩu</a>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-lg-5" th:if="${userProfile != null}">
-                        <div class="card order-history-card" id="orderHistoryCard">
-                            <div class="card-header bg-light border-bottom" id="orderHistoryCardHeader">
-                                <h5 class="mb-0 py-1"><i class="ri-list-check-2 me-2"></i>Lịch sử đơn hàng</h5>
+                <div class="col-lg-5">
+                    <div class="card order-history-card" id="orderHistoryCard">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0 py-1"><i class="ri-list-check-2 me-2"></i>Lịch sử đơn hàng</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="noOrdersMessage" th:if="${orderPage == null or orderPage.isEmpty()}"
+                                 class="text-muted text-center p-4">
+                                <i class="ri-dropbox-line fs-1"></i>
+                                <p class="mt-2">Bạn chưa có đơn hàng nào.</p>
                             </div>
-                            <div class="card-body">
-                                <p id="noOrdersMessage" th:if="${userOrders == null or #lists.isEmpty(userOrders)}"
-                                    class="text-muted text-center">Bạn chưa có đơn hàng nào.</p>
 
-                                <div id="orderListContainer" class="list-group list-group-flush"
-                                    th:unless="${userOrders == null or #lists.isEmpty(userOrders)}">
-                                    <th:block th:each="order, iterStat : ${userOrders}" th:if="${iterStat.count <= 5}">
-                                        <div
-                                            class="list-group-item list-group-item-action flex-column align-items-start">
-                                            <div class="d-flex w-100 justify-content-between">
-                                                <h6 class="mb-1 fw-bold">Đơn hàng #<span
-                                                        th:text="${order.id}">DH00XYZ</span></h6>
-                                                <small class="text-muted" th:text="${order.relativeTime ?: ''}">Thời
-                                                    gian</small>
-                                            </div>
-                                            <p class="mb-1">Tổng tiền: <strong class="text-dark"
-                                                    th:text="${order.total}">0₫</strong></p>
-                                            <p class="mb-1">Trạng thái: <span class="badge rounded-pill"
-                                                    th:classappend="${order.statusClass ?: 'bg-secondary'}"
-                                                    th:text="${order.status}">Trạng thái</span></p>
-                                            <small class="text-muted d-block mb-2">Ngày đặt: <span
-                                                    th:text="${order.date != null ? #dates.format(order.date, 'dd/MM/yyyy') : 'N/A'}">N/A</span></small>
-                                            <a th:href="@{/orders/{id}(id=${order.id})}"
-                                                class="btn btn-sm btn-outline-primary float-end">Xem chi tiết</a>
-                                        </div>
-                                    </th:block>
+                            <div id="orderListContainer" class="list-group list-group-flush"
+                                 th:unless="${orderPage == null or orderPage.isEmpty()}">
+                                <div th:each="order : ${orderPage.content}"
+                                     class="list-group-item list-group-item-action flex-column align-items-start p-3">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1 fw-bold">Đơn hàng #<span th:text="${order.id}"></span></h6>
+                                        <small class="text-muted"
+                                               th:text="${#temporals.format(order.getCreatedDate(), 'dd/MM/yyyy')}"></small>
+                                    </div>
+                                    <p class="mb-1">Tổng tiền: <strong class="text-dark"
+                                                                       th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' đ'"></strong>
+                                    </p>
+                                    <p class="mb-1">Trạng thái:
+                                        <span class="badge" th:classappend="${order.status.getBadgeClass()}"
+                                              th:text="${order.status.getDisplayName()}"></span>
+                                    </p>
+                                    <a th:href="@{/profile/orders/{id}(id=${order.id})}"
+                                       class="btn btn-sm btn-outline-primary float-end mt-2">Xem chi tiết</a>
                                 </div>
-                                <div class="text-center mt-auto pt-3" id="viewAllOrdersButtonContainer"
-                                    th:if="${userOrders != null and not #lists.isEmpty(userOrders) and #lists.size(userOrders) > 5}">
-                                    <a th:href="@{/orders/history}" class="btn btn-outline-primary w-100"><i
-                                            class="ri-arrow-right-line me-1"></i>Xem tất cả đơn hàng</a>
-                                </div>
+                            </div>
+                            <div class="text-center mt-auto pt-3" id="viewAllOrdersButtonContainer"
+                                 th:if="${orderPage != null and orderPage.totalPages > 1}">
+                                <a th:href="@{/profile/orders}" class="btn btn-outline-primary w-100">
+                                    <i class="ri-arrow-right-line me-1"></i>Xem tất cả đơn hàng
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
-    <th:block layout:fragment="extras-scripts">
-        <script>
-            function syncAndScrollLayout() {
-                const profileCardColumn = document.querySelector('.profile-column-sticky');
-                const profileCard = document.getElementById('profileCard');
-                const orderHistoryCard = document.getElementById('orderHistoryCard');
-                const orderHistoryCardHeader = document.getElementById('orderHistoryCardHeader');
-                const orderListContainer = document.getElementById('orderListContainer');
-                const viewAllOrdersButtonContainer = document.getElementById('viewAllOrdersButtonContainer');
+        </div>
+    </section>
+</div>
+<th:block layout:fragment="extras-scripts">
+    <script>
+        function syncAndScrollLayout() {
+            const profileCardColumn = document.querySelector('.profile-column-sticky');
+            const profileCard = document.getElementById('profileCard');
+            const orderHistoryCard = document.getElementById('orderHistoryCard');
+            const orderHistoryCardHeader = document.getElementById('orderHistoryCardHeader');
+            const orderListContainer = document.getElementById('orderListContainer');
+            const viewAllOrdersButtonContainer = document.getElementById('viewAllOrdersButtonContainer');
 
-                if (!profileCard || !orderHistoryCard || !orderHistoryCardHeader || !orderListContainer || !viewAllOrdersButtonContainer || !profileCardColumn) {
-                    return;
-                }
-
-                if (window.innerWidth >= 992) {
-                    profileCardColumn.classList.add('is-sticky');
-
-                    const profileCardActualHeight = profileCard.offsetHeight;
-
-                    orderHistoryCard.style.height = profileCardActualHeight + 'px';
-
-                    const cardHeaderHeight = orderHistoryCardHeader.offsetHeight;
-                    const buttonContainerVisible = window.getComputedStyle(viewAllOrdersButtonContainer).display !== 'none';
-                    const buttonContainerHeight = buttonContainerVisible ? viewAllOrdersButtonContainer.offsetHeight : 0;
-
-                    const orderCardBody = orderHistoryCard.querySelector('.card-body');
-                    const cardBodyStyles = getComputedStyle(orderCardBody);
-                    const cardBodyPaddingTop = parseFloat(cardBodyStyles.paddingTop);
-                    const cardBodyPaddingBottom = parseFloat(cardBodyStyles.paddingBottom);
-
-                    const availableHeightForList = profileCardActualHeight - cardHeaderHeight - buttonContainerHeight - cardBodyPaddingTop - cardBodyPaddingBottom;
-
-                    if (availableHeightForList > 0) {
-                        orderListContainer.style.maxHeight = availableHeightForList + 'px';
-                        orderListContainer.style.overflowY = 'auto';
-                    } else {
-                        orderListContainer.style.maxHeight = '0px';
-                        orderListContainer.style.overflowY = 'hidden';
-                    }
-
-                } else {
-                    profileCardColumn.classList.remove('is-sticky');
-                    orderHistoryCard.style.height = 'auto';
-                    orderListContainer.style.maxHeight = 'none';
-                    orderListContainer.style.overflowY = 'visible';
-                }
+            if (!profileCard || !orderHistoryCard || !orderHistoryCardHeader || !orderListContainer || !viewAllOrdersButtonContainer || !profileCardColumn) {
+                return;
             }
 
-            document.addEventListener('DOMContentLoaded', function () {
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(syncAndScrollLayout);
-                });
+            if (window.innerWidth >= 992) {
+                profileCardColumn.classList.add('is-sticky');
 
-                window.addEventListener('resize', () => {
-                    requestAnimationFrame(syncAndScrollLayout);
-                });
+                const profileCardActualHeight = profileCard.offsetHeight;
+
+                orderHistoryCard.style.height = profileCardActualHeight + 'px';
+
+                const cardHeaderHeight = orderHistoryCardHeader.offsetHeight;
+                const buttonContainerVisible = window.getComputedStyle(viewAllOrdersButtonContainer).display !== 'none';
+                const buttonContainerHeight = buttonContainerVisible ? viewAllOrdersButtonContainer.offsetHeight : 0;
+
+                const orderCardBody = orderHistoryCard.querySelector('.card-body');
+                const cardBodyStyles = getComputedStyle(orderCardBody);
+                const cardBodyPaddingTop = parseFloat(cardBodyStyles.paddingTop);
+                const cardBodyPaddingBottom = parseFloat(cardBodyStyles.paddingBottom);
+
+                const availableHeightForList = profileCardActualHeight - cardHeaderHeight - buttonContainerHeight - cardBodyPaddingTop - cardBodyPaddingBottom;
+
+                if (availableHeightForList > 0) {
+                    orderListContainer.style.maxHeight = availableHeightForList + 'px';
+                    orderListContainer.style.overflowY = 'auto';
+                } else {
+                    orderListContainer.style.maxHeight = '0px';
+                    orderListContainer.style.overflowY = 'hidden';
+                }
+
+            } else {
+                profileCardColumn.classList.remove('is-sticky');
+                orderHistoryCard.style.height = 'auto';
+                orderListContainer.style.maxHeight = 'none';
+                orderListContainer.style.overflowY = 'visible';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(syncAndScrollLayout);
             });
-        </script>
-    </th:block>
+
+            window.addEventListener('resize', () => {
+                requestAnimationFrame(syncAndScrollLayout);
+            });
+        });
+    </script>
+</th:block>
 </body>
 
 </html>

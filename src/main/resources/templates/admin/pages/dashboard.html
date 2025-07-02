@@ -1,15 +1,244 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{admin/layouts/admin-layout}">
+      layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
-    <title>Admin - FruitCart</title>
+    <title th:text="${pageMetadata.title} ?: 'Dashboard - FruitCart'"></title>
 </head>
 
 <body>
-    <div layout:fragment="content">
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card info-card sales-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Doanh thu <span>| Tổng</span></h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary-light">
+                            <i class="ri-currency-line text-primary"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6 th:text="${#numbers.formatDecimal(totalRevenue, 0, 'POINT', 0, 'COMMA')} + ' đ'">0
+                                đ</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card info-card revenue-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Đơn hàng <span>| Tổng</span></h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success-light">
+                            <i class="ri-shopping-cart-2-line text-success"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6 th:text="${totalOrders}">0</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-12 mb-4">
+            <div class="card info-card customers-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Khách hàng <span>| Tổng</span></h5>
+                    <div class="d-flex align-items-center">
+                        <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info-light">
+                            <i class="ri-user-line text-info"></i>
+                        </div>
+                        <div class="ps-3">
+                            <h6 th:text="${totalUsers}">0</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-</body>
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Biểu đồ doanh thu <span>/ 12 tháng qua</span></h5>
+                    <div id="salesChart"></div>
+                </div>
+            </div>
+        </div>
 
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-danger">Cảnh báo tồn kho thấp <span>(&lt; 5)</span></h5>
+                    <div th:if="${lowStockProducts.isEmpty()}" class="alert alert-success mb-0">
+                        Tuyệt vời! Không có sản phẩm nào sắp hết hàng.
+                    </div>
+                    <ul class="list-group list-group-flush" th:unless="${lowStockProducts.isEmpty()}">
+                        <li th:each="product : ${lowStockProducts}"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            <a th:href="@{/admin/products/detail/{id}(id=${product.id})}" th:text="${product.name}"></a>
+                            <span class="badge bg-danger rounded-pill" th:text="${product.getTotalStock()}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Top 5 sản phẩm bán chạy nhất</h5>
+                    <div th:if="${bestSellingProducts.isEmpty()}" class="alert alert-info">Chưa có dữ liệu.</div>
+                    <table class="table table-hover" th:unless="${bestSellingProducts.isEmpty()}">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Sản phẩm</th>
+                            <th scope="col" class="text-end">Đã bán</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="dto, iterStat : ${bestSellingProducts}">
+                            <th scope="row" th:text="${iterStat.count}"></th>
+                            <td>
+                                <a th:href="@{/admin/products/detail/{id}(id=${dto.product.id})}"
+                                   th:text="${dto.product.name}"></a>
+                            </td>
+                            <td class="fw-bold text-end" th:text="${dto.totalSold}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Sản phẩm đang giảm giá</h5>
+                    <div th:if="${onSaleProducts.isEmpty()}" class="alert alert-info">Không có sản phẩm nào đang giảm
+                        giá.
+                    </div>
+                    <table class="table table-hover" th:unless="${onSaleProducts.isEmpty()}">
+                        <thead>
+                        <tr>
+                            <th scope="col">Sản phẩm</th>
+                            <th scope="col" class="text-end">Giá gốc</th>
+                            <th scope="col" class="text-end">Giá mới</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="product : ${onSaleProducts}">
+                            <td><a th:href="@{/admin/products/detail/{id}(id=${product.id})}"
+                                   th:text="${product.name}"></a></td>
+                            <td class="text-end"><span class="text-decoration-line-through"
+                                                       th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'POINT', 0, 'COMMA')} + ' đ'"></span>
+                            </td>
+                            <td class="fw-bold text-danger text-end"
+                                th:text="${#numbers.formatDecimal(product.variants[0].getSalePriceForUser(null), 0, 'POINT', 0, 'COMMA')} + ' đ'"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Phân bố khách hàng <span>| Theo cụm</span></h5>
+                    <div th:if="${userClusterCounts.isEmpty()}" class="alert alert-info">Chưa có dữ liệu phân cụm.</div>
+                    <ul class="list-group list-group-flush" th:unless="${userClusterCounts.isEmpty()}">
+                        <li th:each="cluster : ${userClusterCounts}"
+                            class="list-group-item d-flex justify-content-between align-items-center">
+                            <span th:text="${cluster.clusterName}"></span>
+                            <span class="badge bg-primary rounded-pill" th:text="${cluster.userCount}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Đơn hàng mới <span>| Đang chờ xử lý</span></h5>
+                    <div th:if="${recentOrders.isEmpty()}" class="alert alert-info">Không có đơn hàng mới nào.</div>
+                    <div class="table-responsive" th:unless="${recentOrders.isEmpty()}">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Mã ĐH</th>
+                                <th>Khách hàng</th>
+                                <th class="text-end">Tổng tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="order : ${recentOrders}">
+                                <td class="fw-bold"><a th:href="@{/admin/orders/{id}(id=${order.id})}"
+                                                       th:text="'#' + ${order.id}"></a></td>
+                                <td th:text="${order.customerName}"></td>
+                                <td class="text-end"
+                                    th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' đ'"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="extras-scripts">
+    <script th:src="@{/admin/assets/vendor/apexcharts/apexcharts.min.js}"></script>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", () => {
+            // Lấy dữ liệu doanh thu từ model của Thymeleaf
+            const salesData = /*[[${salesData}]]*/ [];
+
+            // Xử lý dữ liệu để phù hợp với định dạng của ApexCharts
+            const chartCategories = salesData.map(d => d.month);
+            const chartSeriesData = salesData.map(d => d.revenue);
+
+            new ApexCharts(document.querySelector("#salesChart"), {
+                series: [{
+                    name: 'Doanh thu',
+                    data: chartSeriesData,
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area',
+                    toolbar: {show: false},
+                },
+                markers: {size: 4},
+                colors: ['#4154f1'],
+                fill: {
+                    type: "gradient",
+                    gradient: {shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.4, stops: [0, 90, 100]}
+                },
+                dataLabels: {enabled: false},
+                stroke: {curve: 'smooth', width: 2},
+                xaxis: {
+                    type: 'category',
+                    categories: chartCategories
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return new Intl.NumberFormat('vi-VN').format(val) + " đ"
+                        }
+                    }
+                }
+            }).render();
+        });
+    </script>
+</th:block>
+</body>
 </html>

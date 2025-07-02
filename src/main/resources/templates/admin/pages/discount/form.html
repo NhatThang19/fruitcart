@@ -62,7 +62,7 @@
 
                         <div class="mb-3">
                             <label for="targetCluster" class="form-label">Phân khúc khách hàng mục tiêu</label>
-                            <select id="targetCluster" th:field="*{targetCluster}" class="form-select">
+                            <select id="targetCluster" th:field="*{targetCluster}" class="form-select form-control">
                                 <option value="">-- Áp dụng cho tất cả --</option>
                                 <option th:each="cluster : ${customerClusters}"
                                         th:value="${cluster}"
@@ -74,7 +74,7 @@
 
                         <div class="mb-4">
                             <label for="product-selector" class="form-label">Áp dụng cho các sản phẩm:</label>
-                            <select class="form-select select2-enable" id="product-selector" name="variantIds"
+                            <select class="form-select select2-enable form-control" id="product-selector" name="variantIds"
                                     multiple="multiple">
                                 <option th:each="variant : ${allVariants}"
                                         th:value="${variant.id}"

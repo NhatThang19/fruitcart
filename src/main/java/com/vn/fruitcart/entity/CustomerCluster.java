@@ -51,21 +51,11 @@ public class CustomerCluster {
         return CustomerClusterEnum.fromClusterNumber(this.clusterNumber);
     }
 
-    /**
-     * Lấy ra tên cụm để hiển thị trực quan.
-     * 
-     * @return String tên cụm
-     */
     @Transient
     public String getClusterName() {
         return getClusterEnum().getClusterName();
     }
 
-    /**
-     * Lấy ra mô tả chi tiết của cụm.
-     * 
-     * @return String mô tả
-     */
     @Transient
     public String getClusterDescription() {
         return getClusterEnum().getDescription();

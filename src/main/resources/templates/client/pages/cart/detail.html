@@ -31,23 +31,18 @@
 
 <th:block layout:fragment="extras-scripts">
     <script>
-        /**
-         * File: cart-page.js
-         * Chứa các hàm xử lý AJAX dành riêng cho trang giỏ hàng chi tiết.
-         */
 
         $(document).ready(function () {
             const cartContainer = $('#cart-page-container');
-            // Kiểm tra xem có đang ở trang giỏ hàng không, nếu không thì không làm gì cả
             if (cartContainer.length === 0) {
                 return;
             }
 
-            // --- HÀM 1: "VẼ" GIỎ HÀNG RA GIAO DIỆN ---
-            function renderCart(cartData) {
-                cartContainer.empty(); // Xóa sạch nội dung cũ (bao gồm cả spinner)
 
-                // Trường hợp giỏ hàng rỗng
+            function renderCart(cartData) {
+                cartContainer.empty();
+
+
                 if (!cartData || !cartData.items || cartData.items.length === 0) {
                     const emptyCartHtml = `
                 <div class="text-center py-5">
@@ -59,7 +54,6 @@
                     return;
                 }
 
-                // Tạo bảng chứa các sản phẩm
                 let tableHtml = `
             <div class="table-responsive">
                 <table class="table align-middle">
@@ -75,7 +69,6 @@
                     <tbody>
         `;
 
-                // Lặp qua từng sản phẩm và tạo một hàng trong bảng
                 cartData.items.forEach(item => {
                     tableHtml += `
                 <tr data-item-id="${item.cartItemId}">
@@ -108,7 +101,6 @@
 
                 tableHtml += `</tbody></table></div>`;
 
-                // Tạo khu vực tổng kết giỏ hàng và các nút bấm
                 tableHtml += `
             <div class="row mt-4">
                 <div class="col-md-6">
@@ -130,11 +122,9 @@
             </div>
         `;
 
-                // Đưa toàn bộ HTML đã tạo vào container
                 cartContainer.html(tableHtml);
             }
 
-            // --- HÀM 2: TẢI DỮ LIỆU GIỎ HÀNG BAN ĐẦU ---
             function loadCart() {
                 $.ajax({
                     url: '/api/v1/cart',
@@ -148,9 +138,6 @@
                 });
             }
 
-            // --- HÀM 3: XỬ LÝ CÁC SỰ KIỆN CỦA NGƯỜI DÙNG ---
-
-            // 3a. Thay đổi số lượng
             cartContainer.on('change', '.quantity-input', function () {
                 const itemId = $(this).data('item-id');
                 const quantity = parseInt($(this).val());
@@ -162,21 +149,19 @@
                         contentType: 'application/json',
                         data: JSON.stringify({quantity: quantity}),
                         success: function (response) {
-                            renderCart(response);       // Vẽ lại giỏ hàng với dữ liệu mới
-                            updateHeaderCartCount();    // Cập nhật lại số trên header
+                            renderCart(response);
+                            updateHeaderCartCount();
                         },
                         error: function (xhr) {
                             Swal.fire('Lỗi', xhr.responseJSON?.message || 'Lỗi cập nhật số lượng.', 'error');
-                            loadCart(); // Tải lại giỏ hàng về trạng thái cũ nếu có lỗi
+                            loadCart();
                         }
                     });
                 } else {
-                    // Nếu người dùng nhập số 0 hoặc âm, coi như xóa
                     $(this).closest('tr').find('.remove-item-btn').trigger('click');
                 }
             });
 
-            // 3b. Xóa sản phẩm
             cartContainer.on('click', '.remove-item-btn', function () {
                 const itemId = $(this).data('item-id');
 
@@ -205,7 +190,6 @@
                 });
             });
 
-            // Tải giỏ hàng lần đầu tiên khi người dùng truy cập trang
             loadCart();
         });
     </script>

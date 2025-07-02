@@ -8,48 +8,58 @@
         <div class="cr-sb-wrapper">
             <div class="cr-sb-content">
                 <ul class="cr-sb-list">
-                    <li class="cr-sb-item">
-                        <a th:href="@{/admin}">
+                    <li class="cr-sb-item"
+                        th:classappend="${currentUri == '/admin' or currentUri == '/admin/'} ? 'active'">
+                        <a class="p-2" th:href="@{/admin}">
                             <i class="ri-dashboard-3-line"></i><span class="condense">Dashboard</span></a>
                     </li>
-                    <li class="cr-sb-item">
-                        <a th:href="@{/admin/users}">
+                    <li class="cr-sb-item" th:classappend="${currentUri.startsWith('/admin/users')} ? 'active'">
+                        <a class="p-2" th:href="@{/admin/users}">
                             <i class="ri-user-3-line"></i><span class="condense">Người dùng</span></a>
                     </li>
-                    <li class="cr-sb-item sb-drop-item">
-                        <a href="javascript:void(0)" class="cr-drop-toggle">
+                    <li class="cr-sb-item sb-drop-item"
+                        th:classappend="${currentUri.startsWith('/admin/categories') or currentUri.startsWith('/admin/origins')} ? 'active'">
+                        <a href="javascript:void(0)" class="cr-drop-toggle p-2">
                             <i class="ri-price-tag-3-line"></i><span class="condense">Danh mục<i
-                                    class="drop-arrow ri-arrow-down-s-line"></i></span></a>
-                        <ul class="cr-sb-drop condense" style="display: none;">
-                            <li class="cr-sb-item">
-                                <a th:href="@{/admin/categories}">
+                                class="drop-arrow ri-arrow-down-s-line"></i></span></a>
+                        <ul class="cr-sb-drop condense"
+                            th:style="${currentUri.startsWith('/admin/categories') or currentUri.startsWith('/admin/origins')} ? 'display: block;' : 'display: none;'">
+                            <li class="cr-sb-item"
+                                th:classappend="${currentUri.startsWith('/admin/categories')} ? 'active'">
+                                <a class="p-2" th:href="@{/admin/categories}">
                                     <span class="condense">Danh mục</span></a>
                             </li>
-                            <li class="cr-sb-item">
-                                <a th:href="@{/admin/origins}">
+                            <li class="cr-sb-item"
+                                th:classappend="${currentUri.startsWith('/admin/origins')} ? 'active'">
+                                <a class="p-2" th:href="@{/admin/origins}">
                                     <span class="condense">Nguồn gốc</span></a>
                             </li>
                         </ul>
                     </li>
-                    <li class="cr-sb-item">
-                        <a th:href="@{/admin/products}">
+                    <li class="cr-sb-item" th:classappend="${currentUri.startsWith('/admin/products')} ? 'active'">
+                        <a class="p-2" th:href="@{/admin/products}">
                             <i class="ri-box-3-line"></i><span class="condense">Sản phẩm</span></a>
                     </li>
-                    <li class="cr-sb-item">
-                        <a th:href="@{/admin/purchase-orders}">
+                    <li class="cr-sb-item"
+                        th:classappend="${currentUri.startsWith('/admin/purchase-orders')} ? 'active'">
+                        <a class="p-2" th:href="@{/admin/purchase-orders}">
                             <i class="ri-file-add-line"></i><span class="condense">Nhập hàng</span></a>
                     </li>
-                    <li class="cr-sb-item">
-                        <a th:href="@{/admin/inventory/audits}">
+                    <li class="cr-sb-item" th:classappend="${currentUri.startsWith('/admin/inventory')} ? 'active'">
+                        <a class="p-2" th:href="@{/admin/inventory/audits}">
                             <i class="ri-archive-line"></i><span class="condense">Kiểm kho</span></a>
                     </li>
-                    <li class="cr-sb-item">
-                        <a th:href="@{/admin/orders}">
+                    <li class="cr-sb-item" th:classappend="${currentUri.startsWith('/admin/orders')} ? 'active'">
+                        <a class="p-2" th:href="@{/admin/orders}">
                             <i class="ri-file-paper-2-line"></i><span class="condense">Đơn hàng</span></a>
                     </li>
-                    <li class="cr-sb-item">
-                        <a th:href="@{/admin/ml/dashboard}">
+                    <li class="cr-sb-item" th:classappend="${currentUri.startsWith('/admin/ml')} ? 'active'">
+                        <a class="p-2" th:href="@{/admin/ml/dashboard}">
                             <i class="ri-ai-generate"></i><span class="condense">Phân cụm</span></a>
+                    </li>
+                    <li class="cr-sb-item" th:classappend="${currentUri.startsWith('/admin/discounts')} ? 'active'">
+                        <a class="p-2" th:href="@{/admin/discounts}">
+                            <i class="ri-percent-line"></i><span class="condense">Giảm giá</span></a>
                     </li>
                 </ul>
             </div>

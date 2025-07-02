@@ -76,13 +76,15 @@
                                         <small class="d-block" th:text="'SL: ' + ${item.quantity}"></small>
                                     </div>
                                 </div>
-                                <span class="fw-semibold" th:text="${#numbers.formatCurrency(item.subtotal)}"></span>
+                                <span class="fw-semibold"
+                                      th:text="${#numbers.formatDecimal(item.subtotal, 1, 'POINT', 0, 'COMMA')} + ' đ'"></span>
                             </div>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between fw-bold fs-5">
                             <span>Tổng cộng</span>
-                            <span class="text-danger" th:text="${#numbers.formatCurrency(cart.totalPrice)}"></span>
+                            <span class="text-danger"
+                                  th:text="${#numbers.formatDecimal(cart.totalPrice, 1, 'POINT', 0, 'COMMA')} + ' đ'"></span>
                         </div>
                         <button type="submit" form="checkout-form" class="cr-button w-100 mt-4">Đặt hàng</button>
                     </div>
@@ -95,19 +97,13 @@
 <th:block layout:fragment="extras-scripts">
     <script th:inline="javascript">
         $(document).ready(function () {
-            // =============================================
-            // *** BỔ SUNG: KHỞI TẠO MODULE CHỌN ĐỊA CHỈ ***
-            // =============================================
-            // Lấy dữ liệu địa chỉ đã lưu từ Model mà Controller đã truyền sang
             const savedAddress = {
                 provinceName: /*[[${checkoutForm.provinceName}]]*/ null,
                 districtName: /*[[${checkoutForm.districtName}]]*/ null,
                 wardName: /*[[${checkoutForm.wardName}]]*/ null,
             };
-            // Gọi hàm init từ module của bạn và truyền dữ liệu vào
             FruitCart.AddressSelector.init(savedAddress);
 
-            // Xử lý submit form bằng AJAX (giữ nguyên)
             $('#checkout-form').on('submit', function (e) {
                 e.preventDefault();
 
@@ -130,7 +126,7 @@
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function (response) {
-                        window.location.href = '/order/success?orderId=' + response.orderId;
+                        window.location.href = '/thanh-toan/success?orderId=' + response.orderId;
                     },
                     error: function (xhr) {
                         const errorMessage = xhr.responseJSON?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.';

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/order")
+@RequestMapping("/thanh-toan")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -28,13 +28,10 @@ public class OrderController {
     private final OrderService orderService;
     private final UserService userService;
     private final CartMapper cartMapper;
-    private  final BreadcrumbService breadcrumbService;
+    private final BreadcrumbService breadcrumbService;
 
-    /**
-     * Hiển thị trang thanh toán.
-     * Tự động điền thông tin người dùng hiện tại vào form.
-     */
-    @GetMapping("/checkout")
+
+    @GetMapping()
     public String checkoutPage(Model model, RedirectAttributes redirectAttributes) {
         Cart cart = cartService.getCartForCurrentUser();
 
@@ -48,7 +45,7 @@ public class OrderController {
         CartDetailRes cartDetail = cartMapper.toCartDetailRes(cart);
         model.addAttribute("cart", cartDetail);
         model.addAttribute("checkoutForm", checkoutForm);
-        model.addAttribute("pageMetadata", breadcrumbService.demo());
+        model.addAttribute("pageMetadata", breadcrumbService.buildCheckout());
 
         return "client/pages/order/checkout";
     }
@@ -57,7 +54,6 @@ public class OrderController {
         User currentUser = userService.getCurrentUser();
         OrderCheckoutRequest checkoutForm = new OrderCheckoutRequest();
 
-        // 1. Điền sẵn các thông tin cơ bản từ User entity
         checkoutForm.setCustomerName(currentUser.getFullName());
         checkoutForm.setPhoneNumber(currentUser.getPhone());
 
@@ -69,9 +65,6 @@ public class OrderController {
         return checkoutForm;
     }
 
-    /**
-     * Hiển thị trang sau khi đặt hàng thành công.
-     */
     @GetMapping("/success")
     public String orderSuccessPage(@RequestParam("orderId") Long orderId, Model model) {
         Order order = orderService.findById(orderId)
@@ -79,7 +72,7 @@ public class OrderController {
 
         model.addAttribute("order", order);
         model.addAttribute("pageMetadata", cartService.getCartForCurrentUser());
-        model.addAttribute("pageMetadata", breadcrumbService.demo());
+        model.addAttribute("pageMetadata", breadcrumbService.buildCheckoutSussces());
         return "client/pages/order/success";
     }
 }

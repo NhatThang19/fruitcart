@@ -1,276 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Page Not Found</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Animate.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #6c63ff;
-            --secondary-color: #4a42e8;
-            --dark-color: #2f2e41;
-            --light-color: #f8f9fa;
-            --danger-color: #ff6b6b;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-            color: var(--dark-color);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
-
-        .error-container {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        .error-content {
-            text-align: center;
-            max-width: 800px;
-            padding: 2rem;
-            border-radius: 15px;
-            background: white;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .error-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-        }
-
-        .error-code {
-            font-size: 8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 1rem;
-            line-height: 1;
-        }
-
-        .error-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--dark-color);
-        }
-
-        .error-message {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            color: #6c757d;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 0.6rem 1.5rem;
-            font-weight: 500;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(106, 99, 255, 0.3);
-        }
-
-        .error-illustration {
-            max-width: 300px;
-            margin: 0 auto 2rem;
-            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
-        }
-
-        .bg-blob {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: linear-gradient(135deg, rgba(106, 99, 255, 0.1), rgba(74, 66, 232, 0.1));
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            z-index: -1;
-            animation: blob-animate 15s linear infinite;
-        }
-
-        .bg-blob:nth-child(1) {
-            top: -200px;
-            right: -200px;
-            width: 600px;
-            height: 600px;
-            opacity: 0.7;
-            animation-delay: 0s;
-        }
-
-        .bg-blob:nth-child(2) {
-            bottom: -150px;
-            left: -150px;
-            width: 400px;
-            height: 400px;
-            opacity: 0.5;
-            animation-delay: 5s;
-        }
-
-        @keyframes blob-animate {
-            0% {
-                transform: rotate(0deg) scale(1);
-                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            }
-
-            50% {
-                transform: rotate(180deg) scale(1.1);
-                border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
-            }
-
-            100% {
-                transform: rotate(360deg) scale(1);
-                border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            }
-        }
-
-        .social-links {
-            margin-top: 2rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(108, 99, 255, 0.1);
-            color: var(--primary-color);
-            margin: 0 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .social-links a:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateY(-3px);
-        }
-
-        footer {
-            text-align: center;
-            padding: 1rem;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .error-code {
-                font-size: 6rem;
-            }
-
-            .error-title {
-                font-size: 2rem;
-            }
-
-            .error-message {
-                font-size: 1rem;
-            }
-
-            .error-illustration {
-                max-width: 200px;
-            }
-        }
-    </style>
+    <title>404 - Không tìm thấy trang</title>
 </head>
 
 <body>
-    <div class="bg-blob"></div>
-    <div class="bg-blob"></div>
-
-    <div class="error-container">
+    <section class="section-error padding-tb-100">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="error-content animate__animated animate__fadeInUp">
-                        <h1 class="error-code animate__animated animate__pulse animate__infinite">404</h1>
-                        <h2 class="error-title animate__animated animate__fadeIn">Oops! Trang không tồn tại</h2>
-                        <p class="error-message animate__animated animate__fadeIn animate__delay-1s">
-                            Trang bạn đang tìm kiếm có thể đã bị xóa, đã đổi tên hoặc
-                            tạm thời không khả dụng.
+                <div class="col-lg-8 col-md-10 text-center">
+                    <div class="cr-error-content">
+                        <h1 class="display-1 fw-bold text-primary">404</h1>
+                        <h2 class="mb-3">Không Tìm Thấy Trang</h2>
+                        <p class="text-muted mb-4">
+                            Rất tiếc, trang bạn đang tìm kiếm có thể đã bị xóa, đổi tên hoặc không tồn tại.
                         </p>
-                        <div class="d-flex justify-content-center">
-                            <a href="/" class="btn btn-primary animate__animated animate__fadeIn animate__delay-1s">
-                                <i class="fas fa-home me-2"></i> Trở về trang chủ </a>
-                        </div>
-
-                        <div class="social-links animate__animated animate__fadeIn animate__delay-2s">
-                            <p class="mb-2">Or follow us on social media</p>
-                            <a href="#" class="animate__animated animate__bounceIn animate__delay-2s"><i
-                                    class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="animate__animated animate__bounceIn animate__delay-2s"><i
-                                    class="fab fa-instagram"></i></a>
-                        </div>
+                        <a href="/" class="cr-button">
+                            <i class="ri-home-4-line me-2"></i>Quay về trang chủ
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <footer class="animate__animated animate__fadeIn animate__delay-3s">
-        <p>&copy; 2025 FruitCart. All rights reserved.</p>
-    </footer>
-
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Add some interactive animations
-        document.addEventListener('DOMContentLoaded', function () {
-            const buttons = document.querySelectorAll('.btn');
-
-            buttons.forEach(button => {
-                button.addEventListener('mouseenter', function () {
-                    this.classList.add('animate__pulse');
-                });
-
-                button.addEventListener('mouseleave', function () {
-                    this.classList.remove('animate__pulse');
-                });
-            });
-
-            // Add click animation to social links
-            const socialLinks = document.querySelectorAll('.social-links a');
-            socialLinks.forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    this.classList.add('animate__rubberBand');
-
-                    // Remove the animation class after it completes
-                    setTimeout(() => {
-                        this.classList.remove('animate__rubberBand');
-                    }, 1000);
-                });
-            });
-        });
-    </script>
+    </section>
 </body>
-
 </html>

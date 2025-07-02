@@ -77,15 +77,6 @@ public class ProductVariant extends BaseEntity {
         }
     }
 
-    // ====================================================================
-    //      *** CÁC PHƯƠNG THỨC LOGIC ĐÃ ĐƯỢC SỬA LẠI HOÀN CHỈNH ***
-    // ====================================================================
-
-    /**
-     * Phương thức cốt lõi: Tìm khuyến mãi tốt nhất cho một người dùng cụ thể.
-     * @param user Người dùng đang xem sản phẩm. Có thể là null nếu là khách.
-     * @return Optional chứa Discount nếu có.
-     */
     public Optional<Discount> getActiveDiscountForUser(User user) {
         LocalDateTime now = LocalDateTime.now();
         CustomerClusterEnum userCluster = (user != null && user.getCustomerCluster() != null)
@@ -103,10 +94,6 @@ public class ProductVariant extends BaseEntity {
                 .max(Comparator.comparing(Discount::getDiscountPercentage));
     }
 
-    /**
-     * Sửa: Đổi tên thành getSalePriceForUser và nhận vào một đối tượng User.
-     * Trả về giá bán cuối cùng, có xem xét đến người dùng.
-     */
     public BigDecimal getSalePriceForUser(User user) {
         return getActiveDiscountForUser(user).map(discount -> {
             BigDecimal percentage = discount.getDiscountPercentage();
@@ -115,18 +102,10 @@ public class ProductVariant extends BaseEntity {
         }).orElse(this.price);
     }
 
-    /**
-     * Sửa: Đổi tên thành isOnSaleForUser và nhận vào một đối tượng User.
-     * Kiểm tra xem sản phẩm có đang được giảm giá cho người dùng này không.
-     */
     public boolean isOnSaleForUser(User user) {
         return getActiveDiscountForUser(user).isPresent();
     }
 
-    /**
-     * Sửa: Đổi tên thành getDiscountAmountForUser và nhận vào một đối tượng User.
-     * Trả về SỐ TIỀN được giảm giá cho người dùng này.
-     */
     public BigDecimal getDiscountAmountForUser(User user) {
         if (!isOnSaleForUser(user)) {
             return BigDecimal.ZERO;
@@ -134,10 +113,6 @@ public class ProductVariant extends BaseEntity {
         return this.price.subtract(getSalePriceForUser(user));
     }
 
-    /**
-     * Sửa: Đổi tên thành getDisplayableDiscountForUser và nhận vào một đối tượng User.
-     * Trả về chuỗi hiển thị mức giảm giá cho người dùng này (ví dụ: "-20%").
-     */
     public String getDisplayableDiscountForUser(User user) {
         return getActiveDiscountForUser(user)
                 .map(discount -> "-" + discount.getDiscountPercentage().stripTrailingZeros().toPlainString() + "%")

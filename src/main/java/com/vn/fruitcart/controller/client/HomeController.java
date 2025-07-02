@@ -1,9 +1,12 @@
 package com.vn.fruitcart.controller.client;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import com.vn.fruitcart.entity.Category;
 import com.vn.fruitcart.entity.User;
+import com.vn.fruitcart.entity.dto.BestSellingProductDto;
 import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteria;
 import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.service.*;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +37,11 @@ public class HomeController {
 
     @GetMapping("/")
     public String getHomePage(Model model) {
+        List<Category> featuredCategories = categoryService.findAllActiveCategories()
+                .stream()
+                .limit(5)
+                .toList();
+
         boolean hideBreadcrumb = true;
         model.addAttribute("hideBreadcrumb", hideBreadcrumb);
         return "client/pages/index";
@@ -44,29 +53,15 @@ public class HomeController {
             @ModelAttribute("criteria") ProductSearchCriteria criteria,
             @PageableDefault(size = 8, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        // ====================================================================
-        //         *** BẮT ĐẦU PHẦN SỬA ĐỔI LOGIC SẮP XẾP ***
-        // ====================================================================
-
-        // 1. Tạo tiêu chí sắp xếp chính: luôn ưu tiên 'isNew' giảm dần (true lên trước)
         Sort newProductSort = Sort.by(Sort.Direction.DESC, "isNew");
 
-        // 2. Lấy tiêu chí sắp xếp phụ từ yêu cầu của người dùng (ví dụ: theo giá, theo tên)
         Sort userSort = pageable.getSort();
 
-        // 3. Kết hợp hai tiêu chí: ưu tiên isNew, sau đó mới đến tiêu chí của người dùng
         Sort finalSort = newProductSort.and(userSort);
 
-        // 4. Tạo một đối tượng Pageable mới với thông tin phân trang cũ và tiêu chí sắp xếp mới
         Pageable finalPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), finalSort);
 
-        // 5. Sử dụng Pageable mới này để gọi service
         Page<Product> productPage = productService.searchProducts(criteria, finalPageable);
-
-        // ====================================================================
-        //          *** KẾT THÚC PHẦN SỬA ĐỔI LOGIC SẮP XẾP ***
-        // ====================================================================
-
 
         String currentSort = pageable.getSort().get()
                 .map(order -> order.getProperty() + "," + order.getDirection().name().toLowerCase())
@@ -77,10 +72,9 @@ public class HomeController {
         User currentUser = null;
         try {
             currentUser = userService.getCurrentUser();
-        } catch (Exception e) {
-            // Bỏ qua lỗi, người dùng là khách, currentUser sẽ vẫn là null
+        } catch (Exception ignored) {
+
         }
-        // 2. Đưa người dùng hiện tại vào Model để Thymeleaf có thể sử dụng
         model.addAttribute("currentUser", currentUser);
 
         model.addAttribute("productPage", productPage);
@@ -111,11 +105,8 @@ public class HomeController {
 
     @GetMapping("/gio-hang")
     public String cartPage(Model model) {
-        // Thêm các thông tin cho breadcrumb hoặc tiêu đề trang
-        model.addAttribute("pageMetadata", breadcrumbService.demo());
+        model.addAttribute("pageMetadata", breadcrumbService.buildCartDetail());
 
-        // Trả về tên của file template HTML
-        // Spring Boot sẽ tự động tìm file tại: /resources/templates/client/pages/cart/detail.html
         return "client/pages/cart/detail";
     }
 

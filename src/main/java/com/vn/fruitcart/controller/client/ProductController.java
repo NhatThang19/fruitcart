@@ -1,5 +1,8 @@
 package com.vn.fruitcart.controller.client;
 
+import com.vn.fruitcart.entity.User;
+import com.vn.fruitcart.service.CategoryService;
+import com.vn.fruitcart.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductController {
     private final ProductService productService;
     private final BreadcrumbService breadcrumbService;
+    private final UserService userService;
 
     @GetMapping("/{slug}")
     public String getProductDetailPage(@PathVariable String slug, Model model) {
@@ -26,7 +30,10 @@ public class ProductController {
             model.addAttribute("pageMetadata", breadcrumbService.buildClientProductDetail());
             Product product = productService.getProductBySlug(slug); 
             model.addAttribute("product", product);
-            model.addAttribute("pageTitle", product.getName()); 
+            model.addAttribute("pageTitle", product.getName());
+
+            User currentUser = userService.getCurrentUser();
+            model.addAttribute("currentUser", currentUser);
 
 
             return "client/pages/product/detail";

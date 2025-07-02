@@ -2,6 +2,8 @@ package com.vn.fruitcart.service;
 
 import com.vn.fruitcart.entity.dto.request.UserClusteringData;
 import com.vn.fruitcart.util.constant.CustomerClusterEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Attribute;
@@ -18,13 +20,18 @@ import java.util.Map;
 @Service
 public class CustomerClusteringService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomerClusteringService.class);
+
     private record CentroidInfo(int wekaIndex, Instance centroid) {
     }
 
     public List<UserClusteringData> performClustering(List<UserClusteringData> userDataList) throws Exception {
         if (userDataList.isEmpty()) {
+            logger.warn("Danh sách người dùng để phân cụm trống. Bỏ qua.");
             return new ArrayList<>();
         }
+
+        logger.info("Bắt đầu quá trình phân cụm cho {} người dùng.", userDataList.size());
 
         ArrayList<Attribute> attributes = createWekaAttributes();
         Instances wekaData = createWekaInstances(userDataList, attributes);
@@ -35,6 +42,7 @@ public class CustomerClusteringService {
         kMeans.setNumClusters(4);
         kMeans.buildClusterer(wekaData);
 
+        logger.info("Thuật toán K-Means đã chạy xong. Bắt đầu gán nhãn cho các cụm.");
         Map<Integer, CustomerClusterEnum> wekaIndexToEnumMap = mapCentroidsToEnum(kMeans.getClusterCentroids(),
                 attributes);
 
@@ -45,48 +53,55 @@ public class CustomerClusteringService {
             userDataList.get(i).setAssignedCluster(mappedEnum.getClusterNumber());
         }
 
+        logger.info("Hoàn tất quá trình phân cụm.");
         return userDataList;
     }
 
-    /**
-     * PHIÊN BẢN MỚI: Xử lý linh hoạt số lượng cụm trả về
-     */
     private Map<Integer, CustomerClusterEnum> mapCentroidsToEnum(Instances centroids, ArrayList<Attribute> attributes) {
         Map<Integer, CustomerClusterEnum> mapping = new HashMap<>();
         List<CentroidInfo> centroidInfos = new ArrayList<>();
 
+        logger.info("-------------------- THÔNG TIN TÂM CỤM (CENTROIDS) --------------------");
         for (int i = 0; i < centroids.numInstances(); i++) {
-            centroidInfos.add(new CentroidInfo(i, centroids.instance(i)));
+            Instance centroid = centroids.instance(i);
+            centroidInfos.add(new CentroidInfo(i, centroid));
+            logger.info("Tâm cụm (Weka Index {}): Spending={}, Orders={}, AOV={}, Freq={}, Recency={}",
+                    i,
+                    String.format("%.2f", centroid.value(0)),
+                    String.format("%.2f", centroid.value(1)),
+                    String.format("%.2f", centroid.value(2)),
+                    String.format("%.2f", centroid.value(3)),
+                    String.format("%.2f", centroid.value(4))
+            );
         }
+        logger.info("--------------------------------------------------------------------");
 
-        // Sắp xếp các cụm dựa trên Tổng chi tiêu (Total_Spending) giảm dần
+
         Attribute spendingAttr = attributes.get(0);
         centroidInfos.sort(Comparator.comparingDouble(info -> ((CentroidInfo) info).centroid().value(spendingAttr)).reversed());
 
         int numClusters = centroidInfos.size();
+        logger.info("Sắp xếp các tâm cụm theo chi tiêu (Total Spending) giảm dần.");
 
-        // Gán nhãn động dựa trên số cụm thực tế có được
         if (numClusters >= 1) {
-            // Cụm chi tiêu cao nhất luôn là KHÁCH HÀNG VÀNG
             mapping.put(centroidInfos.get(0).wekaIndex(), CustomerClusterEnum.GOLD_CORE);
         }
         if (numClusters >= 2) {
-            // Cụm chi tiêu cao thứ hai là KHÁCH HÀNG PHÁT TRIỂN
             mapping.put(centroidInfos.get(1).wekaIndex(), CustomerClusterEnum.DEVELOPING);
         }
 
-        // Xử lý 2 cụm chi tiêu thấp (nếu tồn tại)
         if (numClusters == 3) {
-            // Nếu chỉ còn 1 cụm, ưu tiên gán là KHÁCH HÀNG ÍT GIAO DỊCH
             mapping.put(centroidInfos.get(2).wekaIndex(), CustomerClusterEnum.INFREQUENT_VISITOR);
         } else if (numClusters >= 4) {
-            // Nếu có đủ 2 cụm chi tiêu thấp, phân biệt bằng Recency
             Attribute recencyAttr = attributes.get(4);
             CentroidInfo lowSpending1 = centroidInfos.get(2);
             CentroidInfo lowSpending2 = centroidInfos.get(3);
 
+            logger.info("Phân loại 2 cụm chi tiêu thấp dựa trên Recency:");
+            logger.info(" - Cụm A: Recency = {}", String.format("%.2f", lowSpending1.centroid().value(recencyAttr)));
+            logger.info(" - Cụm B: Recency = {}", String.format("%.2f", lowSpending2.centroid().value(recencyAttr)));
+
             if (lowSpending1.centroid().value(recencyAttr) > lowSpending2.centroid().value(recencyAttr)) {
-                // Cụm có Recency cao hơn (lâu không mua hơn) -> KHÁCH HÀNG MỚI/TIẾT KIỆM
                 mapping.put(lowSpending1.wekaIndex(), CustomerClusterEnum.NEW_OR_THRIFTY);
                 mapping.put(lowSpending2.wekaIndex(), CustomerClusterEnum.INFREQUENT_VISITOR);
             } else {
@@ -94,6 +109,13 @@ public class CustomerClusteringService {
                 mapping.put(lowSpending1.wekaIndex(), CustomerClusterEnum.INFREQUENT_VISITOR);
             }
         }
+
+        logger.info("-------------------- KẾT QUẢ GÁN NHÃN --------------------");
+        mapping.forEach((wekaIndex, enumValue) -> {
+            logger.info("Tâm cụm (Weka Index {}) => {}", wekaIndex, enumValue.name());
+        });
+        logger.info("----------------------------------------------------------");
+
 
         return mapping;
     }

@@ -7,11 +7,11 @@
                         <img th:src="@{/client/assets/img/logo/logo.png}" alt="logo" class="logo">
                     </a>
 
-                    <form class="cr-search">
-                        <input class="search-input" type="text" placeholder="Tìm kiếm...">
-                        <a href="javascript:void(0)" class="search-btn">
+                    <form class="cr-search" th:action="@{/san-pham}" method="get">
+                        <input class="search-input" type="text" name="keyword" placeholder="Tìm kiếm sản phẩm...">
+                        <button type="submit" class="search-btn border-0" aria-label="Tìm kiếm">
                             <i class="ri-search-line"></i>
-                        </a>
+                        </button>
                     </form>
 
                     <div class="cr-right-bar">
@@ -25,21 +25,15 @@
                                     <li><a class="dropdown-item" th:href="@{/register}">Đăng ký</a></li>
                                     <li><a class="dropdown-item" th:href="@{/login}">Đăng nhập</a></li>
                                 </ul>
-                                <a th:href="@{/gio-hang}" class="cr-right-bar-item cr-cart"
-                                   th:if="${session.loggedInUser}">
-                                    <i class="ri-shopping-cart-line"></i>
-                                    <span class="cr-cart-count">0</span>
-                                    <span>Giỏ hàng</span>
-                                </a>
                             </li>
 
                             <li class="nav-item dropdown" th:if="${session.loggedInUser}">
                                 <a class="nav-link dropdown-toggle cr-right-bar-item" href="javascript:void(0)"
-                                    style="padding: 0px 8px;">
+                                   style="padding: 0px 8px;">
                                     <th:block th:if="${session.loggedInUser.avatar}">
                                         <img th:src="@{${session.loggedInUser.avatar}}" alt="Avatar"
-                                            class="rounded-circle"
-                                            style="width: 30px; height: 30px; object-fit: cover; margin-right: 5px;">
+                                             class="rounded-circle"
+                                             style="width: 30px; height: 30px; object-fit: cover; margin-right: 5px;">
                                     </th:block>
                                     <i class="ri-user-3-line" th:unless="${session.loggedInUser.avatar}"></i>
                                     <span th:text="${#strings.capitalizeWords(session.loggedInUser.fullName)}"></span>
@@ -50,19 +44,18 @@
                                     </li>
                                     <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ cá nhân</a></li>
                                     <li>
-                                        <form id="logoutForm" th:action="@{/logout}" method="post">
+                                        <form id="logoutForm" th:action="@{/logout}" method="post" class="d-inline">
                                             <a href="#" onclick="document.getElementById('logoutForm').submit()"
-                                                class="dropdown-item">Đăng
-                                                xuất</a>
+                                               class="dropdown-item">Đăng xuất</a>
                                         </form>
                                     </li>
                                 </ul>
                             </li>
                         </ul>
                         <a href="javascript:void(0)" class="cr-right-bar-item Shopping-toggle"
-                            th:if="${session.loggedInUser}">
+                           th:if="${session.loggedInUser}">
                             <i class="ri-shopping-cart-line"></i>
-                            <span>Giỏ hàng</span>
+                            <span class="cr-cart-count">0</span>
                         </a>
                     </div>
                 </div>
@@ -80,9 +73,62 @@
                         </div>
                     </div>
                     <div class="cr-cat-dropdown">
+                        <div class="cr-cat-block">
+                            <div class="cr-cat-tab">
+                                <div class="cr-tab-list nav flex-column nav-pills" id="v-pills-tab" role="tablist"
+                                     aria-orientation="vertical">
+                                    <button class="nav-link active" id="v-pills-categories-tab" data-bs-toggle="pill"
+                                            data-bs-target="#v-pills-categories" type="button" role="tab"
+                                            aria-controls="v-pills-categories" aria-selected="true">
+                                        <i class="ri-price-tag-3-line me-2"></i>Danh mục
+                                    </button>
+                                    <button class="nav-link" id="v-pills-origins-tab" data-bs-toggle="pill"
+                                            data-bs-target="#v-pills-origins" type="button" role="tab"
+                                            aria-controls="v-pills-origins" aria-selected="false">
+                                        <i class="ri-earth-line me-2"></i>Nguồn gốc
+                                    </button>
+                                    <a class="nav-link mt-auto" th:href="@{/san-pham}">
+                                        <i class="ri-apps-2-line me-2"></i>Xem tất cả
+                                    </a>
+                                </div>
+
+                                <div class="tab-content" id="v-pills-tabContent">
+                                    <div class="tab-pane fade show active" id="v-pills-categories" role="tabpanel"
+                                         aria-labelledby="v-pills-categories-tab">
+                                        <div class="tab-list row">
+                                            <div class="col">
+                                                <h6 class="cr-col-title">Danh mục nổi bật</h6>
+                                                <ul class="cat-list"
+                                                    th:if="${headerCategories != null and !headerCategories.isEmpty()}">
+                                                    <li th:each="category : ${headerCategories}">
+                                                        <a th:href="@{/san-pham(categoryId=${category.id})}"
+                                                           th:text="${category.name}"></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="v-pills-origins" role="tabpanel"
+                                         aria-labelledby="v-pills-origins-tab">
+                                        <div class="tab-list row">
+                                            <div class="col">
+                                                <h6 class="cr-col-title">Nguồn gốc nổi bật</h6>
+                                                <ul class="cat-list"
+                                                    th:if="${headerOrigins != null and !headerOrigins.isEmpty()}">
+                                                    <li th:each="origin : ${headerOrigins}">
+                                                        <a th:href="@{/san-pham(originId=${origin.id})}"
+                                                           th:text="${origin.name}"></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
                 <nav class="navbar navbar-expand-lg">
                     <a href="javascript:void(0)" class="navbar-toggler shadow-none">
                         <i class="ri-menu-3-line"></i>
@@ -90,32 +136,8 @@
 
                     <div class="cr-header-buttons">
                         <ul class="navbar-nav">
-                            <li class="nav-item dropdown" th:if="${session.loggedInUser}">
-                                <a class="nav-link" href="javascript:void(0)">
-                                    <th:block th:if="${session.loggedInUser.avatar}">
-                                        <img th:src="@{${session.loggedInUser.avatar}}" alt="Avatar"
-                                            class="rounded-circle"
-                                            style="width: 30px; height: 30px; object-fit: cover;">
-                                    </th:block>
-                                    <i class="ri-user-3-line" th:unless="${session.loggedInUser.avatar}"></i>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li sec:authorize="hasRole('Admin')">
-                                        <a class="dropdown-item" th:href="@{/admin}">Trang quản trị</a>
-                                    </li>
-                                    <li><a class="dropdown-item" th:href="@{/profile}">Thông tin cá nhân</a></li>
-                                    <li>
-                                        <form id="logoutFormMobile" th:action="@{/logout}" method="post">
-                                            <a href="#" onclick="document.getElementById('logoutFormMobile').submit()"
-                                                class="dropdown-item">Đăng
-                                                xuất</a>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
-
                             <li class="nav-item dropdown" th:unless="${session.loggedInUser}">
-                                <a class="nav-link" href="javascript:void(0)">
+                                <a class="nav-link dropdown-toggle" href="javascript:void(0)">
                                     <i class="ri-user-3-line"></i>
                                 </a>
                                 <ul class="dropdown-menu">
@@ -123,11 +145,35 @@
                                     <li><a class="dropdown-item" th:href="@{/login}">Đăng nhập</a></li>
                                 </ul>
                             </li>
-                        </ul>
 
+                            <li class="nav-item dropdown" th:if="${session.loggedInUser}">
+                                <a class="nav-link dropdown-toggle" href="javascript:void(0)">
+                                    <th:block th:if="${session.loggedInUser.avatar}">
+                                        <img th:src="@{${session.loggedInUser.avatar}}" alt="Avatar"
+                                             class="rounded-circle"
+                                             style="width: 30px; height: 30px; object-fit: cover;">
+                                    </th:block>
+                                    <i class="ri-user-3-line" th:unless="${session.loggedInUser.avatar}"></i>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li sec:authorize="hasRole('Admin')">
+                                        <a class="dropdown-item" th:href="@{/admin}">Trang quản trị</a>
+                                    </li>
+                                    <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ cá nhân</a></li>
+                                    <li>
+                                        <form id="logoutFormMobile" th:action="@{/logout}" method="post"
+                                              class="d-inline">
+                                            <a href="#" onclick="document.getElementById('logoutFormMobile').submit()"
+                                               class="dropdown-item">Đăng xuất</a>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
                         <a href="javascript:void(0)" class="cr-right-bar-item Shopping-toggle"
-                            th:if="${session.loggedInUser}">
+                           th:if="${session.loggedInUser}">
                             <i class="ri-shopping-cart-line"></i>
+                            <span class="cr-cart-count">0</span>
                         </a>
                     </div>
 
@@ -137,7 +183,7 @@
                                 <a class="nav-link" th:href="@{/}">Trang chủ</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" th:href="@{/products}">Sản phẩm</a>
+                                <a class="nav-link" th:href="@{/san-pham}">Sản phẩm</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" th:href="@{/contact}">Liên hệ</a>
@@ -155,5 +201,6 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </header>

@@ -5333,13 +5333,7 @@ ul.navbar-nav .dropdown:hover .dropdown-menu {
 .cr-product-card .cr-product-image .cr-shopping-bag i {
   color: #64b496;
 }
-.cr-product-card .cr-product-image .cr-shopping-bag.active {
-  background-color: #64b496;
-  border: 1px solid #64b496;
-}
-.cr-product-card .cr-product-image .cr-shopping-bag.active i {
-  color: #fff;
-}
+
 .cr-product-card .cr-product-image .cr-remove-product {
   margin-bottom: 5px !important;
   background-color: #000 !important;

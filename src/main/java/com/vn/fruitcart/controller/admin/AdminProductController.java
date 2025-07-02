@@ -2,7 +2,6 @@ package com.vn.fruitcart.controller.admin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.vn.fruitcart.util.mapper.ProductMapper;
 import org.springframework.data.domain.Page;

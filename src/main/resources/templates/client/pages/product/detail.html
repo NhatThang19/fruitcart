@@ -1,253 +1,235 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{client/layouts/client-layout}">
+      layout:decorate="~{client/layouts/client-layout}">
 
 <head>
     <title th:text="${pageMetadata.title}">Tiêu đề trang</title>
 </head>
 
 <body>
-    <div layout:fragment="content">
-        <section class="section-product padding-t-100 mb-5">
-            <div class="container">
-                <div class="row mb-minus-24" data-aos="fade-up" data-aos-duration="1000">
-
-                    <div class="col-xxl-4 col-xl-5 col-md-6 col-12 mb-24">
-                        <div class="vehicle-detail-banner banner-content clearfix">
-                            <div class="banner-slider">
-                                <div class="slider slider-for">
-                                    <div class="slider-banner-image" th:each="image : ${product.images}">
-                                        <div class="zoom-image-hover">
-                                            <img th:src="${image.imageUrl}" class="product-image">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="slider slider-nav thumb-image">
-                                    <div class="thumbnail-image" th:each="image : ${product.images}">
-                                        <div class="thumbImg">
-                                            <img th:src="${image.imageUrl}">
-                                        </div>
+<div layout:fragment="content">
+    <section class="section-product padding-t-100 mb-5">
+        <div class="container">
+            <div class="row mb-minus-24" data-aos="fade-up" data-aos-duration="1000">
+                <div class="col-xxl-4 col-xl-5 col-md-6 col-12 mb-24">
+                    <div class="vehicle-detail-banner banner-content clearfix">
+                        <div class="banner-slider">
+                            <div class="slider slider-for">
+                                <div class="slider-banner-image" th:each="image : ${product.images}">
+                                    <div class="zoom-image-hover">
+                                        <img th:src="${image.imageUrl}" class="product-image" th:alt="${product.name}">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xxl-8 col-xl-7 col-md-6 col-12 mb-24">
-                        <div class="cr-size-and-weight-contain">
-                            <h2 class="heading" th:text="${product.name}">Tên sản phẩm</h2>
-                            <p th:text="${#strings.abbreviate(product.description.replaceAll('<.*?>', ''), 250)}">Mô tả
-                                ngắn của sản phẩm...</p>
-                        </div>
-                        <div class="cr-size-and-weight">
-                            <div class="list">
-                                <ul>
-                                    <li><label>Danh mục <span>:</span></label><span
-                                            th:text="${product.category.name}"></span></li>
-                                    <li><label>Xuất xứ <span>:</span></label><span
-                                            th:text="${product.origin.name}"></span></li>
-                                    <li><label>Tình trạng <span>:</span></label>
-                                        <span id="stock-status"
-                                            th:text="${product.variants[0].inventory.quantity}"></span>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div class="cr-product-price">
-                                <span class="new-price"
-                                    th:text="${#numbers.formatDecimal(product.variants[0].price, 0, 'COMMA', 0, 'POINT')} + ' VND'">
-                                </span>
-                            </div>
-
-                            <form id="add-to-cart-form" onsubmit="return false;">
-                                <div class="cr-size-weight">
-                                    <h5><span>Phiên bản</span> :</h5>
-                                    <div class="cr-kg">
-                                        <ul id="variant-options">
-                                            <li th:each="variant, iterStat : ${product.variants}"
-                                                th:classappend="${iterStat.index == 0} ? 'active-color' : ''"
-                                                th:data-variant-id="${variant.id}" th:data-price="${variant.price}"
-                                                th:data-stock="${variant.inventory.quantity}"
-                                                th:text="${variant.attribute}">
-                                            </li>
-                                        </ul>
+                            <div class="slider slider-nav thumb-image">
+                                <div class="thumbnail-image" th:each="image : ${product.images}">
+                                    <div class="thumbImg">
+                                        <img th:src="${image.imageUrl}" th:alt="${product.name} + ' thumbnail'">
                                     </div>
                                 </div>
-                                <input type="hidden" id="selected-variant-id" name="productVariantId"
-                                    th:value="${product.variants[0].id}">
-
-                                <div class="cr-add-card">
-                                    <div class="cr-qty-main">
-                                        <input type="text" value="1" min="1" id="quantity" class="quantity">
-                                        <button type="button" class="plus">+</button>
-                                        <button type="button" class="minus">-</button>
-                                    </div>
-                                    <div class="cr-add-button">
-                                        <button type="submit" class="cr-button cr-shopping-bag">Thêm vào giỏ
-                                            hàng</button>
-                                    </div>
-                                </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row mt-5">
-                    <div class="col-12">
-                        <div class="cr-paking-delivery">
-                            <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab"
-                                        data-bs-target="#description" type="button" role="tab">Mô tả</button>
+                <div class="col-xxl-8 col-xl-7 col-md-6 col-12 mb-24">
+                    <div class="cr-size-and-weight-contain">
+                        <h2 class="heading" th:text="${product.name}">Tên sản phẩm</h2>
+                        <p class="product-short-description"
+                           th:text="${product.shortDescription}">
+                            Mô tả ngắn của sản phẩm...
+                        </p>
+                    </div>
+                    <div class="cr-size-and-weight">
+                        <div class="list">
+                            <ul>
+                                <li><label>Danh mục <span>:</span></label><span
+                                        th:text="${product.category.name}"></span></li>
+                                <li><label>Xuất xứ <span>:</span></label><span th:text="${product.origin.name}"></span>
                                 </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="additional-tab" data-bs-toggle="tab"
-                                        data-bs-target="#additional" type="button" role="tab">Thông tin thêm</button>
+                                <li><label>Tình trạng <span>:</span></label>
+                                    <span id="stock-status"
+                                          th:text="${product.variants[0].inventory.quantity > 0 ? 'Còn hàng' : 'Hết hàng'}"></span>
                                 </li>
                             </ul>
-                            <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                    <div class="cr-tab-content">
-                                        <div class="cr-description" th:utext="${product.description}">
-                                        </div>
-                                    </div>
+                        </div>
+                        <div class="cr-product-price">
+                            <span class="new-price"
+                                  th:text="${#numbers.formatDecimal(product.variants[0].getSalePriceForUser(currentUser), 1, 'POINT', 0, 'COMMA')} + ' đ'"></span>
+                            <span class="old-price"
+                                  th:if="${product.variants[0].isOnSaleForUser(currentUser)}"
+                                  th:text="${#numbers.formatDecimal(product.variants[0].price, 1, 'POINT', 0, 'COMMA')} + ' đ'"></span>
+                        </div>
+                        <form id="add-to-cart-form" onsubmit="return false;">
+                            <div class="cr-size-weight">
+                                <h5><span>Phiên bản</span> :</h5>
+                                <div class="cr-kg">
+                                    <ul id="variant-options">
+                                        <li th:each="variant, iterStat : ${product.variants}"
+                                            th:classappend="${iterStat.index == 0} ? 'active-color' : ''"
+                                            th:data-variant-id="${variant.id}"
+                                            th:data-price="${variant.price}"
+                                            th:data-sale-price="${variant.getSalePriceForUser(currentUser)}"
+                                            th:data-stock="${variant.inventory.quantity}"
+                                            th:text="${variant.attribute}">
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div class="tab-pane fade" id="additional" role="tabpanel">
-                                    <div class="cr-tab-content">
-                                        <div class="list">
-                                            <ul>
-                                                <li><label>Danh mục <span>:</span></label><span
-                                                        th:text="${product.category.name}"></span></li>
-                                                <li><label>Xuất xứ <span>:</span></label><span
-                                                        th:text="${product.origin.name}"></span></li>
-                                                <li th:each="variant : ${product.variants}">
-                                                    <label
-                                                        th:text="|Phiên bản ${variant.attribute}|"><span>:</span></label>
-                                                    <span
-                                                        th:text="|Số lượng còn lại: ${variant.inventory.quantity}|"></span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
+                            </div>
+                            <input type="hidden" id="selected-variant-id" name="productVariantId"
+                                   th:value="${product.variants[0].id}">
+
+                            <div class="cr-add-card">
+                                <div class="cr-qty-main">
+                                    <input type="text" value="1" min="1" id="quantity" class="quantity">
+                                    <button type="button" class="plus">+</button>
+                                    <button type="button" class="minus">-</button>
                                 </div>
+                                <div class="cr-add-button">
+                                    <button type="submit" class="cr-button cr-shopping-cart">Thêm vào giỏ hàng</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="cr-paking-delivery">
+                        <div class="cr-tab-title">
+                            <h4>Mô tả sản phẩm</h4>
+                        </div>
+                        <div class="cr-tab-content">
+                            <div class="cr-description" th:utext="${product.description}">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+</div>
 
-    <th:block layout:fragment="extras-scripts">
-        <script>
-
-            $(document).ready(function () {
-
-                $('.plus').on('click', function () {
-                    let input = $(this).prev('input.quantity');
-                    let val = parseInt(input.val());
-                    input.val(val + 1).change();
-                });
-                $('.minus').on('click', function () {
-                    let input = $(this).next('input.quantity');
-                    let val = parseInt(input.val());
-                    if (val > 1) {
-                        input.val(val - 1).change();
-                    }
-                });
-
-                $("#variant-options li").on("click", function () {
-                    let selectedVariant = $(this);
-
-                    $('#variant-options li').removeClass('active-color');
-                    selectedVariant.addClass('active-color');
-
-                    const price = selectedVariant.data('price');
-                    const stock = selectedVariant.data('stock');
-                    const variantId = selectedVariant.data('variant-id');
-
-                    const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
-                    $('.cr-product-price .new-price').text(formattedPrice);
-
-                    if (stock > 0) {
-                        $('#stock-status').text('Còn hàng (' + stock + ' sản phẩm)');
-                        $('.cr-shopping-bag').prop('disabled', false).text('Thêm vào giỏ hàng');
-                    } else {
-                        $('#stock-status').text('Hết hàng');
-                        $('.cr-shopping-bag').prop('disabled', true).text('Đã hết hàng');
-                    }
-
-                    $('#selected-variant-id').val(variantId);
-
-                });
-
-
-                $('#add-to-cart-form').on('submit', function (event) {
-                    event.preventDefault();
-
-                    console.log("demo")
-
-                    const variantId = $('#selected-variant-id').val();
-                    const quantity = $('#quantity').val();
-
-                    console.log(quantity);
-
-                    const requestData = {
-                        productVariantId: variantId,
-                        quantity: quantity
-                    };
-
-                    fetch('/cart/add', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => {
-                            if (response.status === 401) {
-                                showErrorAlert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
-                                return;
-                            }
-                            if (!response.ok) {
-                                throw new Error('Thêm sản phẩm thất bại.');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data) {
-                                showSuccessToast('Đã thêm sản phẩm vào giỏ hàng!');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Lỗi:', error);
-                            showErrorAlert('Có lỗi xảy ra, không thể thêm sản phẩm.');
-                        });
-                });
-
-                // --- KHỞI TẠO CÁC THƯ VIỆN GIAO DIỆN ---
-
-                // 1. Khởi tạo Slick Slider cho gallery ảnh
-                $('.slider-for').slick({
-                    slidesToShow: 1,
-                    slidesToScroll: 1,
-                    arrows: false,
-                    fade: true,
-                    asNavFor: '.slider-nav'
-                });
-                $('.slider-nav').slick({
-                    slidesToShow: 4,
-                    slidesToScroll: 1,
-                    asNavFor: '.slider-for',
-                    dots: false,
-                    centerMode: true,
-                    focusOnSelect: true,
-                    arrows: false
-                });
-
-                // 2. Khởi tạo Zoom ảnh
-                $('.zoom-image-hover').zoom();
+<th:block layout:fragment="extras-scripts">
+    <script>
+        function updateCartCount() {
+            $.ajax({
+                url: '/api/v1/cart/count',
+                method: 'GET',
+                success: function (data) {
+                    $('.cr-cart-count').text(data.count);
+                },
+                error: function (error) {
+                    console.error('Lỗi khi cập nhật số lượng giỏ hàng:', error);
+                }
             });
-        </script>
-    </th:block>
+        }
+
+        $(document).ready(function () {
+            $('.plus').on('click', function () {
+                let input = $(this).prev('input.quantity');
+                let val = parseInt(input.val());
+                input.val(val + 1).change();
+            });
+            $('.minus').on('click', function () {
+                let input = $(this).next('input.quantity');
+                let val = parseInt(input.val());
+                if (val > 1) {
+                    input.val(val - 1).change();
+                }
+            });
+
+            $("#variant-options li").on("click", function () {
+                let selectedVariant = $(this);
+
+                $('#variant-options li').removeClass('active-color');
+                selectedVariant.addClass('active-color');
+
+                const price = selectedVariant.data('price');
+                const salePrice = selectedVariant.data('sale-price');
+                const stock = selectedVariant.data('stock');
+                const variantId = selectedVariant.data('variant-id');
+
+                const formattedSalePrice = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(salePrice);
+                const formattedPrice = new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(price);
+
+                const $priceContainer = $('.cr-product-price');
+
+                $priceContainer.find('.new-price').text(formattedSalePrice);
+
+                if (salePrice < price) {
+                    if ($priceContainer.find('.old-price').length === 0) {
+                        $priceContainer.append('<span class="old-price"></span>');
+                    }
+                    $priceContainer.find('.old-price').text(formattedPrice).show();
+                } else {
+                    $priceContainer.find('.old-price').hide();
+                }
+
+                if (stock > 0) {
+                    $('#stock-status').text('Còn hàng (' + stock + ' sản phẩm)');
+                    $('.cr-shopping-cart').prop('disabled', false).text('Thêm vào giỏ hàng');
+                } else {
+                    $('#stock-status').text('Hết hàng');
+                    $('.cr-shopping-cart').prop('disabled', true).text('Đã hết hàng');
+                }
+
+                $('#selected-variant-id').val(variantId);
+            });
+
+
+            $('#add-to-cart-form').on('submit', function (event) {
+                event.preventDefault();
+
+                const variantId = $('#selected-variant-id').val();
+                const quantity = $('#quantity').val();
+
+                const requestData = {
+                    productVariantId: variantId,
+                    quantity: quantity
+                };
+
+                $.ajax({
+                    url: '/api/v1/cart/items',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    success: function (data) {
+                        updateHeaderCartCount();
+                        openAndRenderSidebarCart();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thêm vào giỏ hàng thành công!',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            toast: true,
+                            position: 'top-end'
+                        });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('Lỗi khi thêm vào giỏ hàng:', jqXHR);
+                        if (jqXHR.status === 401) {
+                            showErrorAlert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.');
+                            setTimeout(() => {
+                                window.location.href = '/login';
+                            }, 2000);
+                        } else {
+                            showErrorAlert('Có lỗi xảy ra, không thể thêm sản phẩm.');
+                        }
+                    }
+                });
+            });
+            updateCartCount();
+        });
+    </script>
+</th:block>
 </body>
 
 </html>

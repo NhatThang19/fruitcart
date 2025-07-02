@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{admin/layouts/admin-layout}">
+      layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
     <title th:text="${pageMetadata.title}"></title>
@@ -25,10 +25,10 @@
 </head>
 
 <body>
-    <div layout:fragment="content">
-        <div th:remove="all">
-            <th:block th:fragment="sort_header(field, text)">
-                <a th:href="@{/admin/users(
+<div layout:fragment="content">
+    <div th:remove="all">
+        <th:block th:fragment="sort_header(field, text)">
+            <a th:href="@{/admin/users(
                     page=${usersPage.number},
                     size=${usersPage.size},
                     sort=${field} + ',' + (${currentSortField} == ${field} ? ${reverseSortDir} : 'asc'),
@@ -37,20 +37,20 @@
                     isBlocked=${criteria.isBlocked}
                 )}" th:classappend="${currentSortField == field} ? 'text-color-primary fw-bold' : ''">
 
-                    <span th:text="${text}"></span>
+                <span th:text="${text}"></span>
 
-                    <span th:if="${currentSortField} == ${field}" class="sort-icon"
-                        th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
+                <span th:if="${currentSortField} == ${field}" class="sort-icon"
+                      th:classappend="${currentSortDir == 'asc'} ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></span>
 
-                    <span th:if="${currentSortField != field}"
-                        class="sort-icon text-muted ri-arrow-up-down-line"></span>
-                </a>
-            </th:block>
+                <span th:if="${currentSortField != field}"
+                      class="sort-icon text-muted ri-arrow-up-down-line"></span>
+            </a>
+        </th:block>
 
-            <th:block th:fragment="page_link(page, text, disabledCondition, isActive)">
-                <li class="page-item"
-                    th:classappend="${disabledCondition} ? 'disabled' : '' + (${isActive} ? ' active' : '')">
-                    <a class="page-link" th:href="@{/admin/users(
+        <th:block th:fragment="page_link(page, text, disabledCondition, isActive)">
+            <li class="page-item"
+                th:classappend="${disabledCondition} ? 'disabled' : '' + (${isActive} ? ' active' : '')">
+                <a class="page-link" th:href="@{/admin/users(
                     page=${page},
                     size=${usersPage.size},
                     sort=${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : null},
@@ -58,219 +58,230 @@
                     role=${criteria.role},
                     isBlocked=${criteria.isBlocked}
                 )}" th:text="${text}"></a>
-                </li>
-            </th:block>
-        </div>
+            </li>
+        </th:block>
+    </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card mb-5">
-                    <div
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-5">
+                <div
                         class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
-                        <h5 class="m-0 fw-semibold text-color-primary">Danh sách người dùng</h5>
+                    <h5 class="m-0 fw-semibold text-color-primary">Danh sách người dùng</h5>
+                </div>
+                <div class="mt-3 mx-3">
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show"
+                         role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <div class="mt-3 mx-3">
-                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show"
-                            role="alert">
-                            <span th:text="${successMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
-                            role="alert">
-                            <span th:text="${errorMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
+                         role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <div class="card-body">
-                        <form th:action="@{/admin/users}" method="get" class="mb-4 form-filters"
-                            th:object="${criteria}">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-3">
-                                    <label>Tìm theo email</label>
-                                    <input type="text" autocomplete="off" class="form-control form-control-sm"
-                                        id="keyword" name="keyword" th:field="*{email}"
-                                        placeholder="Nhập email người dùng...">
-                                </div>
-                                <div class="col-md-2">
-                                    <label>Lọc theo vai trò</label>
-                                    <select class="form-control form-select form-select-sm" th:field="*{role}">
-                                        <option value="">Tất cả vai trò</option>
-                                        <option th:each="r : ${allRoles}" th:value="${r.id}" th:text="${r.name}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <label>Lọc theo trạng thái</label>
-                                    <select class="form-control form-select form-select-sm" th:field="*{isBlocked}">
-                                        <option value="">Tất cả trạng thái</option>
-                                        <option value="true">Bị khóa</option>
-                                        <option value="false">Hoạt động</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <label for="clusterNumber" class="form-label">Phân loại KH</label>
-                                    <select class="form-control form-select form-select-sm" id="clusterNumber"
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/users}" method="get" class="mb-4 form-filters"
+                          th:object="${criteria}">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label>Tìm theo email</label>
+                                <input type="text" autocomplete="off" class="form-control form-control-sm"
+                                       id="keyword" name="keyword" th:field="*{email}"
+                                       placeholder="Nhập email người dùng...">
+                            </div>
+                            <div class="col-md-2">
+                                <label>Lọc theo vai trò</label>
+                                <select class="form-control form-select form-select-sm" th:field="*{role}">
+                                    <option value="">Tất cả vai trò</option>
+                                    <option th:each="r : ${allRoles}" th:value="${r.id}" th:text="${r.name}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label>Lọc theo trạng thái</label>
+                                <select class="form-control form-select form-select-sm" th:field="*{isBlocked}">
+                                    <option value="">Tất cả trạng thái</option>
+                                    <option value="true">Bị khóa</option>
+                                    <option value="false">Hoạt động</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="clusterNumber" class="form-label">Phân loại KH</label>
+                                <select class="form-control form-select form-select-sm" id="clusterNumber"
                                         th:field="*{clusterNumber}">
-                                        <option value="">-- Tất cả --</option>
+                                    <option value="">-- Tất cả --</option>
 
-                                        <th:block
+                                    <th:block
                                             th:each="enumValue : ${T(com.vn.fruitcart.util.constant.CustomerClusterEnum).values()}">
-                                            <option th:if="${enumValue.clusterNumber != -1}"
+                                        <option th:if="${enumValue.clusterNumber != -1}"
                                                 th:value="${enumValue.clusterNumber}"
                                                 th:text="${enumValue.clusterName}">
-                                            </option>
-                                        </th:block>
-                                    </select>
-                                </div>
-                                <div class="col-md-1">
-                                    <label>Số mục hiển thị</label>
-                                    <label for="pageSizeSelect" class="visually-hidden">Số mục</label>
-                                    <select class="form-control form-select form-select-sm" id="pageSizeSelect"
-                                        name="size">
-                                        <option th:each="s : ${#lists.toList({5, 10, 20, 50})}" th:value="${s}"
-                                            th:text="${s} + ' mục'" th:selected="${s == usersPage.size}"></option>
-                                    </select>
-                                </div>
-                                <div class="col-md-auto ms-auto"><button type="submit"
-                                        class="cr-btn default-btn color-primary"><i
-                                            class="ri-filter-3-line me-1"></i>Lọc</button></div>
-                                <div class="col-md-auto"><a th:href="@{/admin/users(size=${usersPage.size})}"
-                                        class="cr-btn default-btn color-light"><i class="ri-refresh-line me-1"></i>Xóa
-                                        lọc</a>
-                                </div>
+                                        </option>
+                                    </th:block>
+                                </select>
                             </div>
-                            <input type="hidden" name="sort"
-                                th:value="${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : ''}">
-                        </form>
+                            <div class="col-md-1">
+                                <label>Số mục hiển thị</label>
+                                <label for="pageSizeSelect" class="visually-hidden">Số mục</label>
+                                <select class="form-control form-select form-select-sm" id="pageSizeSelect"
+                                        name="size">
+                                    <option th:each="s : ${#lists.toList({5, 10, 20, 50})}" th:value="${s}"
+                                            th:text="${s} + ' mục'" th:selected="${s == usersPage.size}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-auto ms-auto">
+                                <button type="submit"
+                                        class="cr-btn default-btn color-primary"><i
+                                        class="ri-filter-3-line me-1"></i>Lọc
+                                </button>
+                            </div>
+                            <div class="col-md-auto"><a th:href="@{/admin/users(size=${usersPage.size})}"
+                                                        class="cr-btn default-btn color-light"><i
+                                    class="ri-refresh-line me-1"></i>Xóa
+                                lọc</a>
+                            </div>
+                        </div>
+                        <input type="hidden" name="sort"
+                               th:value="${currentSortField != null && !currentSortField.isEmpty() ? currentSortField + ',' + currentSortDir : ''}">
+                    </form>
 
-                        <div class="table-responsive">
-                            <table class="table table-hover table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="sortable-header text-center" style="width: 5%;">
-                                            <div th:replace="~{this :: sort_header('id', 'ID')}"></div>
-                                        </th>
-                                        <th style="width: 5%;">Ảnh</th>
-                                        <th class="sortable-header text-center" style="width: 15%;">
-                                            Email
-                                        </th>
-                                        <th class="sortable-header text-center" style="width: 15%;">
-                                            Họ và tên
-                                        </th>
-                                        <th class="text-center" style="width: 10%;">Vai trò</th>
-                                        <th class="sortable-header text-center" style="width: 10%;">
-                                            Trạng thái
-                                        </th>
-                                        <th class="sortable-header text-center" style="width: 15%;">
-                                            <div th:replace="~{this :: sort_header('lastModifiedDate', 'Cập nhật')}">
-                                            </div>
-                                        </th>
-                                        <th class="text-center">
-                                            Cụm người dùng
-                                        </th>
-                                        <th class="text-center" style="width: 10%;">Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="user : ${usersPage.content}">
-                                        <td class="text-center text-color-gray" th:text="${user.id}"></td>
-                                        <td class="text-center">
-                                            <th:block
-                                                th:if="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}">
-                                                <img th:src="@{${user.avatarUrl}}" alt="Avatar" class="rounded"
-                                                    width="60" height="60" style="object-fit: cover;">
-                                            </th:block>
-                                            <th:block
-                                                th:unless="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}">
-                                                <img th:src="@{/admin/assets/images/avatars/avatar-1.png}"
-                                                    alt="Default Avatar" class="rounded-circle" width="40">
-                                            </th:block>
-                                        </td>
-                                        <td class="text-color-gray" th:text="${user.email}"></td>
-                                        <td class="text-color-gray" th:text="${user.getFullName()}"></td>
-                                        <td class="text-center">
-                                            <th:block th:if="${user.role != null}" th:switch="${user.role.name}">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="sortable-header text-center" style="width: 5%;">
+                                    <div th:replace="~{this :: sort_header('id', 'ID')}"></div>
+                                </th>
+                                <th style="width: 5%;">Ảnh</th>
+                                <th class="sortable-header text-center" style="width: 15%;">
+                                    Email
+                                </th>
+                                <th class="sortable-header text-center" style="width: 15%;">
+                                    Họ và tên
+                                </th>
+                                <th class="text-center" style="width: 10%;">Vai trò</th>
+                                <th class="sortable-header text-center" style="width: 10%;">
+                                    Trạng thái
+                                </th>
+                                <th class="sortable-header text-center" style="width: 15%;">
+                                    <div th:replace="~{this :: sort_header('lastModifiedDate', 'Cập nhật')}">
+                                    </div>
+                                </th>
+                                <th class="text-center">
+                                    Cụm người dùng
+                                </th>
+                                <th class="text-center" style="width: 10%;">Tổng đơn</th>
+                                <th class="text-center" style="width: 10%;">Tổng chi tiêu</th>
+                                <th class="text-center" style="width: 10%;">Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="user : ${usersPage.content}">
+                                <td class="text-center text-color-gray" th:text="${user.id}"></td>
+                                <td class="text-center">
+                                    <th:block
+                                            th:if="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}">
+                                        <img th:src="@{${user.avatarUrl}}" alt="Avatar" class="rounded"
+                                             width="60" height="60" style="object-fit: cover;">
+                                    </th:block>
+                                    <th:block
+                                            th:unless="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl)}">
+                                        <img th:src="@{/admin/assets/images/avatars/avatar-1.png}"
+                                             alt="Default Avatar" class="rounded-circle" width="40">
+                                    </th:block>
+                                </td>
+                                <td class="text-color-gray" th:text="${user.email}"></td>
+                                <td class="text-color-gray" th:text="${user.getFullName()}"></td>
+                                <td class="text-center">
+                                    <th:block th:if="${user.role != null}" th:switch="${user.role.name}">
                                                 <span th:case="'Admin'" class="badge rounded-pill text-bg-primary"
-                                                    th:text="${user.role.name}"></span>
-                                                <span th:case="'User'" class="badge rounded-pill text-bg-success"
-                                                    th:text="${user.role.name}"></span>
-                                                <span th:case="*" class="badge bg-secondary"
-                                                    th:text="${user.role.name}"></span>
-                                            </th:block>
-                                        </td>
-                                        <td class="text-center">
+                                                      th:text="${user.role.name}"></span>
+                                        <span th:case="'User'" class="badge rounded-pill text-bg-success"
+                                              th:text="${user.role.name}"></span>
+                                        <span th:case="*" class="badge bg-secondary"
+                                              th:text="${user.role.name}"></span>
+                                    </th:block>
+                                </td>
+                                <td class="text-center">
                                             <span th:if="${user.isBlocked}" class="badge rounded-pill bg-danger">Bị
                                                 khóa</span>
-                                            <span th:unless="${user.isBlocked}"
-                                                class="badge rounded-pill bg-success">Hoạt
+                                    <span th:unless="${user.isBlocked}"
+                                          class="badge rounded-pill bg-success">Hoạt
                                                 động</span>
-                                        </td>
-                                        <td class="text-center text-color-gray"
-                                            th:text="${#temporals.format(user.getLastModifiedDate(), 'dd/MM/yyyy HH:mm')}">
-                                        </td>
-                                        <td class="text-center">
+                                </td>
+                                <td class="text-center text-color-gray"
+                                    th:text="${#temporals.format(user.getLastModifiedDate(), 'dd/MM/yyyy HH:mm')}">
+                                </td>
+                                <td class="text-center">
                                             <span class="badge rounded-pill text-white"
-                                                th:text="${user.getClusterName()}"
-                                                th:classappend="${user.getClusterBadgeClass()}">
+                                                  th:text="${user.getClusterName()}"
+                                                  th:classappend="${user.getClusterBadgeClass()}">
                                             </span>
-                                        </td>
-                                        <td class="text-center">
-                                            <a th:href="@{/admin/users/{id}(id=${user.id})}"
-                                                class="btn btn-sm outline-btn color-info"><i
-                                                    class="ri-eye-line"></i></a>
-                                            <a th:href="@{/admin/users/update/{id}(id=${user.id})}"
-                                                class="btn btn-sm outline-btn color-warning m-2"><i
-                                                    class="ri-pencil-line"></i></a>
+                                </td>
+                                <td class="text-center text-color-gray" th:text="${user.getTotalOrders()}"></td>
+                                <td class="text-center text-color-gray"
+                                    th:text="${#numbers.formatDecimal(user.getTotalSpent(), 1, 'POINT', 0, 'COMMA')} + ' đ'">
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/admin/users/{id}(id=${user.id})}"
+                                       class="btn btn-sm outline-btn color-info"><i
+                                            class="ri-eye-line"></i></a>
+                                    <a th:href="@{/admin/users/update/{id}(id=${user.id})}"
+                                       class="btn btn-sm outline-btn color-warning m-2"><i
+                                            class="ri-pencil-line"></i></a>
 
-                                            <form th:id="'deleteForm-' + ${user.id}"
-                                                th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
-                                                style="display: inline-block;">
-                                                <button type="button" class="btn btn-sm outline-btn color-danger"
-                                                    th:onclick="showConfirmDialog(
+                                    <form th:id="'deleteForm-' + ${user.id}"
+                                          th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
+                                          style="display: inline-block;">
+                                        <button type="button" class="btn btn-sm outline-btn color-danger"
+                                                th:onclick="showConfirmDialog(
                                                     'deleteForm-[[${user.id}]]',
                                                     'Bạn có chắc chắn muốn xóa?',
                                                     'Người dùng \'[[${user.getFullName()}]]\' sẽ bị xóa vĩnh viễn!',
                                                     'Vâng, hãy xóa!')">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${usersPage.empty}">
-                                        <td colspan="8" class="text-center fst-italic py-3">Không tìm thấy người
-                                            dùng
-                                            nào.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${usersPage.empty}">
+                                <td colspan="8" class="text-center fst-italic py-3">Không tìm thấy người
+                                    dùng
+                                    nào.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <nav aria-label="Page navigation" th:if="${usersPage.totalPages > 1}">
-                            <ul class="pagination justify-content-center">
-                                <th:block th:replace="~{this :: page_link(0, 'Đầu', ${usersPage.first}, false)}" />
-                                <th:block
-                                    th:replace="~{this :: page_link(${usersPage.number - 1}, 'Trước', ${!usersPage.hasPrevious()}, false)}" />
+                    <nav aria-label="Page navigation" th:if="${usersPage.totalPages > 1}">
+                        <ul class="pagination justify-content-center">
+                            <th:block th:replace="~{this :: page_link(0, 'Đầu', ${usersPage.first}, false)}"/>
+                            <th:block
+                                    th:replace="~{this :: page_link(${usersPage.number - 1}, 'Trước', ${!usersPage.hasPrevious()}, false)}"/>
 
-                                <th:block th:each="i : ${#numbers.sequence(0, usersPage.totalPages - 1)}">
-                                    <th:block
-                                        th:replace="~{this :: page_link(${i}, ${i + 1}, false, ${i == usersPage.number})}" />
-                                </th:block>
+                            <th:block th:each="i : ${#numbers.sequence(0, usersPage.totalPages - 1)}">
+                                <th:block
+                                        th:replace="~{this :: page_link(${i}, ${i + 1}, false, ${i == usersPage.number})}"/>
+                            </th:block>
 
-                                <th:block
-                                    th:replace="~{this :: page_link(${usersPage.number + 1}, 'Sau', ${!usersPage.hasNext()}, false)}" />
-                                <th:block
-                                    th:replace="~{this :: page_link(${usersPage.totalPages - 1}, 'Cuối', ${usersPage.last}, false)}" />
-                            </ul>
-                        </nav>
-                        <div class="text-center mt-2">
-                            <small class="text-color-gray"
-                                th:text="'Hiển thị ' + ${usersPage.numberOfElements} + ' trên tổng số ' + ${usersPage.totalElements} + ' người dùng. (Trang ' + (${usersPage.number} + 1) + ' của ' + ${usersPage.totalPages} + ')'"></small>
-                        </div>
+                            <th:block
+                                    th:replace="~{this :: page_link(${usersPage.number + 1}, 'Sau', ${!usersPage.hasNext()}, false)}"/>
+                            <th:block
+                                    th:replace="~{this :: page_link(${usersPage.totalPages - 1}, 'Cuối', ${usersPage.last}, false)}"/>
+                        </ul>
+                    </nav>
+                    <div class="text-center mt-2">
+                        <small class="text-color-gray"
+                               th:text="'Hiển thị ' + ${usersPage.numberOfElements} + ' trên tổng số ' + ${usersPage.totalElements} + ' người dùng. (Trang ' + (${usersPage.number} + 1) + ' của ' + ${usersPage.totalPages} + ')'"></small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 </body>
 

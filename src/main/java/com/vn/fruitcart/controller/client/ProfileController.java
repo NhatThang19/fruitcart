@@ -5,6 +5,7 @@ import com.vn.fruitcart.entity.dto.response.PageMetadata;
 import com.vn.fruitcart.repository.OrderRepository;
 import com.vn.fruitcart.service.OrderService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -42,7 +43,12 @@ public class ProfileController {
             return "redirect:/login";
         }
 
+        Page<Order> orderPage = orderService.findOrdersForCurrentUser(
+                PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdDate"))
+        );
+
         model.addAttribute("userProfile", currentUser);
+        model.addAttribute("orderPage", orderPage);
 
         return "client/pages/profile/detail";
     }
@@ -143,26 +149,17 @@ public class ProfileController {
         }
     }
 
-    @GetMapping("/orders")
-    public String orderHistoryPage(Model model,
-                                   @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<Order> orderPage = orderService.findOrdersForCurrentUser(pageable);
-        model.addAttribute("orderPage", orderPage);
-        model.addAttribute("pageMetadata", breadcrumbService.buildUpdateUserProfilePageMetadata());
-        return "client/pages/profile/order-list";
-    }
-
     @GetMapping("/orders/{id}")
     public String orderDetailPage(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
         return orderService.findOrderByIdForCurrentUser(id)
                 .map(order -> {
                     model.addAttribute("order", order);
-                    model.addAttribute("pageMetadata", breadcrumbService.buildUpdateUserProfilePageMetadata());
+                    model.addAttribute("pageMetadata", breadcrumbService.buildUserProfilePageMetadata());
                     return "client/pages/profile/order-detail";
                 })
                 .orElseGet(() -> {
                     ra.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.");
-                    return "redirect:/profile/orders";
+                    return "redirect:/profile";
                 });
     }
 

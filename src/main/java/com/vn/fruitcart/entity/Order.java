@@ -1,5 +1,4 @@
-// File: src/main/java/com/vn/fruitcart/entity/Order.java
-package com.vn.fruitcart.entity;
+    package com.vn.fruitcart.entity;
 
 import com.vn.fruitcart.entity.base.BaseEntity;
 import com.vn.fruitcart.util.constant.EOrderStatus;
@@ -18,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "orders") // Đặt tên bảng là "orders" để tránh trùng từ khóa SQL
+@Table(name = "orders")
 public class Order extends BaseEntity {
 
     @Id
@@ -37,26 +36,17 @@ public class Order extends BaseEntity {
     @Column
     private String note;
 
-    // --- Thông tin về đơn hàng ---
     @Column(name = "total_amount", nullable = false, precision = 12)
-    private BigDecimal totalAmount; // Tổng tiền cuối cùng của đơn hàng
+    private BigDecimal totalAmount;
 
-    @Enumerated(EnumType.STRING) // Lưu trạng thái dưới dạng chuỗi (eg: PENDING, PROCESSING)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private EOrderStatus status;
 
-    // --- Mối quan hệ ---
-    /**
-     * Mỗi đơn hàng thuộc về một người dùng.
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    /**
-     * Một đơn hàng có nhiều chi tiết đơn hàng (OrderItem).
-     * cascade = CascadeType.ALL: Khi lưu Order, các OrderItem liên quan cũng sẽ được lưu.
-     */
     @OneToMany(
             mappedBy = "order",
             cascade = CascadeType.ALL,
@@ -66,12 +56,6 @@ public class Order extends BaseEntity {
     private List<OrderItem> orderItems = new ArrayList<>();
 
 
-    // --- Phương thức tiện ích ---
-
-    /**
-     * Thêm một OrderItem vào đơn hàng và thiết lập mối quan hệ hai chiều.
-     * @param item Chi tiết đơn hàng cần thêm.
-     */
     public void addOrderItem(OrderItem item) {
         this.orderItems.add(item);
         item.setOrder(this);

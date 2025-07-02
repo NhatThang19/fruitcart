@@ -1,16 +1,13 @@
 package com.vn.fruitcart.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vn.fruitcart.entity.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
-import com.vn.fruitcart.entity.Category;
-import com.vn.fruitcart.entity.Inventory;
-import com.vn.fruitcart.entity.Origin;
-import com.vn.fruitcart.entity.Product;
-import com.vn.fruitcart.entity.ProductVariant;
 import com.vn.fruitcart.entity.dto.request.product.ProductSearchCriteriaReq;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -125,5 +122,36 @@ public class ProductSpecification {
 
     public static Specification<Product> isActive() {
         return (root, query, cb) -> cb.equal(root.get("status"), true);
+    }
+
+    public static Specification<Product> byIsNew(Boolean isNew) {
+        if (isNew == null || !isNew) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        return (root, query, cb) -> cb.isTrue(root.get("isNew"));
+    }
+
+    public static Specification<Product> byOnSale(Boolean onSale) {
+        if (onSale == null || !onSale) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        return (root, query, cb) -> {
+            query.distinct(true);
+
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<ProductVariant> variantRoot = subquery.from(ProductVariant.class);
+            Join<ProductVariant, Discount> discountJoin = variantRoot.join("discounts", JoinType.INNER);
+
+            LocalDateTime now = LocalDateTime.now();
+
+            subquery.select(variantRoot.get("product").get("id"))
+                    .where(
+                            cb.isTrue(discountJoin.get("active")),
+                            cb.lessThanOrEqualTo(discountJoin.get("startDate"), now),
+                            cb.greaterThanOrEqualTo(discountJoin.get("endDate"), now)
+                    );
+
+            return root.get("id").in(subquery);
+        };
     }
 }

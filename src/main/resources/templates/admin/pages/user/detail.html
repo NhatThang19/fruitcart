@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{admin/layouts/admin-layout}">
+      layout:decorate="~{admin/layouts/admin-layout}">
 
 <head>
     <title th:text="${pageMetadata.title}"></title>
@@ -29,216 +29,218 @@
 </head>
 
 <body>
-    <div layout:fragment="content">
-        <div class="row">
-            <div class="col-md-5">
-                <div class="card mb-5">
-                    <div
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card mb-5">
+                <div
                         class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
-                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-user-line me-1"></i>Thông tin
-                            người
-                            dùng</h5>
-                        <div class="d-flex gap-2">
-                            <a th:href="@{/admin/users/update/{id}(id=${userDetail.user.id})}"
-                                class="cr-btn outline-btn color-warning">
-                                <i class="ri-edit-2-line me-1"></i> Sửa
-                            </a>
-                            <a th:href="@{/admin/users}" class="cr-btn outline-btn color-light">
-                                <i class="ri-arrow-go-back-line me-1"></i> Quay lại
-                            </a>
-                        </div>
-                    </div>
-                    <div class="mt-3 mx-3">
-                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show"
-                            role="alert">
-                            <span th:text="${successMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
-                            role="alert">
-                            <span th:text="${errorMessage}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <th:block
-                                th:if="${userDetail.user.avatarUrl != null && !userDetail.user.avatarUrl.isEmpty()}">
-                                <img th:src="@{${userDetail.user.avatarUrl}}" alt="Avatar"
-                                    class="avatar-detail img-thumbnail" />
-                            </th:block>
-                            <th:block
-                                th:unless="${userDetail.user.avatarUrl != null && !userDetail.user.avatarUrl.isEmpty()}">
-                                <div class="avatar-placeholder">
-                                    <i class="ri-user-line"></i>
-                                </div>
-                            </th:block>
-                        </div>
-
-                        <dl class="row text-color-gray">
-                            <dt class="col-md-4 fw-medium">ID Người dùng:</dt>
-                            <dd class="col-md-8" th:text="${userDetail.user.id}">N/A</dd>
-
-                            <dt class="col-md-4 fw-medium">Họ và Tên:</dt>
-                            <dd class="col-md-8" th:text="${userDetail.user.fullName ?: 'N/A'}"></dd>
-
-                            <dt class="col-md-4 fw-medium">Email:</dt>
-                            <dd class="col-md-8" th:text="${userDetail.user.email ?: 'N/A'}"></dd>
-
-                            <dt class="col-md-4 fw-medium">Số điện thoại:</dt>
-                            <dd class="col-md-8" th:text="${userDetail.user.phone ?: 'N/A'}"></dd>
-
-                            <dt class="col-md-4 fw-medium">Địa chỉ:</dt>
-                            <dd class="col-md-8" th:text="${userDetail.user.fullAddress ?: 'N/A'}"></dd>
-
-                            <dt class="col-md-4 fw-medium">Giới tính:</dt>
-                            <dd class="col-md-8"
-                                th:text="${userDetail.user.gender != null ? (user.gender.name() == 'MALE' ? 'Nam' : (user.gender.name() == 'FEMALE' ? 'Nữ' : 'Khác')) : 'N/A'}">
-                            </dd>
-
-                            <dt class="col-md-4 fw-medium">Ngày sinh:</dt>
-                            <dd class="col-md-8"
-                                th:text="${userDetail.user.birthDate != null ? #temporals.format(user.birthDate, 'dd/MM/yyyy') : 'N/A'}">
-                            </dd>
-
-                            <dt class="col-md-4 fw-medium">Vai trò:</dt>
-                            <dd class="col-md-8">
-                                <span th:if="${userDetail.user.role != null}" th:text="${userDetail.user.role.name}"
-                                    class="badge"
-                                    th:classappend="${userDetail.user.role.name == 'Admin'} ? 'rounded-pill text-bg-primary' : (${userDetail.user.role.name == 'User'} ? 'rounded-pill text-bg-success' : 'bg-secondary')">
-                                </span>
-                                <span th:if="${userDetail.user.role == null}"
-                                    class="badge rounded-pill text-bg-dark">N/A</span>
-                            </dd>
-
-                            <dt class="col-md-4 fw-medium">Trạng thái:</dt>
-                            <dd class="col-md-8">
-                                <span th:if="${userDetail.user.isBlocked}" class="badge rounded-pill bg-danger">Bị
-                                    khóa</span>
-                                <span th:unless="${userDetail.user.isBlocked}"
-                                    class="badge rounded-pill bg-success">Hoạt
-                                    động</span>
-                            </dd>
-
-                            <dt class="col-md-4 fw-medium">Người tạo:</dt>
-                            <dd class="col-md-8" th:text="${userDetail.user.createdBy}">
-                            </dd>
-
-                            <dt class="col-md-4 fw-medium">Ngày tạo:</dt>
-                            <dd class="col-md-8"
-                                th:text="${userDetail.user.createdDate != null ? #temporals.format(user.createdDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}">
-                            </dd>
-
-                            <dt class="col-md-4 fw-medium">Người cập nhật cuối:</dt>
-                            <dd class="col-md-8" th:text="${userDetail.user.lastModifiedBy}">
-                            </dd>
-
-                            <dt class="col-md-4 fw-medium">Cập nhật lần cuối:</dt>
-                            <dd class="col-md-8"
-                                th:text="${userDetail.user.lastModifiedDate != null ? #temporals.format(user.lastModifiedDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}">
-                            </dd>
-                        </dl>
+                    <h5 class="m-0 fw-semibold text-color-primary">
+                        <i class="ri-file-user-line me-1"></i>
+                        <span th:text="|Thông tin người dùng #${userDetail.user.id}|"></span>
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/users/update/{id}(id=${userDetail.user.id})}"
+                           class="cr-btn outline-btn color-warning">
+                            <i class="ri-edit-2-line me-1"></i> Sửa
+                        </a>
+                        <a th:href="@{/admin/users}" class="cr-btn outline-btn color-light">
+                            <i class="ri-arrow-go-back-line me-1"></i> Quay lại
+                        </a>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-7">
-                <div class="card mb-5">
-                    <div
-                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
-                        <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-list-line me-1"></i>Đơn hàng
-                        </h5>
+                <div class="mt-3 mx-3">
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show"
+                         role="alert">
+                        <span th:text="${successMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <div class="card-body">
-                        <dl class="text-color-gray">
-                            <div class="row">
-                                <div class="col-md-6 row">
-                                    <dt class="col-md-6 fw-medium">Tổng số đơn hàng:</dt>
-                                    <dd class="col-md-6" th:text="${userDetail.totalOrders}">0</dd>
-                                </div>
-                                <div class="col-md-6 row">
-                                    <dt class="col-md-6 fw-medium">Đơn hàng (90 ngày):</dt>
-                                    <dd class="col-md-6" th:text="${userDetail.purchaseFrequencyLast90Days}">0</dd>
-                                </div>
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show"
+                         role="alert">
+                        <span th:text="${errorMessage}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <th:block
+                                th:if="${userDetail.user.avatarUrl != null && !userDetail.user.avatarUrl.isEmpty()}">
+                            <img th:src="@{${userDetail.user.avatarUrl}}" alt="Avatar"
+                                 class="avatar-detail img-thumbnail"/>
+                        </th:block>
+                        <th:block
+                                th:unless="${userDetail.user.avatarUrl != null && !userDetail.user.avatarUrl.isEmpty()}">
+                            <div class="avatar-placeholder">
+                                <i class="ri-user-line"></i>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 row">
-                                    <dt class="col-md-6 fw-medium">TB giá trị mỗi đơn:</dt>
-                                    <dd class="col-md-6"
-                                        th:text="${#numbers.formatDecimal(userDetail.averageOrderValue, 0, 'COMMA', 2, 'POINT')} + ' đ'">
-                                        0</dd>
-                                </div>
-                                <div class="col-md-6 row">
-                                    <dt class="col-md-6 fw-medium">Lần mua cuối: </dt>
-                                    <dd class="col-md-6"
-                                        th:text="${userDetail.daysSinceLastPurchase != null ? userDetail.daysSinceLastPurchase + ' ngày' : 'N/A'}">
-                                    </dd>
-                                </div>
-                            </div>
+                        </th:block>
+                    </div>
 
-                            <div class="row">
-                                <div class="col-md-6 row">
-                                    <dt class="col-md-6 fw-medium">Tổng chi tiêu:</dt>
-                                    <dd class="col-md-6"
-                                        th:text="${#numbers.formatDecimal(userDetail.totalSpending, 0, 'COMMA', 2, 'POINT')} + ' đ'">
-                                    </dd>
-                                </div>
+                    <dl class="row text-color-gray">
+                        <dt class="col-md-4 fw-medium">ID Người dùng:</dt>
+                        <dd class="col-md-8" th:text="${userDetail.user.id}">N/A</dd>
+
+                        <dt class="col-md-4 fw-medium">Họ và Tên:</dt>
+                        <dd class="col-md-8" th:text="${userDetail.user.fullName ?: 'N/A'}"></dd>
+
+                        <dt class="col-md-4 fw-medium">Email:</dt>
+                        <dd class="col-md-8" th:text="${userDetail.user.email ?: 'N/A'}"></dd>
+
+                        <dt class="col-md-4 fw-medium">Số điện thoại:</dt>
+                        <dd class="col-md-8" th:text="${userDetail.user.phone ?: 'N/A'}"></dd>
+
+                        <dt class="col-md-4 fw-medium">Địa chỉ:</dt>
+                        <dd class="col-md-8" th:text="${userDetail.user.fullAddress ?: 'N/A'}"></dd>
+
+                        <dt class="col-md-4 fw-medium">Giới tính:</dt>
+                        <dd class="col-md-8"
+                            th:text="${userDetail.user.gender != null ? (user.gender.name() == 'MALE' ? 'Nam' : (user.gender.name() == 'FEMALE' ? 'Nữ' : 'Khác')) : 'N/A'}">
+                        </dd>
+
+                        <dt class="col-md-4 fw-medium">Ngày sinh:</dt>
+                        <dd class="col-md-8"
+                            th:text="${userDetail.user.birthDate != null ? #temporals.format(user.birthDate, 'dd/MM/yyyy') : 'N/A'}">
+                        </dd>
+
+                        <dt class="col-md-4 fw-medium">Vai trò:</dt>
+                        <dd class="col-md-8">
+                                <span th:if="${userDetail.user.role != null}" th:text="${userDetail.user.role.name}"
+                                      class="badge"
+                                      th:classappend="${userDetail.user.role.name == 'Admin'} ? 'rounded-pill text-bg-primary' : (${userDetail.user.role.name == 'User'} ? 'rounded-pill text-bg-success' : 'bg-secondary')">
+                                </span>
+                            <span th:if="${userDetail.user.role == null}"
+                                  class="badge rounded-pill text-bg-dark">N/A</span>
+                        </dd>
+
+                        <dt class="col-md-4 fw-medium">Trạng thái:</dt>
+                        <dd class="col-md-8">
+                                <span th:if="${userDetail.user.isBlocked}" class="badge rounded-pill bg-danger">Bị
+                                    khóa</span>
+                            <span th:unless="${userDetail.user.isBlocked}"
+                                  class="badge rounded-pill bg-success">Hoạt
+                                    động</span>
+                        </dd>
+
+                        <dt class="col-md-4 fw-medium">Người tạo:</dt>
+                        <dd class="col-md-8" th:text="${userDetail.user.createdBy}">
+                        </dd>
+
+                        <dt class="col-md-4 fw-medium">Ngày tạo:</dt>
+                        <dd class="col-md-8"
+                            th:text="${userDetail.user.createdDate != null ? #temporals.format(user.createdDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}">
+                        </dd>
+
+                        <dt class="col-md-4 fw-medium">Người cập nhật cuối:</dt>
+                        <dd class="col-md-8" th:text="${userDetail.user.lastModifiedBy}">
+                        </dd>
+
+                        <dt class="col-md-4 fw-medium">Cập nhật lần cuối:</dt>
+                        <dd class="col-md-8"
+                            th:text="${userDetail.user.lastModifiedDate != null ? #temporals.format(user.lastModifiedDate, 'dd/MM/yyyy HH:mm:ss') : 'N/A'}">
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card mb-5">
+                <div
+                        class="card-header py-3 d-flex flex-row align-items-center justify-content-between background-color-primary">
+                    <h5 class="m-0 fw-semibold text-color-primary"><i class="ri-file-list-line me-1"></i>Đơn hàng
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="text-color-gray">
+                        <div class="row">
+                            <div class="col-md-6 row">
+                                <dt class="col-md-6 fw-medium">Tổng số đơn hàng:</dt>
+                                <dd class="col-md-6" th:text="${userDetail.totalOrders}">0</dd>
                             </div>
-                        </dl>
-                        <hr>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Ngày đặt</th>
-                                        <th>Tổng tiền</th>
-                                        <th>Trạng thái</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="order : ${userDetail.orderHistory}">
-                                        <td class="text-color-gray" th:text="${order.id}"></td>
-                                        <td class="text-color-gray"
-                                            th:text="${#temporals.format(order.createdDate, 'dd/MM/yyyy')}">
-                                        </td>
-                                        <td class="text-color-gray"
-                                            th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">
-                                        </td>
-                                        <td class="text-color-gray" th:switch="${order.status.name()}">
-                                            <span th:case="'DELIVERED'" class="badge rounded-pill text-bg-success"
-                                                th:text="${order.status}"></span>
-                                            <span th:case="'PENDING'"
-                                                class="badge rounded-pill text-bg-warning text-white"
-                                                th:text="${order.status}"></span>
-                                            <span th:case="'CONFIRMED'" class="badge rounded-pill text-bg-primary"
-                                                th:text="${order.status}"></span>
-                                            <span th:case="'DELIVERING'"
-                                                class="badge rounded-pill text-bg-info text-white"
-                                                th:text="${order.status}"></span>
-                                            <span th:case="'CANCELLED'" class="badge rounded-pill text-bg-danger"
-                                                th:text="${order.status}"></span>
-                                            <span th:case="*" class="badge rounded-pill text-bg-secondary"
-                                                th:text="${order.status}"></span>
-                                        </td>
-                                        <td><a th:href="@{/admin/orders/{orderId}(orderId=${order.id})}"
-                                                class="btn btn-sm outline-btn color-info"><i
-                                                    class="ri-eye-line"></i></a></td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(userDetail.orderHistory)}">
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            <i class="ri-dropbox-line fs-2"></i>
-                                            <p>Chưa có đơn hàng nào.</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="col-md-6 row">
+                                <dt class="col-md-6 fw-medium">Đơn hàng (90 ngày):</dt>
+                                <dd class="col-md-6" th:text="${userDetail.purchaseFrequencyLast90Days}">0</dd>
+                            </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6 row">
+                                <dt class="col-md-6 fw-medium">TB giá trị mỗi đơn:</dt>
+                                <dd class="col-md-6"
+                                    th:text="${#numbers.formatDecimal(userDetail.averageOrderValue, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                    0
+                                </dd>
+                            </div>
+                            <div class="col-md-6 row">
+                                <dt class="col-md-6 fw-medium">Lần mua cuối:</dt>
+                                <dd class="col-md-6"
+                                    th:text="${userDetail.daysSinceLastPurchase != null ? userDetail.daysSinceLastPurchase + ' ngày' : 'N/A'}">
+                                </dd>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 row">
+                                <dt class="col-md-6 fw-medium">Tổng chi tiêu:</dt>
+                                <dd class="col-md-6"
+                                    th:text="${#numbers.formatDecimal(userDetail.totalSpending, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                </dd>
+                            </div>
+                        </div>
+                    </dl>
+                    <hr>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="order : ${userDetail.orderHistory}">
+                                <td class="text-color-gray" th:text="${order.id}"></td>
+                                <td class="text-color-gray"
+                                    th:text="${#temporals.format(order.createdDate, 'dd/MM/yyyy')}">
+                                </td>
+                                <td class="text-color-gray"
+                                    th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                                </td>
+                                <td class="text-color-gray" th:switch="${order.status.name()}">
+                                            <span th:case="'DELIVERED'" class="badge rounded-pill text-bg-success"
+                                                  th:text="${order.status}"></span>
+                                    <span th:case="'PENDING'"
+                                          class="badge rounded-pill text-bg-warning text-white"
+                                          th:text="${order.status}"></span>
+                                    <span th:case="'CONFIRMED'" class="badge rounded-pill text-bg-primary"
+                                          th:text="${order.status}"></span>
+                                    <span th:case="'DELIVERING'"
+                                          class="badge rounded-pill text-bg-info text-white"
+                                          th:text="${order.status}"></span>
+                                    <span th:case="'CANCELLED'" class="badge rounded-pill text-bg-danger"
+                                          th:text="${order.status}"></span>
+                                    <span th:case="*" class="badge rounded-pill text-bg-secondary"
+                                          th:text="${order.status}"></span>
+                                </td>
+                                <td><a th:href="@{/admin/orders/{orderId}(orderId=${order.id})}"
+                                       class="btn btn-sm outline-btn color-info"><i
+                                        class="ri-eye-line"></i></a></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(userDetail.orderHistory)}">
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="ri-dropbox-line fs-2"></i>
+                                    <p>Chưa có đơn hàng nào.</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </body>
 
 </html>
