@@ -75,10 +75,11 @@
                         Tuyệt vời! Không có sản phẩm nào sắp hết hàng.
                     </div>
                     <ul class="list-group list-group-flush" th:unless="${lowStockProducts.isEmpty()}">
-                        <li th:each="product : ${lowStockProducts}"
+                        <li th:each="dto : ${lowStockProducts}"
                             class="list-group-item d-flex justify-content-between align-items-center">
-                            <a th:href="@{/admin/products/detail/{id}(id=${product.id})}" th:text="${product.name}"></a>
-                            <span class="badge bg-danger rounded-pill" th:text="${product.getTotalStock()}"></span>
+                            <a th:href="@{/admin/products/detail/{id}(id=${dto.product.id})}"
+                               th:text="${dto.product.name}"></a>
+                            <span class="badge bg-danger rounded-pill" th:text="${dto.totalStock}"></span>
                         </li>
                     </ul>
                 </div>
@@ -200,10 +201,8 @@
 
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", () => {
-            // Lấy dữ liệu doanh thu từ model của Thymeleaf
             const salesData = /*[[${salesData}]]*/ [];
 
-            // Xử lý dữ liệu để phù hợp với định dạng của ApexCharts
             const chartCategories = salesData.map(d => d.month);
             const chartSeriesData = salesData.map(d => d.revenue);
 

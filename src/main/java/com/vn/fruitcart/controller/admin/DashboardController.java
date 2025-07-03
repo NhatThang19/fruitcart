@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.vn.fruitcart.entity.Product;
 import com.vn.fruitcart.entity.dto.BestSellingProductDto;
+import com.vn.fruitcart.entity.dto.LowStockProductDto;
 import com.vn.fruitcart.entity.dto.SalesDataDto;
 import com.vn.fruitcart.repository.OrderRepository;
 import com.vn.fruitcart.service.BreadcrumbService;
@@ -28,7 +29,7 @@ public class DashboardController {
 
     @GetMapping("/admin")
     public String getDashboardPage(Model model) {
-        List<Product> lowStockProducts = productService.findLowStockProducts(5);
+        List<LowStockProductDto> lowStockProducts = productService.findLowStockProducts(5);
         model.addAttribute("lowStockProducts", lowStockProducts);
 
         List<BestSellingProductDto> bestSellingProducts = productService.findTopBestSellingProducts(5);

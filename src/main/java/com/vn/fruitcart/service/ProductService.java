@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.vn.fruitcart.entity.dto.BestSellingProductDto;
+import com.vn.fruitcart.entity.dto.LowStockProductDto;
 import com.vn.fruitcart.entity.dto.request.product.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -391,7 +392,7 @@ public class ProductService {
         return productRepository.findBestSellingProducts(topProducts).getContent();
     }
 
-    public List<Product> findLowStockProducts(int stockThreshold) {
+    public List<LowStockProductDto> findLowStockProducts(int stockThreshold) {
         return productRepository.findLowStockProducts(stockThreshold);
     }
 

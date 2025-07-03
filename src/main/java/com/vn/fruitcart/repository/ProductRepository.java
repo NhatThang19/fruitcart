@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.vn.fruitcart.entity.dto.BestSellingProductDto;
+import com.vn.fruitcart.entity.dto.LowStockProductDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,12 +30,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "ORDER BY SUM(oi.quantity) DESC")
     Page<BestSellingProductDto> findBestSellingProducts(Pageable pageable);
 
-    @Query("SELECT p FROM Product p " +
-            "JOIN p.variants pv " +
-            "JOIN pv.inventory i " +
+    @Query("SELECT new com.vn.fruitcart.entity.dto.LowStockProductDto(p, SUM(i.quantity)) " +
+            "FROM Product p JOIN p.variants pv JOIN pv.inventory i " +
             "GROUP BY p.id " +
             "HAVING SUM(i.quantity) < :stockThreshold")
-    List<Product> findLowStockProducts(@Param("stockThreshold") int stockThreshold);
+    List<LowStockProductDto> findLowStockProducts(@Param("stockThreshold") int stockThreshold);
 
     @Query("SELECT DISTINCT p FROM Product p " +
             "JOIN p.variants pv " +
